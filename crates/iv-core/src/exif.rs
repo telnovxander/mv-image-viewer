@@ -233,6 +233,19 @@ pub(crate) mod tests {
     }
 
     #[test]
+    fn testdata_has_all_eight_orientations() {
+        let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata");
+        for code in 1..=8u16 {
+            let path = data.join(format!("orientation-{code}.jpg"));
+            assert_eq!(
+                read_exif(&path).and_then(|e| e.orientation),
+                Some(code),
+                "{code}"
+            );
+        }
+    }
+
+    #[test]
     fn south_west_and_maker_not_repeated() {
         let temp = tempfile::tempdir().expect("temp dir");
         let path = temp.path().join("sw.jpg");

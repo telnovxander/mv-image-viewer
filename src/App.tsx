@@ -9,10 +9,11 @@ import { AboutDialog } from "./components/AboutDialog";
 import { HelpDialog } from "./components/HelpDialog";
 import { ImageView } from "./components/ImageView";
 import { InfoPanel } from "./components/InfoPanel";
+import { WriteRotationDialog } from "./components/WriteRotationDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
-import { exifOf, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, type ExifInfo, type FolderEntry, type ImageFile } from "./lib/backend";
+import { applyRotation, exifOf, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
 import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
@@ -22,7 +23,7 @@ import { loadSettings, saveSettings, type Settings, type SortOrder } from "./lib
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
 
-type DialogName = "settings" | "about" | "tools" | "help" | null;
+type DialogName = "settings" | "about" | "tools" | "help" | "write" | null;
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 /** The folder is read again on browsing at most this often, to pick up added or removed files. */
@@ -66,6 +67,11 @@ export function App() {
   const [shownSize, setShownSize] = useState<Size | null>(null);
   const [exif, setExif] = useState<ExifInfo | null>(DEMO_EXIF);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [plan, setPlan] = useState<OrientationPlan | null>(null);
+  /** The last write, offered for undo; `undone` once it was undone. */
+  const [written, setWritten] = useState<{ entry: JournalEntry; undone: boolean } | null>(null);
+  /** Changes when a file was rewritten, so the WebView loads it again. */
+  const [version, setVersion] = useState(0);
   const [index, setIndex] = useState(0);
   const [edge, setEdge] = useState<Edge>(null);
   const edgeTimer = useRef<number | undefined>(undefined);
@@ -225,6 +231,52 @@ export function App() {
     return () => unlisten.forEach((p) => void p.then((stop) => stop()));
   }, [open]);
 
+  const errorText = useCallback(
+    (e: unknown, path: string) => (isBackendError(e) ? t(`error.${e.code}`, { path: e.path }) : t("error.other", { path })),
+    [t],
+  );
+
+  /** Ctrl+S: preview of writing the view rotation into the file; nothing is changed yet. */
+  const previewWrite = useCallback(async () => {
+    if (!image || rotation === 0 || !inTauri) return;
+    try {
+      setPlan(await planRotation(image.path, rotation));
+      setDialog("write");
+    } catch (e) {
+      setError(errorText(e, image.path));
+    }
+  }, [errorText, image, rotation]);
+
+  const reload = useCallback(async (path: string) => {
+    setRotation(0);
+    setVersion((v) => v + 1);
+    setExif(await exifOf(path));
+  }, []);
+
+  const applyWrite = useCallback(async () => {
+    if (!plan) return;
+    setDialog(null);
+    try {
+      const entry = await applyRotation(plan);
+      setWritten({ entry, undone: false });
+      await reload(plan.path);
+    } catch (e) {
+      setError(errorText(e, plan.path));
+    }
+    setPlan(null);
+  }, [errorText, plan, reload]);
+
+  const undoWrite = useCallback(async () => {
+    if (!written || written.undone) return;
+    try {
+      await undoRotation(written.entry);
+      setWritten({ ...written, undone: true });
+      await reload(written.entry.path);
+    } catch (e) {
+      setError(errorText(e, written.entry.path));
+    }
+  }, [errorText, reload, written]);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "F1" || (event.key === "?" && !(event.target instanceof HTMLInputElement))) {
@@ -258,6 +310,9 @@ export function App() {
       if (key === "o") {
         event.preventDefault();
         void chooseFile();
+      } else if (key === "s") {
+        event.preventDefault();
+        void previewWrite();
       } else if (key === "m") {
         event.preventDefault();
         update((s) => ({ mode: toggleMode(s.mode) }));
@@ -265,7 +320,7 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [chooseFile, go, update]);
+  }, [chooseFile, go, previewWrite, update]);
 
   // The bars appear on a mouse move and hide again after a pause.
   const onMouseMove = useCallback(() => {
@@ -316,7 +371,7 @@ export function App() {
         {image && (
           <ImageView
             key={image.path}
-            src={imageUrl(image)}
+            src={version > 0 ? `${imageUrl(image)}?v=${version}` : imageUrl(image)}
             onWheelPage={go}
             rotation={rotation}
             alt={t("image.alt", { name: image.name })}
@@ -361,6 +416,22 @@ export function App() {
       {dialog === "about" && <AboutDialog onClose={() => setDialog(null)} />}
       {dialog === "tools" && <ToolsDialog onClose={() => setDialog(null)} />}
       {dialog === "help" && <HelpDialog onClose={() => setDialog(null)} />}
+      {dialog === "write" && plan && image && (
+        <WriteRotationDialog plan={plan} name={image.name} onApply={() => void applyWrite()} onClose={() => setDialog(null)} />
+      )}
+      {written && (
+        <div className="toast" role="status">
+          <span>{t(written.undone ? "write_rotation.undone" : "write_rotation.done")}</span>
+          {!written.undone && (
+            <button type="button" className="link-button" onClick={() => void undoWrite()}>
+              {t("write_rotation.undo")}
+            </button>
+          )}
+          <button type="button" className="icon-button" onClick={() => setWritten(null)} aria-label={t("common.close")} title={t("common.close")}>
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }

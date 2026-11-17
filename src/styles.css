@@ -508,3 +508,42 @@ body {
   cursor: pointer;
   text-decoration: underline;
 }
+
+.plan {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+}
+
+.plan th,
+.plan td {
+  padding: 4px 8px 4px 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.plan th {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* A short notice at the bottom with an action (undo of a written rotation). */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 64px;
+  z-index: 15;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.toast .link-button {
+  margin-top: 0;
+}

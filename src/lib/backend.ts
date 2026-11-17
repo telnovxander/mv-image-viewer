@@ -9,7 +9,7 @@ export interface ImageFile {
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "other";
   path: string;
 }
 
@@ -93,4 +93,32 @@ export async function exifOf(path: string): Promise<ExifInfo | null> {
 /** Open the place on OpenStreetMap in the browser (only after a click). */
 export async function openMap(latitude: number, longitude: number): Promise<void> {
   if (inTauri) await invoke("open_map", { latitude, longitude });
+}
+
+/** Writing the view rotation into a JPEG (iv-core orientation): plan → confirm → apply → undo. */
+export interface OrientationPlan {
+  path: string;
+  from: number;
+  to: number;
+}
+
+export interface JournalEntry {
+  id: number;
+  path: string;
+  field: string;
+  old: number;
+  new: number;
+  undoes?: number;
+}
+
+export async function planRotation(path: string, degrees: number): Promise<OrientationPlan> {
+  return invoke<OrientationPlan>("plan_rotation", { path, degrees });
+}
+
+export async function applyRotation(plan: OrientationPlan): Promise<JournalEntry> {
+  return invoke<JournalEntry>("apply_rotation", { plan });
+}
+
+export async function undoRotation(entry: JournalEntry): Promise<JournalEntry> {
+  return invoke<JournalEntry>("undo_rotation", { entry });
 }

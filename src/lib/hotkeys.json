@@ -61,6 +61,11 @@
       "done": true
     },
     {
+      "keys": "Ctrl+S",
+      "action": "write_rotation",
+      "done": true
+    },
+    {
       "keys": "I",
       "action": "info",
       "done": true

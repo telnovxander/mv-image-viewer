@@ -30,6 +30,7 @@ the Recycle Bin (see `CLAUDE.md`, "Safety").
 | Ctrl+O | Open an image |
 | I | Information panel (file, resolution, date taken, camera, lens, exposure, GPS with a map link) |
 | R · Shift+R | Rotate right · left — for viewing only, the file is not changed |
+| Ctrl+S | Write the view rotation into the file: preview first, then only the EXIF orientation of the JPEG changes; undo right after |
 | Ctrl+wheel · touchpad pinch | Zoom to the cursor |
 | Ctrl++ · Ctrl+− | Zoom in · out to the centre |
 | Ctrl+0 | Fit to the window (the default) |
@@ -63,6 +64,17 @@ images on each side are decoded ahead, within a memory budget (`cacheMb`, 512 MB
 least recently used out first). Files added or removed meanwhile are picked up on the next
 step; a vanished file is skipped. Listing speed (`cargo test -p iv-core --release -- --ignored
 --nocapture`): 1 000 files ~3 ms, 10 000 files ~30 ms.
+
+## Writing a rotation into a file
+
+Only on an explicit Ctrl+S with a preview ("now → after", the number of files). For a JPEG with an
+EXIF orientation tag only the 2 bytes of that tag change: the picture, camera data, GPS, colour
+profile and Maker Notes stay byte for byte as they were (checked after writing, not assumed). The
+old value goes to the journal (`%LOCALAPPDATA%\Spiegelmond\journal\journal.jsonl`) before the file
+is touched; the new file is written next to the original, checked and only then put in its place,
+and checked again. "Undo" in the notice writes the old value back the same way. Files without the
+tag (and other formats) are refused, unchanged. `testdata/orientation-1…8.jpg` show an upright F
+in every orientation.
 
 ## Build
 

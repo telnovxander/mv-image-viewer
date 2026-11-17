@@ -3,7 +3,12 @@
 
 Run from the repository root: python3 scripts/make-testdata.py
 The files are committed; tests copy them to a temporary folder and never touch anything else.
-Formats that need real encoders (EXIF-rotated JPEG, WebP, large photos) come with IV-03...IV-05.
+Formats that need real encoders (WebP, large photos) come with IV-05.
+
+testdata/orientation-<1..8>.jpg (IV-04): the letter F stored as a camera would store it for each
+EXIF Orientation value, plus that tag; shown correctly, every one looks the same — an upright F,
+the dot bottom right. The pixels come from testdata/source/f-<n>.jpg (made once with ImageMagick:
+the upright F turned by the inverse of each orientation); this script only adds the EXIF segment.
 """
 import struct
 import zlib
@@ -70,6 +75,15 @@ def lzw_solid(color, count):
     return blocks
 
 
+def with_orientation(jpeg, code):
+    """Insert an EXIF APP1 segment with only the Orientation tag right after SOI."""
+    assert jpeg[:2] == b"\xff\xd8"
+    tiff = b"II*\x00" + struct.pack("<I", 8) + struct.pack("<H", 1)
+    tiff += struct.pack("<HHIHH", 0x0112, 3, 1, code, 0) + struct.pack("<I", 0)
+    body = b"Exif\x00\x00" + tiff
+    return jpeg[:2] + b"\xff\xe1" + struct.pack(">H", len(body) + 2) + body + jpeg[2:]
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     files = {
@@ -80,6 +94,9 @@ def main():
         "broken.jpg": b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00",
         "notes.txt": "Not an image: Spiegelmond refuses to open it.\n".encode(),
     }
+    for code in range(1, 9):
+        source = OUT / "source" / f"f-{code}.jpg"
+        files[f"orientation-{code}.jpg"] = with_orientation(source.read_bytes(), code)
     for name, data in files.items():
         (OUT / name).write_bytes(data)
         print(f"testdata/{name}: {len(data)} bytes")

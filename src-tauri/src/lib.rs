@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use iv_core::folder::{folder_of, list_images, FolderEntry, SortOrder};
+use iv_core::orientation::{self, JournalEntry, OrientationPlan};
 use iv_core::{
     describe, path_from_args, read_exif, settings, ErrorCode, ExifInfo, ImageFile, IvError,
 };
@@ -60,6 +61,35 @@ fn open_map(app: tauri::AppHandle, latitude: f64, longitude: f64) -> Result<(), 
         .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&url)))
 }
 
+/// The journal of metadata changes lives with the settings, outside any photo folder.
+fn journal_dir() -> Result<PathBuf, IvError> {
+    settings::data_dir()
+        .map(|dir| dir.join("journal"))
+        .ok_or_else(|| {
+            IvError::new(
+                ErrorCode::NotFound,
+                std::path::Path::new(settings::APP_FOLDER),
+            )
+        })
+}
+
+/// Preview of writing the view rotation into the file: nothing is changed.
+#[tauri::command]
+fn plan_rotation(path: String, degrees: u16) -> Result<OrientationPlan, IvError> {
+    orientation::plan_rotation(std::path::Path::new(&path), degrees)
+}
+
+/// Write a confirmed plan (journal first, atomic, checked byte by byte).
+#[tauri::command]
+fn apply_rotation(plan: OrientationPlan) -> Result<JournalEntry, IvError> {
+    orientation::apply(&plan, &journal_dir()?)
+}
+
+#[tauri::command]
+fn undo_rotation(entry: JournalEntry) -> Result<JournalEntry, IvError> {
+    orientation::undo(&entry, &journal_dir()?)
+}
+
 #[tauri::command]
 fn load_settings() -> Result<Option<String>, IvError> {
     match settings::data_dir() {
@@ -104,6 +134,9 @@ pub fn run() {
             list_folder,
             exif_of,
             open_map,
+            plan_rotation,
+            apply_rotation,
+            undo_rotation,
             load_settings,
             save_settings
         ])

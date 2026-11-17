@@ -16,6 +16,12 @@ pub enum ErrorCode {
     AccessDenied,
     NotAFile,
     Unsupported,
+    /// Writing a rotation: the JPEG has no Orientation tag to change in place.
+    NoOrientationTag,
+    /// The file changed between the preview and applying.
+    ChangedMeanwhile,
+    /// The written file did not match the plan; the original was kept or put back.
+    VerifyFailed,
     Other,
 }
 

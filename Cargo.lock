@@ -1839,6 +1839,7 @@ dependencies = [
  "dirs 6.0.0",
  "kamadak-exif",
  "serde",
+ "serde_json",
  "tempfile",
 ]
 
