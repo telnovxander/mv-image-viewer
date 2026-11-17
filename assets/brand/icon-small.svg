@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><!-- Simplified Spiegelmond icon for 16 and 24 px: the same moon, water line and reflection without craters and glow; fewer, thicker glints so they survive 16 px. -->
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#141A33"/><stop offset="1" stop-color="#232B50"/></linearGradient></defs>
+<rect width="1024" height="1024" rx="230" fill="url(#bg)"/>
+<circle cx="512" cy="352" r="170" fill="#DCE1EB"/>
+<rect x="232" y="556" width="560" height="28" rx="14" fill="#8E97B5"/>
+<rect x="392" y="640" width="240" height="64" rx="32" fill="#DCE1EB" opacity="0.85"/>
+<rect x="352" y="740" width="300" height="56" rx="28" fill="#DCE1EB" opacity="0.6"/>
+<rect x="402" y="832" width="220" height="48" rx="24" fill="#DCE1EB" opacity="0.4"/>
+</svg>

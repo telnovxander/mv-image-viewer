@@ -1,9 +1,9 @@
-//! Thin Tauri layer of Spiegelmond: commands that call `iv-core`, the single window.
+//! Thin Tauri layer of Spiegelmond: commands that call `iv-core`, the single window, settings.
 
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use iv_core::{describe, path_from_args, ImageFile, IvError};
+use iv_core::{describe, path_from_args, settings, ErrorCode, ImageFile, IvError};
 use tauri::{Emitter, Manager};
 
 /// The file named on the command line of the first start, taken once by the interface.
@@ -28,6 +28,25 @@ fn open_image(path: String) -> Result<ImageFile, IvError> {
     describe(&PathBuf::from(path))
 }
 
+#[tauri::command]
+fn load_settings() -> Result<Option<String>, IvError> {
+    match settings::data_dir() {
+        Some(dir) => settings::load(&dir),
+        None => Ok(None),
+    }
+}
+
+#[tauri::command]
+fn save_settings(text: String) -> Result<(), IvError> {
+    match settings::data_dir() {
+        Some(dir) => settings::save(&dir, &text),
+        None => Err(IvError::new(
+            ErrorCode::NotFound,
+            std::path::Path::new(settings::APP_FOLDER),
+        )),
+    }
+}
+
 pub fn run() {
     let cwd = std::env::current_dir().unwrap_or_default();
     let args: Vec<String> = std::env::args().collect();
@@ -46,7 +65,12 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_dialog::init())
         .manage(InitialPath(Mutex::new(first)))
-        .invoke_handler(tauri::generate_handler![initial_path, open_image])
+        .invoke_handler(tauri::generate_handler![
+            initial_path,
+            open_image,
+            load_settings,
+            save_settings
+        ])
         .run(tauri::generate_context!());
     if let Err(error) = result {
         eprintln!("Spiegelmond failed to start: {error}");

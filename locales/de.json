@@ -1,12 +1,15 @@
 {
-  "_meta": { "name": "Deutsch" },
+  "_meta": {
+    "name": "Deutsch"
+  },
   "empty": {
     "title": "Kein Bild geöffnet",
     "hint": "Bild hierher ziehen oder Strg+O drücken. In der Befehlszeile: iv Pfad\\zum\\Foto.jpg"
   },
   "open": {
     "dialog_title": "Bild öffnen",
-    "filter": "Bilder"
+    "filter": "Bilder",
+    "button": "Bild öffnen ({{shortcut}})"
   },
   "image": {
     "alt": "Bild {{name}}"
@@ -18,5 +21,35 @@
     "unsupported": "Spiegelmond kann diesen Dateityp nicht anzeigen: {{path}}",
     "other": "{{path}} konnte nicht geöffnet werden",
     "decode": "Das Bild kann nicht angezeigt werden, die Datei ist vielleicht beschädigt: {{name}}"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "general": "Allgemein",
+    "theme": "Design",
+    "theme_system": "System",
+    "theme_light": "Hell",
+    "theme_dark": "Dunkel",
+    "language": "Sprache",
+    "background": "Hintergrund hinter dem Bild",
+    "background_theme": "Wie das Design",
+    "background_black": "Schwarz",
+    "background_checker": "Schachbrett"
+  },
+  "about": {
+    "title": "Über",
+    "version": "Version {{version}}"
+  },
+  "common": {
+    "close": "Schließen"
+  },
+  "language": {
+    "select": "Sprache der Oberfläche"
+  },
+  "mode": {
+    "toggle": "Zwischen Sichel und Vollmond wechseln ({{shortcut}})"
+  },
+  "tools": {
+    "title": "Werkzeuge",
+    "placeholder": "Hier erscheinen die Vollmond-Werkzeuge für das Fotoarchiv: Daten, Duplikate, Stapelverarbeitung."
   }
 }

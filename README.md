@@ -3,8 +3,9 @@
 A fast image viewer for Windows 10/11, part of the Moonshine Vibecoder family: open a photo and
 see it at once. Only the basics, the picture comes first.
 
-> Status: skeleton (IV-01) — one window, opens an image from the command line, the open dialog
-> or by dropping it into the window. Zoom, folder browsing, EXIF and the rest follow (IV-02…IV-19).
+> Status: skeleton (IV-01) and the family style (IV-11) — one window, opens an image from the
+> command line, the open dialog or by dropping it into the window; light and dark theme, Sichel and
+> Vollmond. Zoom, folder browsing, EXIF and the rest follow (IV-02…IV-19).
 
 ## Installation
 
@@ -14,17 +15,25 @@ with IV-10. `Spiegelmond-<version>-portable.exe` runs without installing.
 
 ## Where the data is
 
-Nothing yet: IV-01 keeps no settings. Spiegelmond never changes your files without an explicit
-command; deleting goes only to the Recycle Bin (see `CLAUDE.md`, "Safety").
+Settings: `%LOCALAPPDATA%\Spiegelmond\settings.json` (theme, mode, background behind the image,
+language); the portable build keeps them in `Spiegelmond-data` next to its exe if that folder can
+be written. Spiegelmond never changes your files without an explicit command; deleting goes only to
+the Recycle Bin (see `CLAUDE.md`, "Safety").
 
 ## Keyboard shortcuts
 
 | Key | Action |
 |---|---|
 | Ctrl+O | Open an image |
+| Ctrl+M | Switch between Sichel and Vollmond |
 
 Opening: `iv path\to\photo.jpg`, a double-click on a file once Spiegelmond is the default viewer
 (IV-10), or drag and drop into the window. A second start hands the file to the open window.
+
+Only the image is on screen: the top bar (open, mode, Vollmond tools, language, settings) appears
+when the mouse moves and hides after two seconds. Settings: theme (System / Light / Dark), the
+background behind the image (as the theme — indigo or silver —, black, checkerboard), language,
+About.
 
 Formats of IV-01, shown by WebView2 itself: JPG, PNG, GIF (animated), WebP, BMP, AVIF.
 
@@ -39,8 +48,10 @@ npm run tauri dev      # run in development mode (npm run tauri dev -- -- path\t
 npm run tauri build    # Windows: target/release/bundle/nsis/*-setup.exe and target/release/iv.exe
 ```
 
-Icons: `src-tauri/icons` are generated from `assets/brand/icon.svg` with `npx tauri icon` from a
-1024 px PNG of it (the brand pass is IV-11).
+Icons: `scripts/make-icons.sh` rebuilds `src-tauri/icons` from `assets/brand/icon.svg` (32 px and
+up) and `assets/brand/icon-small.svg` (16 and 24 px, without craters and glow). The look of the
+interface: screenshots in `docs/screenshots/iv-11/` (two themes × two modes, dialogs, splash).
+In the browser preview (`npm run dev`, then `http://localhost:1421/?demo`) a demo picture is shown.
 
 ## Tests
 

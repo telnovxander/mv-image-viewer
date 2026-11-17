@@ -1,12 +1,15 @@
 {
-  "_meta": { "name": "Русский" },
+  "_meta": {
+    "name": "Русский"
+  },
   "empty": {
     "title": "Изображение не открыто",
     "hint": "Перетащите сюда изображение или нажмите Ctrl+O. Из командной строки: iv путь\\к\\фото.jpg"
   },
   "open": {
     "dialog_title": "Открыть изображение",
-    "filter": "Изображения"
+    "filter": "Изображения",
+    "button": "Открыть изображение ({{shortcut}})"
   },
   "image": {
     "alt": "Изображение {{name}}"
@@ -18,5 +21,35 @@
     "unsupported": "Spiegelmond не умеет показывать такие файлы: {{path}}",
     "other": "Не удалось открыть {{path}}",
     "decode": "Изображение не показать — возможно, файл повреждён: {{name}}"
+  },
+  "settings": {
+    "title": "Настройки",
+    "general": "Общие",
+    "theme": "Тема",
+    "theme_system": "Система",
+    "theme_light": "Светлая",
+    "theme_dark": "Тёмная",
+    "language": "Язык",
+    "background": "Фон за изображением",
+    "background_theme": "Как тема",
+    "background_black": "Чёрный",
+    "background_checker": "Шахматка"
+  },
+  "about": {
+    "title": "О программе",
+    "version": "Версия {{version}}"
+  },
+  "common": {
+    "close": "Закрыть"
+  },
+  "language": {
+    "select": "Язык интерфейса"
+  },
+  "mode": {
+    "toggle": "Переключить Sichel и Vollmond ({{shortcut}})"
+  },
+  "tools": {
+    "title": "Инструменты",
+    "placeholder": "Здесь появятся инструменты Vollmond для фотоархива: даты, дубликаты, пакетная обработка."
   }
 }

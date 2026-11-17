@@ -1,0 +1,68 @@
+/*
+ * Design tokens of Spiegelmond (the same palette as Halbmond, FM-12): the only file with colour values (MV/BRAND.md, palette with the
+ * contrast fixes). Components use var(--token) only; src/lib/tokens.test.ts checks this.
+ *
+ * data-theme on <html>: "light" | "dark" (resolved from the "System / Light / Dark" setting).
+ * data-mode on <html>: "sichel" | "vollmond"; amber accents exist only in Vollmond.
+ */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #e8ebf1;
+  --surface: #f4f5f8;
+  --surface-alt: #dde1e9;
+  --border: #c9ced9;
+  --text: #1b2140;
+  --text-muted: #5a6280;
+  --selection: #c5cce6;
+  --focus: #3e4c9a;
+  --accent-amber: #9e6a1e;
+  --danger: #a3392f;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #141a33;
+  --surface: #1c2344;
+  --surface-alt: #232b50;
+  --border: #2e3762;
+  --text: #dce1eb;
+  --text-muted: #8e97b5;
+  --selection: #34407a;
+  --focus: #8c9be0;
+  --accent-amber: #e8ae55;
+  --danger: #e07a70;
+}
+
+:root {
+  --font-ui: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+  --font-size: 13px;
+  --row-height: 22px;
+  --radius: 4px;
+  --mode-transition: 300ms;
+  /* Amber is not used in Sichel: the accent falls back to the focus colour. */
+  --mode-accent: var(--focus);
+  /* The stage behind the image, chosen apart from the theme: theme (= bg), black or checker. */
+  --stage-black: #000000;
+  --checker-light: #f4f5f8;
+  --checker-dark: #c9ced9;
+  --checker-size: 16px;
+  /* The splash picture is dark in both themes: its texts always use the dark-theme colours. */
+  --splash-text: #dce1eb;
+  --splash-text-muted: #8e97b5;
+  /* Bars over the image: the surface colour, slightly see-through. */
+  --overlay-opacity: 92%;
+  --chrome-transition: 200ms;
+}
+
+:root[data-mode="vollmond"] {
+  --mode-accent: var(--accent-amber);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mode-transition: 0ms;
+    --chrome-transition: 0ms;
+  }
+}

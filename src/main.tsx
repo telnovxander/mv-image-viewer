@@ -1,14 +1,25 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import "./i18n";
+import { Splash } from "./components/Splash";
+import { initSettings } from "./lib/settings";
+import { SPLASH_DELAY_MS } from "./lib/splash";
 import "./styles.css";
 
 const element = document.getElementById("root");
 if (element) {
-  ReactDOM.createRoot(element).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+  const root = ReactDOM.createRoot(element);
+  // The loading screen appears only if the start takes longer than 0.5 s (MV/STANDARD.md).
+  const splash = window.setTimeout(() => root.render(<Splash />), SPLASH_DELAY_MS);
+  void initSettings()
+    .catch(() => undefined)
+    .then(() => import("./i18n"))
+    .then(() => {
+      window.clearTimeout(splash);
+      root.render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>,
+      );
+    });
 }

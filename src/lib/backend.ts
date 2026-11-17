@@ -29,5 +29,27 @@ export async function openImage(path: string): Promise<ImageFile> {
 
 /** The URL of a local file for <img>, through the Tauri asset protocol. */
 export function imageUrl(file: ImageFile): string {
-  return convertFileSrc(file.path);
+  // The browser preview (no Tauri) only shows its demo picture, whose path already is a URL.
+  return inTauri ? convertFileSrc(file.path) : file.path;
+}
+
+const SETTINGS_KEY = "spiegelmond.settings";
+
+/** The settings file text, or null before the first save. */
+export async function loadSettingsText(): Promise<string | null> {
+  if (inTauri) return invoke<string | null>("load_settings");
+  try {
+    return localStorage.getItem(SETTINGS_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export async function saveSettingsText(text: string): Promise<void> {
+  if (inTauri) return invoke<void>("save_settings", { text });
+  try {
+    localStorage.setItem(SETTINGS_KEY, text);
+  } catch {
+    // Browser preview without storage: the settings live until the page reloads.
+  }
 }

@@ -39,6 +39,9 @@ from `testdata/`, never on real user data.)
   reference). `src/lib/locales.test.ts` checks keys, plural forms, placeholders and hard-coded text.
 - The list of shown formats lives in `iv-core/src/formats.rs`; `src/lib/formats.ts` repeats it
   for the open dialog (a test keeps them equal).
+- Colours only as tokens in `src/tokens.css` (the MV palette, checked for WCAG AA by
+  `src/lib/tokens.test.ts`); amber only in Vollmond. Brand assets in `assets/brand/` come from
+  MV `projects/MV/brand/` unchanged; the mode icons are the ones of Halbmond.
 - Windows-only code lives under `#[cfg(windows)]` and is checked by the Windows CI job.
 - Dependencies: only those approved in `projects/IV/PROJECT.md`; anything else is a question to Alex.
 
@@ -53,6 +56,7 @@ cargo test --workspace   # all Rust tests (needs the Tauri system libraries)
 npm test                 # interface tests
 npm run lint             # tsc --noEmit, cargo fmt --check, cargo clippy -D warnings
 python3 scripts/make-testdata.py   # regenerate testdata/
+scripts/make-icons.sh    # rebuild app icons from assets/brand (needs rsvg-convert)
 ```
 
 Commit messages: short English with the task key, e.g. `IV-03: add folder listing`.

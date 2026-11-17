@@ -1,12 +1,13 @@
-/* IV-01: a plain dark stage with the image in the middle. The brand style (palette, tokens,
-   Sichel / Vollmond) comes with IV-11 (MV/BRAND.md). */
+/* Layout and components of Spiegelmond. Colours, fonts and sizes come from tokens.css only. */
+@import "./tokens.css";
+
 :root {
-  --stage: #101114;
-  --text: #e8e6e1;
-  --text-dim: #9a988f;
-  --error: #f0a39b;
-  color-scheme: dark;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-ui);
+  font-size: var(--font-size);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html,
@@ -17,18 +18,154 @@ body,
 }
 
 body {
-  background: var(--stage);
+  background: var(--bg);
   color: var(--text);
   overflow: hidden;
   user-select: none;
 }
 
-.viewer {
+/* The stage behind the image: the theme background, black or a checkerboard (settings). */
+.app {
   position: relative;
+  height: 100%;
+}
+
+.stage--theme {
+  background: var(--bg);
+}
+
+.stage--black {
+  background: var(--stage-black);
+}
+
+.stage--checker {
+  background-color: var(--checker-light);
+  background-image: conic-gradient(var(--checker-dark) 25%, transparent 0 50%, var(--checker-dark) 0 75%, transparent 0);
+  background-size: calc(2 * var(--checker-size)) calc(2 * var(--checker-size));
+}
+
+/* With the bars hidden only the image is on screen: the cursor hides too. */
+.app--idle {
+  cursor: none;
+}
+
+/* Vollmond: a thin amber line along the top of the window. */
+.app::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 20;
+  height: 2px;
+  background: var(--accent-amber);
+  opacity: 0;
+  transition: opacity var(--mode-transition);
+  pointer-events: none;
+}
+
+:root[data-mode="vollmond"] .app::before {
+  opacity: 1;
+}
+
+.topbar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--surface) var(--overlay-opacity), transparent);
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity var(--chrome-transition), transform var(--chrome-transition);
+}
+
+.topbar--visible {
+  opacity: 1;
+  transform: none;
+}
+
+.topbar__spacer {
+  flex: 1;
+}
+
+.topbar__mode,
+.icon-button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  font: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.topbar__mode:hover,
+.icon-button:hover,
+.button:hover {
+  background: var(--surface-alt);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.mode-icon {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  color: var(--text);
+}
+
+.mode-icon > span {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--mode-transition), transform var(--mode-transition);
+}
+
+.mode-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.mode-icon .halo {
+  stroke: var(--accent-amber);
+}
+
+.mode-icon--sichel .mode-icon__vollmond,
+.mode-icon--vollmond .mode-icon__sichel {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+
+.icon-button--accent {
+  color: var(--mode-accent);
+}
+
+.select {
+  padding: 2px 6px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.viewer {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
 }
 
 /* Fit to the window: never larger than the window, never upscaled past 100 %. */
@@ -39,9 +176,14 @@ body {
   image-orientation: from-image;
 }
 
+/* A card, so the hint stays readable on every stage (theme, black, checkerboard). */
 .viewer__empty {
   text-align: center;
-  padding: 24px;
+  padding: 20px 24px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 
 .viewer__empty-title {
@@ -50,7 +192,7 @@ body {
 }
 
 .viewer__empty-hint {
-  color: var(--text-dim);
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -62,7 +204,163 @@ body {
   max-width: 80%;
   margin: 0;
   padding: 8px 14px;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.6);
-  color: var(--error);
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
+.dialog {
+  min-width: 320px;
+  max-width: min(480px, calc(100vw - 32px));
+  overflow-wrap: anywhere;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+}
+
+.dialog__title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.dialog__section {
+  margin: 0 0 8px;
+  font-size: var(--font-size);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.button {
+  border-color: var(--border);
+  background: var(--surface-alt);
+}
+
+.button--primary {
+  border-color: var(--focus);
+}
+
+.field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field legend {
+  margin-bottom: 4px;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmented__item {
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.segmented__item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented__item--on {
+  background: var(--selection);
+}
+
+.segmented__item:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.about {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.about p {
+  margin: 0;
+}
+
+.about__name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.about__version,
+.about__family {
+  color: var(--text-muted);
+}
+
+
+.field + .field {
+  margin-top: 12px;
+}
+
+.field--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dialog__text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Loading screen: the dark picture in both themes, the name in the empty sky top left. */
+.splash {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+}
+
+.splash__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.splash__title {
+  position: absolute;
+  left: 6%;
+  top: 9%;
+  display: flex;
+  flex-direction: column;
+  color: var(--splash-text);
+}
+
+.splash__name {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.splash__version {
+  color: var(--splash-text-muted);
 }
