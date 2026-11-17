@@ -3,7 +3,7 @@
 A fast image viewer for Windows 10/11, part of the Moonshine Vibecoder family: open a photo and
 see it at once. Only the basics, the picture comes first.
 
-> Status: skeleton (IV-01), the family style (IV-11), languages (IV-12) and zoom (IV-02) — one window, opens an image from the
+> Status: skeleton (IV-01), the family style (IV-11), languages (IV-12), zoom (IV-02) and browsing the folder (IV-03) — one window, opens an image from the
 > command line, the open dialog or by dropping it into the window; light and dark theme, Sichel and
 > Vollmond. Zoom, folder browsing, EXIF and the rest follow (IV-02…IV-19).
 
@@ -24,6 +24,9 @@ the Recycle Bin (see `CLAUDE.md`, "Safety").
 
 | Key | Action |
 |---|---|
+| ← → · PgUp PgDn | Previous · next image in the folder |
+| Home · End | First · last image |
+| Wheel (while fitted) | Previous · next image |
 | Ctrl+O | Open an image |
 | Ctrl+wheel · touchpad pinch | Zoom to the cursor |
 | Ctrl++ · Ctrl+− | Zoom in · out to the centre |
@@ -48,6 +51,16 @@ Languages: English, Russian, German (`locales/`, MV/I18N.md); the first start fo
 the dropdown in the top bar switches at once. Screenshots: `docs/screenshots/iv-12/`.
 
 Formats of IV-01, shown by WebView2 itself: JPG, PNG, GIF (animated), WebP, BMP, AVIF.
+
+## Browsing a folder
+
+Opening an image shows it at once; the other images of its folder are listed in the background
+(by name in natural order — 2 before 10 —, by date modified, or by date taken once IV-04 reads
+EXIF; the order is a setting). There is no wrap-around: at the ends a short hint appears. The two
+images on each side are decoded ahead, within a memory budget (`cacheMb`, 512 MB by default,
+least recently used out first). Files added or removed meanwhile are picked up on the next
+step; a vanished file is skipped. Listing speed (`cargo test -p iv-core --release -- --ignored
+--nocapture`): 1 000 files ~3 ms, 10 000 files ~30 ms.
 
 ## Build
 

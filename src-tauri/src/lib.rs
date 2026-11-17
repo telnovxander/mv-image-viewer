@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 use std::sync::Mutex;
 
+use iv_core::folder::{folder_of, list_images, FolderEntry, SortOrder};
 use iv_core::{describe, path_from_args, settings, ErrorCode, ImageFile, IvError};
 use tauri::{Emitter, Manager};
 
@@ -26,6 +27,16 @@ fn initial_path(state: tauri::State<InitialPath>) -> Option<String> {
 #[tauri::command]
 fn open_image(path: String) -> Result<ImageFile, IvError> {
     describe(&PathBuf::from(path))
+}
+
+/// The images of the folder of `file`, sorted, read on a background thread: the first image is
+/// already on screen while the list is built.
+#[tauri::command]
+async fn list_folder(file: String, order: SortOrder) -> Result<Vec<FolderEntry>, IvError> {
+    let path = PathBuf::from(&file);
+    tauri::async_runtime::spawn_blocking(move || list_images(&folder_of(&path)?, order))
+        .await
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&file)))?
 }
 
 #[tauri::command]
@@ -68,6 +79,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             initial_path,
             open_image,
+            list_folder,
             load_settings,
             save_settings
         ])

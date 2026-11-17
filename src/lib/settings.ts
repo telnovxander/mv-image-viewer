@@ -7,12 +7,22 @@ export type Mode = "sichel" | "vollmond";
 /** The stage behind the image: the theme background (indigo / silver), black, or a checkerboard. */
 export type Background = "theme" | "black" | "checker";
 
+/** The order of the images of a folder (iv-core SortOrder); "taken" uses EXIF from IV-04. */
+export type SortOrder = "name" | "modified" | "taken";
+
+export const SORT_ORDERS: readonly SortOrder[] = ["name", "modified", "taken"];
+
+/** Memory for decoded neighbours, MB (IV/PROJECT.md). */
+export const DEFAULT_CACHE_MB = 512;
+
 export interface Settings {
   theme: ThemePreference;
   mode: Mode;
   background: Background;
   /** Interface language code; null = not chosen yet, follow Windows. */
   language: string | null;
+  sort: SortOrder;
+  cacheMb: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -20,6 +30,8 @@ export const DEFAULT_SETTINGS: Settings = {
   mode: "sichel",
   background: "theme",
   language: null,
+  sort: "name",
+  cacheMb: DEFAULT_CACHE_MB,
 };
 
 export const BACKGROUNDS: readonly Background[] = ["theme", "black", "checker"];
@@ -39,6 +51,11 @@ export function parseSettings(raw: string | null): Settings {
       background: oneOf(value.background, BACKGROUNDS, DEFAULT_SETTINGS.background),
       language:
         typeof value.language === "string" && /^[a-z]{2}(-[a-z]{2})?$/i.test(value.language) ? value.language : null,
+      sort: oneOf(value.sort, SORT_ORDERS, DEFAULT_SETTINGS.sort),
+      cacheMb:
+        typeof value.cacheMb === "number" && Number.isFinite(value.cacheMb) && value.cacheMb >= 64 && value.cacheMb <= 8192
+          ? Math.round(value.cacheMb)
+          : DEFAULT_CACHE_MB,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

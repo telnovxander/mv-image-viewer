@@ -33,7 +33,11 @@
     "background": "Hintergrund hinter dem Bild",
     "background_theme": "Wie das Design",
     "background_black": "Schwarz",
-    "background_checker": "Schachbrett"
+    "background_checker": "Schachbrett",
+    "sort": "Reihenfolge der Bilder",
+    "sort_name": "Name",
+    "sort_modified": "Änderungsdatum",
+    "sort_taken": "Aufnahmedatum"
   },
   "about": {
     "title": "Über",
@@ -103,5 +107,9 @@
     "fit_width": "An die Breite anpassen",
     "double_click": "Einpassen ↔ 100 % an der Klickstelle",
     "pan": "Vergrößertes Bild verschieben"
+  },
+  "browse": {
+    "first": "Das ist das erste Bild im Ordner",
+    "last": "Das ist das letzte Bild im Ordner"
   }
 }

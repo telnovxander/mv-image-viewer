@@ -17,6 +17,8 @@ import {
 
 interface ImageViewProps {
   src: string;
+  /** A plain wheel turn while the image is fitted: previous (-1) or next (1) image. */
+  onWheelPage: (direction: 1 | -1) => void;
   alt: string;
   onError: () => void;
   onLoad: () => void;
@@ -30,7 +32,7 @@ const INDICATOR_MS = 1000;
  * Ctrl+wheel or a touchpad pinch to the cursor, Ctrl+plus / minus to the centre, drag or arrows to
  * move an enlarged image, double click fit ↔ 100 % at the click.
  */
-export function ImageView({ src, alt, onError, onLoad }: ImageViewProps) {
+export function ImageView({ src, onWheelPage, alt, onError, onLoad }: ImageViewProps) {
   const { i18n } = useTranslation();
   const stage = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState<Size>({ width: 0, height: 0 });
@@ -84,7 +86,14 @@ export function ImageView({ src, alt, onError, onLoad }: ImageViewProps) {
     const element = stage.current;
     if (!element) return;
     const onWheel = (event: WheelEvent) => {
-      if (!event.ctrlKey) return;
+      if (!event.ctrlKey) {
+        // A plain wheel browses the folder while the image is fitted (IV-03).
+        if (view?.mode === "fit" && event.deltaY !== 0) {
+          event.preventDefault();
+          onWheelPage(event.deltaY > 0 ? 1 : -1);
+        }
+        return;
+      }
       event.preventDefault();
       const rect = element.getBoundingClientRect();
       const at = { x: event.clientX - rect.left, y: event.clientY - rect.top };
@@ -92,11 +101,14 @@ export function ImageView({ src, alt, onError, onLoad }: ImageViewProps) {
     };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
-  }, [change, viewport]);
+  }, [change, viewport, view?.mode, onWheelPage]);
 
   useEffect(() => {
+    // Capture phase: this runs before the browsing keys of App, so arrows move an enlarged image
+    // instead of turning to the next one (App skips keys whose default was prevented).
     const onKey = (event: KeyboardEvent) => {
       if (event.altKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+      if (event.target instanceof Element && event.target.closest("[role=dialog]")) return;
       const key = event.key;
       let handled = true;
       if (event.ctrlKey && (key === "0" || key === ")")) change((_, img) => viewFor("fit", img, viewport));
@@ -112,8 +124,8 @@ export function ImageView({ src, alt, onError, onLoad }: ImageViewProps) {
       } else handled = false;
       if (handled) event.preventDefault();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [change, centre, image, view, viewport]);
 
   const point = (event: React.MouseEvent) => {

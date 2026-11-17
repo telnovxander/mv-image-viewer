@@ -25,7 +25,11 @@ describe("parseSettings", () => {
       mode: "vollmond",
       background: "checker",
       language: null,
+      sort: "name",
+      cacheMb: 512,
     });
+    expect(parseSettings('{"sort":"modified","cacheMb":1024}')).toMatchObject({ sort: "modified", cacheMb: 1024 });
+    expect(parseSettings('{"sort":"size","cacheMb":1}')).toMatchObject({ sort: "name", cacheMb: 512 });
     expect(parseSettings('{"language":"de"}').language).toBe("de");
     expect(parseSettings('{"language":"<script>"}').language).toBeNull();
   });

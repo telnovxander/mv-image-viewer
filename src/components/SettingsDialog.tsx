@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { BACKGROUNDS, type Background, type ThemePreference } from "../lib/settings";
+import { BACKGROUNDS, SORT_ORDERS, type Background, type SortOrder, type ThemePreference } from "../lib/settings";
 import { Dialog } from "./Dialog";
 import { LanguageSelect } from "./LanguageSelect";
 
@@ -8,6 +8,8 @@ const THEMES: readonly ThemePreference[] = ["system", "light", "dark"];
 interface SettingsDialogProps {
   theme: ThemePreference;
   background: Background;
+  sort: SortOrder;
+  onSortChange: (sort: SortOrder) => void;
   onThemeChange: (theme: ThemePreference) => void;
   onBackgroundChange: (background: Background) => void;
   onLanguage: (code: string) => void;
@@ -28,7 +30,7 @@ function Segmented<T extends string>({ name, values, value, label, onChange }: {
   );
 }
 
-export function SettingsDialog({ theme, background, onThemeChange, onBackgroundChange, onLanguage, onAbout, onClose }: SettingsDialogProps) {
+export function SettingsDialog({ theme, background, sort, onSortChange, onThemeChange, onBackgroundChange, onLanguage, onAbout, onClose }: SettingsDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog title={t("settings.title")} onClose={onClose}>
@@ -40,6 +42,10 @@ export function SettingsDialog({ theme, background, onThemeChange, onBackgroundC
       <fieldset className="field">
         <legend>{t("settings.background")}</legend>
         <Segmented name="background" values={BACKGROUNDS} value={background} label={(v) => t(`settings.background_${v}`)} onChange={onBackgroundChange} />
+      </fieldset>
+      <fieldset className="field">
+        <legend>{t("settings.sort")}</legend>
+        <Segmented name="sort" values={SORT_ORDERS} value={sort} label={(v) => t(`settings.sort_${v}`)} onChange={onSortChange} />
       </fieldset>
       <label className="field field--row">
         <span>{t("settings.language")}</span>

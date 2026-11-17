@@ -33,7 +33,11 @@
     "background": "Background behind the image",
     "background_theme": "Theme",
     "background_black": "Black",
-    "background_checker": "Checkerboard"
+    "background_checker": "Checkerboard",
+    "sort": "Order of the images",
+    "sort_name": "Name",
+    "sort_modified": "Date modified",
+    "sort_taken": "Date taken"
   },
   "about": {
     "title": "About",
@@ -103,5 +107,9 @@
     "fit_width": "Fit to the width",
     "double_click": "Fit ↔ 100 % at the click",
     "pan": "Move an enlarged image"
+  },
+  "browse": {
+    "first": "This is the first image of the folder",
+    "last": "This is the last image of the folder"
   }
 }

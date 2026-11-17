@@ -1,19 +1,19 @@
 {
   "keys": [
     {
-      "keys": "← →",
+      "keys": "← → · PgUp PgDn",
       "action": "previous_next",
-      "done": false
+      "done": true
     },
     {
       "keys": "Home · End",
       "action": "first_last",
-      "done": false
+      "done": true
     },
     {
       "keys": "wheel",
       "action": "wheel",
-      "done": false
+      "done": true
     },
     {
       "keys": "Ctrl+wheel · Ctrl++ · Ctrl+−",

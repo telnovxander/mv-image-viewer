@@ -432,3 +432,18 @@ body {
 .help__muted {
   color: var(--text-muted);
 }
+
+/* "This is the first / last image": the folder does not wrap around. */
+.edge-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) var(--overlay-opacity), transparent);
+  color: var(--text);
+  pointer-events: none;
+}
