@@ -153,21 +153,6 @@ fn save_settings(text: String) -> Result<(), IvError> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::percent_decode;
-
-    #[test]
-    fn decodes_paths_from_urls() {
-        assert_eq!(
-            percent_decode("C%3A%5CFotos%5CIMG%201.dng"),
-            "C:\\Fotos\\IMG 1.dng"
-        );
-        assert_eq!(percent_decode("%D0%A4%D0%BE%D1%82%D0%BE.tif"), "Фото.tif");
-        assert_eq!(percent_decode("100%"), "100%");
-    }
-}
-
 pub fn run() {
     let cwd = std::env::current_dir().unwrap_or_default();
     let args: Vec<String> = std::env::args().collect();
@@ -206,5 +191,20 @@ pub fn run() {
     if let Err(error) = result {
         eprintln!("Spiegelmond failed to start: {error}");
         std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::percent_decode;
+
+    #[test]
+    fn decodes_paths_from_urls() {
+        assert_eq!(
+            percent_decode("C%3A%5CFotos%5CIMG%201.dng"),
+            "C:\\Fotos\\IMG 1.dng"
+        );
+        assert_eq!(percent_decode("%D0%A4%D0%BE%D1%82%D0%BE.tif"), "Фото.tif");
+        assert_eq!(percent_decode("100%"), "100%");
     }
 }
