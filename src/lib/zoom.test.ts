@@ -3,6 +3,10 @@ import {
   canPan,
   clampPan,
   fitScale,
+  imageMatrix,
+  imageTransform,
+  rotate,
+  rotatedSize,
   MAX_SCALE,
   MIN_SCALE,
   pan,
@@ -121,5 +125,38 @@ describe("double click and resize", () => {
     expect(resize(viewFor("fit", photo, window), photo, bigger).scale).toBeCloseTo(0.5);
     const custom = zoomAt(viewFor("fit", photo, window), 0.7, { x: 500, y: 300 }, photo, window);
     expect(resize(custom, photo, bigger).scale).toBe(0.7);
+  });
+});
+
+describe("view-only rotation", () => {
+  it("steps by 90° both ways", () => {
+    expect(rotate(0, true)).toBe(90);
+    expect(rotate(270, true)).toBe(0);
+    expect(rotate(0, false)).toBe(270);
+  });
+
+  it("swaps the sides at 90° and 270°", () => {
+    expect(rotatedSize(photo, 90)).toEqual({ width: 3000, height: 4000 });
+    expect(rotatedSize(photo, 180)).toEqual(photo);
+  });
+
+  it("puts the turned image exactly into its box", () => {
+    const view = { mode: "custom" as const, scale: 0.5, x: 10, y: 20 };
+    for (const rotation of [0, 90, 180, 270] as const) {
+      const [a, b, c, d, e, f] = imageMatrix(view, photo, rotation);
+      const matrix = { transformPoint: (p: { x: number; y: number }) => ({ x: a * p.x + c * p.y + e, y: b * p.x + d * p.y + f }) };
+      expect(imageTransform(view, photo, rotation)).toMatch(/^matrix\(/);
+      const corners = [
+        [0, 0],
+        [photo.width, 0],
+        [0, photo.height],
+        [photo.width, photo.height],
+      ].map(([x, y]) => matrix.transformPoint({ x, y }));
+      const box = rotatedSize(photo, rotation);
+      expect(Math.min(...corners.map((p) => p.x))).toBeCloseTo(10);
+      expect(Math.min(...corners.map((p) => p.y))).toBeCloseTo(20);
+      expect(Math.max(...corners.map((p) => p.x))).toBeCloseTo(10 + box.width * 0.5);
+      expect(Math.max(...corners.map((p) => p.y))).toBeCloseTo(20 + box.height * 0.5);
+    }
   });
 });

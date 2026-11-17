@@ -1,6 +1,6 @@
 import i18n from "i18next";
 import { beforeAll, describe, expect, it } from "vitest";
-import { formatDateTime, formatSize } from "./format";
+import { exposureText, formatDateTime, formatSize, formatTaken, numberText } from "./format";
 import { LOCALES } from "./locales";
 
 beforeAll(async () => {
@@ -51,5 +51,24 @@ describe("formatDateTime", () => {
     ["en", /11\/16\/26/],
   ])("%s", (language, pattern) => {
     expect(formatDateTime(ms, language)).toMatch(pattern);
+  });
+});
+
+describe("EXIF values", () => {
+  it("exposure as a fraction below one second", () => {
+    expect(exposureText(1 / 250, "en")).toBe("1/250");
+    expect(exposureText(2.5, "de")).toBe("2,5");
+  });
+
+  it("date taken in the language, as the camera wrote it", () => {
+    expect(formatTaken("2023-05-12T14:30:00", "de")).toMatch(/12\.05\.2023.*14:30/);
+    expect(formatTaken("2023-05-12T14:30:00", "ru")).toMatch(/12 мая 2023.*14:30/);
+    expect(formatTaken("2023-05-12T14:30:00", "en")).toMatch(/May 12, 2023.*2:30/);
+    expect(formatTaken("garbage", "en")).toBe("garbage");
+  });
+
+  it("numbers by language", () => {
+    expect(numberText(5.6, "de", 1)).toBe("5,6");
+    expect(numberText(6000, "en")).toBe("6,000");
   });
 });

@@ -111,5 +111,24 @@
   "browse": {
     "first": "Das ist das erste Bild im Ordner",
     "last": "Das ist das letzte Bild im Ordner"
+  },
+  "info": {
+    "title": "Informationen",
+    "name": "Name",
+    "size": "Dateigröße",
+    "resolution": "Auflösung",
+    "taken": "Aufnahmedatum",
+    "camera": "Kamera",
+    "lens": "Objektiv",
+    "exposure": "Belichtungszeit",
+    "aperture": "Blende",
+    "iso": "ISO",
+    "focal_length": "Brennweite",
+    "gps": "Aufnahmeort",
+    "open_map": "Auf der Karte öffnen",
+    "no_exif": "Die Datei enthält keine Kameradaten (EXIF).",
+    "pixels": "{{width}} × {{height}} px",
+    "seconds": "{{value}} s",
+    "millimetres": "{{value}} mm"
   }
 }

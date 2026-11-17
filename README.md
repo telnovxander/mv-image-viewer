@@ -28,6 +28,8 @@ the Recycle Bin (see `CLAUDE.md`, "Safety").
 | Home · End | First · last image |
 | Wheel (while fitted) | Previous · next image |
 | Ctrl+O | Open an image |
+| I | Information panel (file, resolution, date taken, camera, lens, exposure, GPS with a map link) |
+| R · Shift+R | Rotate right · left — for viewing only, the file is not changed |
 | Ctrl+wheel · touchpad pinch | Zoom to the cursor |
 | Ctrl++ · Ctrl+− | Zoom in · out to the centre |
 | Ctrl+0 | Fit to the window (the default) |

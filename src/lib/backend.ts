@@ -70,3 +70,27 @@ export async function saveSettingsText(text: string): Promise<void> {
     // Browser preview without storage: the settings live until the page reloads.
   }
 }
+
+/** EXIF of an image (iv-core ExifInfo); null without EXIF. */
+export interface ExifInfo {
+  orientation: number | null;
+  taken: string | null;
+  camera: string | null;
+  lens: string | null;
+  exposure: number | null;
+  f_number: number | null;
+  iso: number | null;
+  focal_length: number | null;
+  gps: [number, number] | null;
+  width: number | null;
+  height: number | null;
+}
+
+export async function exifOf(path: string): Promise<ExifInfo | null> {
+  return inTauri ? invoke<ExifInfo | null>("exif_of", { path }) : null;
+}
+
+/** Open the place on OpenStreetMap in the browser (only after a click). */
+export async function openMap(latitude: number, longitude: number): Promise<void> {
+  if (inTauri) await invoke("open_map", { latitude, longitude });
+}

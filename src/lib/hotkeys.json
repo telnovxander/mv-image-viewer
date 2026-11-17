@@ -58,12 +58,12 @@
     {
       "keys": "R · Shift+R",
       "action": "rotate",
-      "done": false
+      "done": true
     },
     {
       "keys": "I",
       "action": "info",
-      "done": false
+      "done": true
     },
     {
       "keys": "T",

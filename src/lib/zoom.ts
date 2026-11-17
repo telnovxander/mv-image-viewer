@@ -100,3 +100,46 @@ export function toggleAt(view: View, at: Point, image: Size, viewport: Size): Vi
   if (view.mode === "fit") return { ...zoomAt(view, 1, at, image, viewport), mode: "actual" };
   return viewFor("fit", image, viewport);
 }
+
+/** View-only rotation (R / Shift+R, IV-04): clockwise degrees. The file is not changed. */
+export type Rotation = 0 | 90 | 180 | 270;
+
+export function rotate(rotation: Rotation, clockwise: boolean): Rotation {
+  return (((rotation + (clockwise ? 90 : 270)) % 360) as Rotation);
+}
+
+/** The size the rotated image takes on screen before scaling: sides swap at 90° and 270°. */
+export function rotatedSize(natural: Size, rotation: Rotation): Size {
+  return rotation === 90 || rotation === 270 ? { width: natural.height, height: natural.width } : natural;
+}
+
+/** A 2D affine matrix [a, b, c, d, e, f]: screen = (a·x + c·y + e, b·x + d·y + f). */
+export type Matrix = [number, number, number, number, number, number];
+
+/**
+ * Where the natural-size image goes on screen (CSS transform origin 0 0): turned around its
+ * centre, the turned box put at (view.x, view.y) and scaled like an unrotated image of
+ * `rotatedSize`.
+ */
+export function imageMatrix(view: View, natural: Size, rotation: Rotation): Matrix {
+  const radians = (rotation * Math.PI) / 180;
+  const cos = Math.round(Math.cos(radians));
+  const sin = Math.round(Math.sin(radians));
+  const box = rotatedSize(natural, rotation);
+  const s = view.scale;
+  // p' = (x, y) + s · (box/2 + R · (p − natural/2))
+  const cx = natural.width / 2;
+  const cy = natural.height / 2;
+  return [
+    s * cos,
+    s * sin,
+    -s * sin,
+    s * cos,
+    view.x + s * (box.width / 2 - (cos * cx - sin * cy)),
+    view.y + s * (box.height / 2 - (sin * cx + cos * cy)),
+  ];
+}
+
+export function imageTransform(view: View, natural: Size, rotation: Rotation): string {
+  return `matrix(${imageMatrix(view, natural, rotation).join(", ")})`;
+}

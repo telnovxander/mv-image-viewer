@@ -111,5 +111,24 @@
   "browse": {
     "first": "This is the first image of the folder",
     "last": "This is the last image of the folder"
+  },
+  "info": {
+    "title": "Information",
+    "name": "Name",
+    "size": "File size",
+    "resolution": "Resolution",
+    "taken": "Date taken",
+    "camera": "Camera",
+    "lens": "Lens",
+    "exposure": "Exposure",
+    "aperture": "Aperture",
+    "iso": "ISO",
+    "focal_length": "Focal length",
+    "gps": "Location",
+    "open_map": "Open on the map",
+    "no_exif": "This file has no camera data (EXIF).",
+    "pixels": "{{width}} × {{height}} px",
+    "seconds": "{{value}} s",
+    "millimetres": "{{value}} mm"
   }
 }

@@ -8,10 +8,12 @@ import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
 import { HelpDialog } from "./components/HelpDialog";
 import { ImageView } from "./components/ImageView";
+import { InfoPanel } from "./components/InfoPanel";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
-import { imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, pathUrl, type FolderEntry, type ImageFile } from "./lib/backend";
+import { exifOf, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, type ExifInfo, type FolderEntry, type ImageFile } from "./lib/backend";
+import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
 import { CHROME_HIDE_MS, chromeVisible } from "./lib/chrome";
@@ -30,8 +32,24 @@ const EDGE_HINT_MS = 1200;
 /** Browser preview only (`npm run dev`, `?demo`): a picture to look at the style without Tauri. */
 const DEMO: ImageFile | null =
   !inTauri && new URLSearchParams(window.location.search).has("demo")
-    ? { path: demoImage, name: "spiegelmond-demo.jpg", size: 0, format: "web" }
+    ? { path: demoImage, name: "spiegelmond-demo.jpg", size: 412_345, format: "web" }
     : null;
+/** Preview only: EXIF to look at the information panel without Tauri. */
+const DEMO_EXIF: ExifInfo | null = DEMO
+  ? {
+      orientation: 1,
+      taken: "2023-05-12T21:47:00",
+      camera: "Canon EOS R6",
+      lens: "RF24-105mm F4 L IS USM",
+      exposure: 1 / 60,
+      f_number: 4,
+      iso: 3200,
+      focal_length: 35,
+      gps: [47.37, 8.54],
+      width: 1312,
+      height: 816,
+    }
+  : null;
 
 export function App() {
   const { t, i18n } = useTranslation();
@@ -44,6 +62,10 @@ export function App() {
   const [overBar, setOverBar] = useState(false);
   const hideTimer = useRef<number | undefined>(undefined);
   const [entries, setEntries] = useState<FolderEntry[]>([]);
+  const [rotation, setRotation] = useState<Rotation>(0);
+  const [shownSize, setShownSize] = useState<Size | null>(null);
+  const [exif, setExif] = useState<ExifInfo | null>(DEMO_EXIF);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [edge, setEdge] = useState<Edge>(null);
   const edgeTimer = useRef<number | undefined>(undefined);
@@ -219,6 +241,18 @@ export function App() {
           return;
         }
       }
+      if (!event.ctrlKey && !event.altKey && !(event.target instanceof HTMLSelectElement)) {
+        if (event.key === "i" || event.key === "I") {
+          event.preventDefault();
+          setInfoOpen((open) => !open);
+          return;
+        }
+        if (event.key === "r" || event.key === "R") {
+          event.preventDefault();
+          setRotation((r) => rotate(r, !event.shiftKey));
+          return;
+        }
+      }
       if (!event.ctrlKey || event.altKey) return;
       const key = event.key.toLowerCase();
       if (key === "o") {
@@ -248,6 +282,20 @@ export function App() {
     if (inTauri) void getCurrentWindow().setTitle(title);
   }, [image, entries.length, index, i18n.language]);
 
+  // A new image: no view rotation, its own EXIF.
+  useEffect(() => {
+    setRotation(0);
+    setShownSize(null);
+    if (!image || !inTauri) return;
+    let current = true;
+    void exifOf(image.path).then((info) => {
+      if (current) setExif(info);
+    });
+    return () => {
+      current = false;
+    };
+  }, [image]);
+
   const visible = chromeVisible({ recentlyMoved, overBar, dialogOpen: dialog !== null, empty: image === null });
   const toggle = () => update((s) => ({ mode: toggleMode(s.mode) }));
 
@@ -270,11 +318,16 @@ export function App() {
             key={image.path}
             src={imageUrl(image)}
             onWheelPage={go}
+            rotation={rotation}
             alt={t("image.alt", { name: image.name })}
             onError={() => setError(t("error.decode", { name: image.name }))}
-            onLoad={() => setError(null)}
+            onLoad={(size) => {
+              setError(null);
+              setShownSize(size);
+            }}
           />
         )}
+        {image && infoOpen && <InfoPanel file={image} size={shownSize} exif={exif} onOpenMap={(lat, lon) => void openMap(lat, lon)} />}
         {!image && !error && (
           <div className="viewer__empty">
             <p className="viewer__empty-title">{t("empty.title")}</p>

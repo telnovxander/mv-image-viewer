@@ -1,16 +1,19 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ARROW_STEP,
   canPan,
+  imageTransform,
   KEY_STEP,
   PIXELATED_FROM,
   pan,
   resize,
+  rotatedSize,
   toggleAt,
   viewFor,
   wheelFactor,
   zoomAt,
+  type Rotation,
   type Size,
   type View,
 } from "../lib/zoom";
@@ -20,8 +23,11 @@ interface ImageViewProps {
   /** A plain wheel turn while the image is fitted: previous (-1) or next (1) image. */
   onWheelPage: (direction: 1 | -1) => void;
   alt: string;
+  /** View-only rotation (R / Shift+R); the file is not changed. */
+  rotation: Rotation;
   onError: () => void;
-  onLoad: () => void;
+  /** The image is decoded; its size as shown (EXIF orientation already applied by the WebView). */
+  onLoad: (size: Size) => void;
 }
 
 /** How long the zoom indicator stays after a change. */
@@ -32,11 +38,13 @@ const INDICATOR_MS = 1000;
  * Ctrl+wheel or a touchpad pinch to the cursor, Ctrl+plus / minus to the centre, drag or arrows to
  * move an enlarged image, double click fit ↔ 100 % at the click.
  */
-export function ImageView({ src, onWheelPage, alt, onError, onLoad }: ImageViewProps) {
+export function ImageView({ src, onWheelPage, alt, rotation, onError, onLoad }: ImageViewProps) {
   const { i18n } = useTranslation();
   const stage = useRef<HTMLDivElement>(null);
   const [viewport, setViewport] = useState<Size>({ width: 0, height: 0 });
-  const [image, setImage] = useState<Size | null>(null);
+  const [natural, setNatural] = useState<Size | null>(null);
+  // The zoom maths works on the turned image: its sides swap at 90° and 270°.
+  const image = useMemo(() => (natural ? rotatedSize(natural, rotation) : null), [natural, rotation]);
   const [view, setView] = useState<View | null>(null);
   const [indicator, setIndicator] = useState(false);
   const indicatorTimer = useRef<number | undefined>(undefined);
@@ -61,13 +69,21 @@ export function ImageView({ src, onWheelPage, alt, onError, onLoad }: ImageViewP
   }, []);
 
   useEffect(() => {
-    setImage(null);
+    setNatural(null);
     setView(null);
   }, [src]);
 
+  // A new rotation starts again from "fit" (the turned image has other proportions).
+  const shownRotation = useRef(rotation);
   useEffect(() => {
-    if (image && viewport.width > 0) setView((v) => (v ? resize(v, image, viewport) : viewFor("fit", image, viewport)));
-  }, [image, viewport]);
+    if (!image || viewport.width === 0) return;
+    if (shownRotation.current !== rotation) {
+      shownRotation.current = rotation;
+      setView(viewFor("fit", image, viewport));
+      return;
+    }
+    setView((v) => (v ? resize(v, image, viewport) : viewFor("fit", image, viewport)));
+  }, [image, rotation, viewport]);
 
   const change = useCallback(
     (next: (v: View, img: Size) => View, indicate = true) => {
@@ -171,12 +187,13 @@ export function ImageView({ src, onWheelPage, alt, onError, onLoad }: ImageViewP
         draggable={false}
         style={
           view
-            ? { transform: `translate(${view.x}px, ${view.y}px) scale(${view.scale})`, visibility: "visible" }
+            ? { transform: natural ? imageTransform(view, natural, rotation) : undefined, visibility: "visible" }
             : { visibility: "hidden" }
         }
         onLoad={(event) => {
-          setImage({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight });
-          onLoad();
+          const size = { width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight };
+          setNatural(size);
+          onLoad(size);
         }}
         onError={onError}
       />

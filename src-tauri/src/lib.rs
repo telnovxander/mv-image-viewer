@@ -4,8 +4,11 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use iv_core::folder::{folder_of, list_images, FolderEntry, SortOrder};
-use iv_core::{describe, path_from_args, settings, ErrorCode, ImageFile, IvError};
+use iv_core::{
+    describe, path_from_args, read_exif, settings, ErrorCode, ExifInfo, ImageFile, IvError,
+};
 use tauri::{Emitter, Manager};
+use tauri_plugin_opener::OpenerExt;
 
 /// The file named on the command line of the first start, taken once by the interface.
 #[derive(Default)]
@@ -37,6 +40,24 @@ async fn list_folder(file: String, order: SortOrder) -> Result<Vec<FolderEntry>,
     tauri::async_runtime::spawn_blocking(move || list_images(&folder_of(&path)?, order))
         .await
         .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&file)))?
+}
+
+/// EXIF of an image for the information panel; `None` without EXIF. Reads only.
+#[tauri::command]
+async fn exif_of(path: String) -> Option<ExifInfo> {
+    tauri::async_runtime::spawn_blocking(move || read_exif(std::path::Path::new(&path)))
+        .await
+        .ok()
+        .flatten()
+}
+
+/// Open the place of a photo on OpenStreetMap in the browser; only on the user's click.
+#[tauri::command]
+fn open_map(app: tauri::AppHandle, latitude: f64, longitude: f64) -> Result<(), IvError> {
+    let url = iv_core::exif::map_url(latitude, longitude);
+    app.opener()
+        .open_url(&url, None::<&str>)
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&url)))
 }
 
 #[tauri::command]
@@ -75,11 +96,14 @@ pub fn run() {
             }
         }))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .manage(InitialPath(Mutex::new(first)))
         .invoke_handler(tauri::generate_handler![
             initial_path,
             open_image,
             list_folder,
+            exif_of,
+            open_map,
             load_settings,
             save_settings
         ])

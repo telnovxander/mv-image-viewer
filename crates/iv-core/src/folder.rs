@@ -21,6 +21,8 @@ pub struct FolderEntry {
     pub size: u64,
     /// Modification time, milliseconds since 1970 (0 if unknown).
     pub modified: i64,
+    /// Date taken from EXIF (`YYYY-MM-DDTHH:MM:SS`); read only for the "date taken" order.
+    pub taken: Option<String>,
 }
 
 /// The order of the images.
@@ -30,7 +32,7 @@ pub enum SortOrder {
     /// Natural order of names: "2" before "10", case does not matter.
     Name,
     Modified,
-    /// Date taken from EXIF; until IV-04 reads it, the modification time stands in.
+    /// Date taken from EXIF (IV-04); images without it go last, by name.
     Taken,
 }
 
@@ -57,9 +59,15 @@ pub fn list_images(dir: &Path, order: SortOrder) -> Result<Vec<FolderEntry>, IvE
                 path: path.display().to_string(),
                 size: metadata.len(),
                 modified,
+                taken: None,
             })
         })
         .collect();
+    if order == SortOrder::Taken {
+        for entry in &mut entries {
+            entry.taken = crate::exif::read_exif(Path::new(&entry.path)).and_then(|e| e.taken);
+        }
+    }
     sort(&mut entries, order);
     Ok(entries)
 }
@@ -67,10 +75,17 @@ pub fn list_images(dir: &Path, order: SortOrder) -> Result<Vec<FolderEntry>, IvE
 pub fn sort(entries: &mut [FolderEntry], order: SortOrder) {
     match order {
         SortOrder::Name => entries.sort_by(|a, b| natural_cmp(&a.name, &b.name)),
-        SortOrder::Modified | SortOrder::Taken => entries.sort_by(|a, b| {
+        SortOrder::Modified => entries.sort_by(|a, b| {
             a.modified
                 .cmp(&b.modified)
                 .then_with(|| natural_cmp(&a.name, &b.name))
+        }),
+        // The ISO dates sort as text; images without a date go last.
+        SortOrder::Taken => entries.sort_by(|a, b| match (&a.taken, &b.taken) {
+            (Some(x), Some(y)) => x.cmp(y).then_with(|| natural_cmp(&a.name, &b.name)),
+            (Some(_), None) => Ordering::Less,
+            (None, Some(_)) => Ordering::Greater,
+            (None, None) => natural_cmp(&a.name, &b.name),
         }),
     }
 }
@@ -193,10 +208,29 @@ mod tests {
         }
         let list = list_images(temp.path(), SortOrder::Modified).expect("list");
         assert_eq!(names(&list), ["old.png", "mid.png", "new.png"]);
+    }
+
+    #[test]
+    fn by_date_taken_and_without_a_date_last() {
+        use crate::exif::tests::jpeg_with_exif;
+        use exif::{Tag, Value};
+        let temp = folder(&["b-no-date.png", "a-no-date.png"]);
+        for (name, date) in [
+            ("late.jpg", "2024:01:01 10:00:00"),
+            ("early.jpg", "2019:07:03 08:15:00"),
+        ] {
+            let jpeg = jpeg_with_exif(&[(
+                Tag::DateTimeOriginal,
+                Value::Ascii(vec![date.as_bytes().to_vec()]),
+            )]);
+            fs::write(temp.path().join(name), jpeg).expect("write");
+        }
+        let list = list_images(temp.path(), SortOrder::Taken).expect("list");
         assert_eq!(
-            names(&list_images(temp.path(), SortOrder::Taken).expect("list")),
-            ["old.png", "mid.png", "new.png"]
+            names(&list),
+            ["early.jpg", "late.jpg", "a-no-date.png", "b-no-date.png"]
         );
+        assert_eq!(list[0].taken.as_deref(), Some("2019-07-03T08:15:00"));
     }
 
     #[test]
