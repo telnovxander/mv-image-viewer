@@ -51,5 +51,52 @@
   "tools": {
     "title": "Tools",
     "placeholder": "The Vollmond tools for a photo archive (dates, duplicates, batch processing) will appear here."
+  },
+  "units": {
+    "b": "B",
+    "kb": "KB",
+    "mb": "MB",
+    "gb": "GB",
+    "tb": "TB"
+  },
+  "images": {
+    "count_one": "{{count, number}} image",
+    "count_other": "{{count, number}} images"
+  },
+  "keys": {
+    "Ctrl": "Ctrl",
+    "Shift": "Shift",
+    "Space": "Space",
+    "Delete": "Delete",
+    "Home": "Home",
+    "End": "End",
+    "Esc": "Esc",
+    "wheel": "wheel"
+  },
+  "help": {
+    "title": "Keyboard shortcuts",
+    "coming": "coming",
+    "button": "Keyboard shortcuts ({{shortcut}})"
+  },
+  "hotkeys": {
+    "previous_next": "Previous · next image in the folder",
+    "first_last": "First · last image",
+    "wheel": "Previous · next image with the mouse wheel",
+    "zoom": "Zoom in · out at the cursor",
+    "fit": "Fit to the window",
+    "actual_size": "Actual size (100 %)",
+    "fullscreen": "Full screen (Esc — leave)",
+    "slideshow": "Slideshow",
+    "rotate": "Rotate right · left (view only)",
+    "info": "Information panel",
+    "thumbnails": "Thumbnail strip",
+    "delete": "Delete to the Recycle Bin",
+    "undo_delete": "Undo the deletion",
+    "copy_image": "Copy the image",
+    "copy_path": "Copy the path",
+    "open": "Open an image",
+    "mode": "Switch between Sichel and Vollmond",
+    "help": "These keyboard shortcuts",
+    "close": "Close a dialog"
   }
 }

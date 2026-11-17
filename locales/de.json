@@ -51,5 +51,52 @@
   "tools": {
     "title": "Werkzeuge",
     "placeholder": "Hier erscheinen die Vollmond-Werkzeuge für das Fotoarchiv: Daten, Duplikate, Stapelverarbeitung."
+  },
+  "units": {
+    "b": "B",
+    "kb": "KB",
+    "mb": "MB",
+    "gb": "GB",
+    "tb": "TB"
+  },
+  "images": {
+    "count_one": "{{count, number}} Bild",
+    "count_other": "{{count, number}} Bilder"
+  },
+  "keys": {
+    "Ctrl": "Strg",
+    "Shift": "Umschalt",
+    "Space": "Leertaste",
+    "Delete": "Entf",
+    "Home": "Pos1",
+    "End": "Ende",
+    "Esc": "Esc",
+    "wheel": "Mausrad"
+  },
+  "help": {
+    "title": "Tastenkürzel",
+    "coming": "folgt",
+    "button": "Tastenkürzel ({{shortcut}})"
+  },
+  "hotkeys": {
+    "previous_next": "Vorheriges · nächstes Bild im Ordner",
+    "first_last": "Erstes · letztes Bild",
+    "wheel": "Vorheriges · nächstes Bild mit dem Mausrad",
+    "zoom": "Vergrößern · verkleinern zum Mauszeiger",
+    "fit": "An das Fenster anpassen",
+    "actual_size": "Originalgröße (100 %)",
+    "fullscreen": "Vollbild (Esc — beenden)",
+    "slideshow": "Diashow",
+    "rotate": "Nach rechts · links drehen (nur Ansicht)",
+    "info": "Informationsbereich",
+    "thumbnails": "Miniaturleiste",
+    "delete": "In den Papierkorb löschen",
+    "undo_delete": "Löschen rückgängig machen",
+    "copy_image": "Bild kopieren",
+    "copy_path": "Pfad kopieren",
+    "open": "Bild öffnen",
+    "mode": "Zwischen Sichel und Vollmond wechseln",
+    "help": "Diese Tastenkürzel",
+    "close": "Dialog schließen"
   }
 }

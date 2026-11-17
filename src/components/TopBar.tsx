@@ -1,4 +1,4 @@
-import { FolderOpen, Settings as SettingsIcon, Wrench } from "lucide-react";
+import { CircleHelp, FolderOpen, Settings as SettingsIcon, Wrench } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Mode } from "../lib/settings";
 import { LanguageSelect } from "./LanguageSelect";
@@ -11,12 +11,13 @@ interface TopBarProps {
   onToggleMode: () => void;
   onTools: () => void;
   onSettings: () => void;
+  onHelp: () => void;
   onLanguage: (code: string) => void;
   onHover: (inside: boolean) => void;
 }
 
 /** The bar over the image: it appears when the mouse moves and hides again after a moment. */
-export function TopBar({ mode, visible, onOpen, onToggleMode, onTools, onSettings, onLanguage, onHover }: TopBarProps) {
+export function TopBar({ mode, visible, onOpen, onToggleMode, onTools, onSettings, onHelp, onLanguage, onHover }: TopBarProps) {
   const { t } = useTranslation();
   const modeName = mode === "sichel" ? "Sichel" : "Vollmond";
   return (
@@ -47,6 +48,9 @@ export function TopBar({ mode, visible, onOpen, onToggleMode, onTools, onSetting
       )}
       <div className="topbar__spacer" />
       <LanguageSelect onChange={onLanguage} />
+      <button type="button" className="icon-button" onClick={onHelp} title={t("help.button", { shortcut: "F1" })} aria-label={t("help.button", { shortcut: "F1" })}>
+        <CircleHelp size={16} aria-hidden="true" />
+      </button>
       <button type="button" className="icon-button" onClick={onSettings} title={t("settings.title")} aria-label={t("settings.title")}>
         <SettingsIcon size={16} aria-hidden="true" />
       </button>

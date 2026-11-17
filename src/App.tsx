@@ -6,6 +6,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
+import { HelpDialog } from "./components/HelpDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
@@ -16,7 +17,7 @@ import { loadSettings, saveSettings, type Settings } from "./lib/settings";
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
 
-type DialogName = "settings" | "about" | "tools" | null;
+type DialogName = "settings" | "about" | "tools" | "help" | null;
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 
@@ -105,6 +106,11 @@ export function App() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (event.key === "F1" || (event.key === "?" && !(event.target instanceof HTMLInputElement))) {
+        event.preventDefault();
+        setDialog((current) => current ?? "help");
+        return;
+      }
       if (!event.ctrlKey || event.altKey) return;
       const key = event.key.toLowerCase();
       if (key === "o") {
@@ -146,6 +152,7 @@ export function App() {
         onToggleMode={toggle}
         onTools={() => setDialog("tools")}
         onSettings={() => setDialog("settings")}
+        onHelp={() => setDialog("help")}
         onLanguage={changeLanguage}
         onHover={setOverBar}
       />
@@ -186,6 +193,7 @@ export function App() {
       )}
       {dialog === "about" && <AboutDialog onClose={() => setDialog(null)} />}
       {dialog === "tools" && <ToolsDialog onClose={() => setDialog(null)} />}
+      {dialog === "help" && <HelpDialog onClose={() => setDialog(null)} />}
     </div>
   );
 }

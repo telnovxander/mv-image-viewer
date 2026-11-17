@@ -1,0 +1,23 @@
+{
+  "keys": [
+    { "keys": "← →", "action": "previous_next", "done": false },
+    { "keys": "Home · End", "action": "first_last", "done": false },
+    { "keys": "wheel", "action": "wheel", "done": false },
+    { "keys": "Ctrl+wheel · Ctrl++ · Ctrl+−", "action": "zoom", "done": false },
+    { "keys": "Ctrl+0", "action": "fit", "done": false },
+    { "keys": "1", "action": "actual_size", "done": false },
+    { "keys": "F · F11", "action": "fullscreen", "done": false },
+    { "keys": "Space", "action": "slideshow", "done": false },
+    { "keys": "R · Shift+R", "action": "rotate", "done": false },
+    { "keys": "I", "action": "info", "done": false },
+    { "keys": "T", "action": "thumbnails", "done": false },
+    { "keys": "Delete", "action": "delete", "done": false },
+    { "keys": "Ctrl+Z", "action": "undo_delete", "done": false },
+    { "keys": "Ctrl+C", "action": "copy_image", "done": false },
+    { "keys": "Ctrl+Shift+C", "action": "copy_path", "done": false },
+    { "keys": "Ctrl+O", "action": "open", "done": true },
+    { "keys": "Ctrl+M", "action": "mode", "done": true },
+    { "keys": "? · F1", "action": "help", "done": true },
+    { "keys": "Esc", "action": "close", "done": true }
+  ]
+}

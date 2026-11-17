@@ -364,3 +364,34 @@ body {
 .splash__version {
   color: var(--splash-text-muted);
 }
+
+.help {
+  width: min(560px, calc(100vw - 64px));
+  max-height: min(60vh, 480px);
+  overflow: auto;
+}
+
+.dialog:has(.help) {
+  max-width: none;
+}
+
+.help table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.help td {
+  padding: 2px 12px 2px 0;
+  vertical-align: top;
+}
+
+.help__keys {
+  width: 1%;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  color: var(--focus);
+}
+
+.help__muted {
+  color: var(--text-muted);
+}

@@ -26,6 +26,8 @@ the Recycle Bin (see `CLAUDE.md`, "Safety").
 |---|---|
 | Ctrl+O | Open an image |
 | Ctrl+M | Switch between Sichel and Vollmond |
+| ? · F1 | Keyboard shortcuts (the full list, with the ones still to come) |
+| Esc | Close a dialog |
 
 Opening: `iv path\to\photo.jpg`, a double-click on a file once Spiegelmond is the default viewer
 (IV-10), or drag and drop into the window. A second start hands the file to the open window.
@@ -34,6 +36,9 @@ Only the image is on screen: the top bar (open, mode, Vollmond tools, language, 
 when the mouse moves and hides after two seconds. Settings: theme (System / Light / Dark), the
 background behind the image (as the theme — indigo or silver —, black, checkerboard), language,
 About.
+
+Languages: English, Russian, German (`locales/`, MV/I18N.md); the first start follows Windows,
+the dropdown in the top bar switches at once. Screenshots: `docs/screenshots/iv-12/`.
 
 Formats of IV-01, shown by WebView2 itself: JPG, PNG, GIF (animated), WebP, BMP, AVIF.
 

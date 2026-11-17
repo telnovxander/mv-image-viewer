@@ -37,6 +37,11 @@ from `testdata/`, never on real user data.)
 - **No text in components:** every string goes through `t('key')` and `locales/<lang>.json`;
   every new text goes into all languages in the same commit (`en.json` first, it is the
   reference). `src/lib/locales.test.ts` checks keys, plural forms, placeholders and hard-coded text.
+  Numbers, sizes and dates only through `Intl` (`src/lib/format.ts`, `{{count, number}}` in plural
+  strings); brand names (Spiegelmond, Sichel, Vollmond, Moonshine Vibecoder) are never translated.
+  The information panel, the "?" help, format messages and the Vollmond tools follow the same rule.
+- **Keyboard shortcuts live in one table**, `src/lib/hotkeys.json` (`done: true` when a key works);
+  the "?" / F1 help reads it, key names are translated (`keys.*`: Ctrl → Strg).
 - The list of shown formats lives in `iv-core/src/formats.rs`; `src/lib/formats.ts` repeats it
   for the open dialog (a test keeps them equal).
 - Colours only as tokens in `src/tokens.css` (the MV palette, checked for WCAG AA by
