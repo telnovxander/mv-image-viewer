@@ -168,12 +168,49 @@ body {
   justify-content: center;
 }
 
-/* Fit to the window: never larger than the window, never upscaled past 100 %. */
-.viewer__image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+/* The image at its natural size, placed and scaled by transform (src/lib/zoom.ts). */
+.image-view {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.image-view--draggable {
+  cursor: grab;
+}
+
+.image-view--draggable:active {
+  cursor: grabbing;
+}
+
+.image-view__image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: none;
+  transform-origin: 0 0;
   image-orientation: from-image;
+  image-rendering: auto;
+}
+
+/* Strong enlargement: sharp pixels instead of a blur. */
+.image-view__image--pixelated {
+  image-rendering: pixelated;
+}
+
+.zoom-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) var(--overlay-opacity), transparent);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
 }
 
 /* A card, so the hint stays readable on every stage (theme, black, checkerboard). */

@@ -7,6 +7,7 @@ import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
 import { HelpDialog } from "./components/HelpDialog";
+import { ImageView } from "./components/ImageView";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
@@ -158,12 +159,10 @@ export function App() {
       />
       <main className="viewer">
         {image && (
-          <img
+          <ImageView
             key={image.path}
-            className="viewer__image"
             src={imageUrl(image)}
             alt={t("image.alt", { name: image.name })}
-            draggable={false}
             onError={() => setError(t("error.decode", { name: image.name }))}
             onLoad={() => setError(null)}
           />

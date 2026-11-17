@@ -3,7 +3,7 @@
 A fast image viewer for Windows 10/11, part of the Moonshine Vibecoder family: open a photo and
 see it at once. Only the basics, the picture comes first.
 
-> Status: skeleton (IV-01) and the family style (IV-11) — one window, opens an image from the
+> Status: skeleton (IV-01), the family style (IV-11), languages (IV-12) and zoom (IV-02) — one window, opens an image from the
 > command line, the open dialog or by dropping it into the window; light and dark theme, Sichel and
 > Vollmond. Zoom, folder browsing, EXIF and the rest follow (IV-02…IV-19).
 
@@ -25,6 +25,13 @@ the Recycle Bin (see `CLAUDE.md`, "Safety").
 | Key | Action |
 |---|---|
 | Ctrl+O | Open an image |
+| Ctrl+wheel · touchpad pinch | Zoom to the cursor |
+| Ctrl++ · Ctrl+− | Zoom in · out to the centre |
+| Ctrl+0 | Fit to the window (the default) |
+| 1 | Actual size (100 %) |
+| W | Fit to the width |
+| Double click | Fit ↔ 100 % at the click |
+| Drag · ← → ↑ ↓ | Move an enlarged image |
 | Ctrl+M | Switch between Sichel and Vollmond |
 | ? · F1 | Keyboard shortcuts (the full list, with the ones still to come) |
 | Esc | Close a dialog |

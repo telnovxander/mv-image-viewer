@@ -71,7 +71,9 @@
     "Home": "Home",
     "End": "End",
     "Esc": "Esc",
-    "wheel": "wheel"
+    "wheel": "wheel",
+    "double-click": "double-click",
+    "drag": "drag"
   },
   "help": {
     "title": "Keyboard shortcuts",
@@ -82,7 +84,7 @@
     "previous_next": "Previous · next image in the folder",
     "first_last": "First · last image",
     "wheel": "Previous · next image with the mouse wheel",
-    "zoom": "Zoom in · out at the cursor",
+    "zoom": "Zoom in · out (Ctrl+wheel and pinch — to the cursor)",
     "fit": "Fit to the window",
     "actual_size": "Actual size (100 %)",
     "fullscreen": "Full screen (Esc — leave)",
@@ -97,6 +99,9 @@
     "open": "Open an image",
     "mode": "Switch between Sichel and Vollmond",
     "help": "These keyboard shortcuts",
-    "close": "Close a dialog"
+    "close": "Close a dialog",
+    "fit_width": "Fit to the width",
+    "double_click": "Fit ↔ 100 % at the click",
+    "pan": "Move an enlarged image"
   }
 }

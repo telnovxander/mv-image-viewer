@@ -12,9 +12,9 @@ export interface Hotkey {
 export const HOTKEYS: readonly Hotkey[] = table.keys;
 
 /** Key names that differ between keyboards and languages (Ctrl → Strg on German keyboards). */
-export const KEY_NAMES = ["Ctrl", "Shift", "Space", "Delete", "Home", "End", "Esc", "wheel"] as const;
+export const KEY_NAMES = ["Ctrl", "Shift", "Space", "Delete", "Home", "End", "Esc", "wheel", "double-click", "drag"] as const;
 
 /** Replace the key names in a table cell with their translations. */
 export function localizeKeys(keys: string, translate: (name: string) => string): string {
-  return keys.replace(new RegExp(`\\b(${KEY_NAMES.join("|")})\\b`, "g"), (name) => translate(name));
+  return keys.replace(new RegExp(`(?<![\\w-])(${KEY_NAMES.join("|")})(?![\\w-])`, "g"), (name) => translate(name));
 }

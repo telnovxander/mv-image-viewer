@@ -71,7 +71,9 @@
     "Home": "Pos1",
     "End": "Ende",
     "Esc": "Esc",
-    "wheel": "Mausrad"
+    "wheel": "Mausrad",
+    "double-click": "Doppelklick",
+    "drag": "Ziehen"
   },
   "help": {
     "title": "Tastenkürzel",
@@ -82,7 +84,7 @@
     "previous_next": "Vorheriges · nächstes Bild im Ordner",
     "first_last": "Erstes · letztes Bild",
     "wheel": "Vorheriges · nächstes Bild mit dem Mausrad",
-    "zoom": "Vergrößern · verkleinern zum Mauszeiger",
+    "zoom": "Vergrößern · verkleinern (Strg+Mausrad und Zwei-Finger-Zoom — zum Mauszeiger)",
     "fit": "An das Fenster anpassen",
     "actual_size": "Originalgröße (100 %)",
     "fullscreen": "Vollbild (Esc — beenden)",
@@ -97,6 +99,9 @@
     "open": "Bild öffnen",
     "mode": "Zwischen Sichel und Vollmond wechseln",
     "help": "Diese Tastenkürzel",
-    "close": "Dialog schließen"
+    "close": "Dialog schließen",
+    "fit_width": "An die Breite anpassen",
+    "double_click": "Einpassen ↔ 100 % an der Klickstelle",
+    "pan": "Vergrößertes Bild verschieben"
   }
 }
