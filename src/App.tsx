@@ -18,7 +18,7 @@ import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
 import { CHROME_HIDE_MS, chromeVisible } from "./lib/chrome";
-import { WEB_EXTENSIONS } from "./lib/formats";
+import { DECODED_EXTENSIONS, WEB_EXTENSIONS } from "./lib/formats";
 import { loadSettings, saveSettings, type Settings, type SortOrder } from "./lib/settings";
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
@@ -67,6 +67,8 @@ export function App() {
   const [shownSize, setShownSize] = useState<Size | null>(null);
   const [exif, setExif] = useState<ExifInfo | null>(DEMO_EXIF);
   const [infoOpen, setInfoOpen] = useState(false);
+  /** The current image could not be decoded: a placeholder with its name instead (IV-05). */
+  const [broken, setBroken] = useState(false);
   const [plan, setPlan] = useState<OrientationPlan | null>(null);
   /** The last write, offered for undo; `undone` once it was undone. */
   const [written, setWritten] = useState<{ entry: JournalEntry; undone: boolean } | null>(null);
@@ -211,7 +213,7 @@ export function App() {
       title: t("open.dialog_title"),
       multiple: false,
       directory: false,
-      filters: [{ name: t("open.filter"), extensions: WEB_EXTENSIONS }],
+      filters: [{ name: t("open.filter"), extensions: [...WEB_EXTENSIONS, ...DECODED_EXTENSIONS] }],
     });
     if (typeof path === "string") await open(path);
   }, [open, t]);
@@ -341,6 +343,7 @@ export function App() {
   useEffect(() => {
     setRotation(0);
     setShownSize(null);
+    setBroken(false);
     if (!image || !inTauri) return;
     let current = true;
     void exifOf(image.path).then((info) => {
@@ -375,14 +378,21 @@ export function App() {
             onWheelPage={go}
             rotation={rotation}
             alt={t("image.alt", { name: image.name })}
-            onError={() => setError(t("error.decode", { name: image.name }))}
+            onError={() => setBroken(true)}
             onLoad={(size) => {
               setError(null);
+              setBroken(false);
               setShownSize(size);
             }}
           />
         )}
         {image && infoOpen && <InfoPanel file={image} size={shownSize} exif={exif} onOpenMap={(lat, lon) => void openMap(lat, lon)} />}
+        {image && broken && (
+          <div className="viewer__empty" role="alert">
+            <p className="viewer__empty-title">{image.name}</p>
+            <p className="viewer__empty-hint">{t("error.decode", { name: image.name })}</p>
+          </div>
+        )}
         {!image && !error && (
           <div className="viewer__empty">
             <p className="viewer__empty-title">{t("empty.title")}</p>

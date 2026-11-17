@@ -1,15 +1,16 @@
 // Calls into the Rust side (src-tauri). Errors arrive as { code, path } (iv-core IvError).
 import { convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
+import { isDecoded } from "./formats";
 
 export interface ImageFile {
   path: string;
   name: string;
   size: number;
-  format: "web";
+  format: "web" | "decoded";
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "other";
   path: string;
 }
 
@@ -43,7 +44,9 @@ export async function listFolder(file: string, order: "name" | "modified" | "tak
 /** The URL of a local file for <img>, through the Tauri asset protocol. */
 export function pathUrl(path: string): string {
   // The browser preview (no Tauri) only shows its demo picture, whose path already is a URL.
-  return inTauri ? convertFileSrc(path) : path;
+  if (!inTauri) return path;
+  // TIFF and RAW are rendered by iv-core (`ivimg` protocol); the rest the WebView reads itself.
+  return isDecoded(path) ? convertFileSrc(path, "ivimg") : convertFileSrc(path);
 }
 
 export function imageUrl(file: ImageFile): string {

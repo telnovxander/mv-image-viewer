@@ -53,7 +53,11 @@ About.
 Languages: English, Russian, German (`locales/`, MV/I18N.md); the first start follows Windows,
 the dropdown in the top bar switches at once. Screenshots: `docs/screenshots/iv-12/`.
 
-Formats of IV-01, shown by WebView2 itself: JPG, PNG, GIF (animated), WebP, BMP, AVIF.
+Formats: shown by WebView2 itself — JPG, PNG, GIF (animated), WebP (animated), BMP, AVIF; rendered
+by `iv-core` and served through the `ivimg` protocol — TIFF (the first page, its orientation
+applied) and camera RAW built on TIFF (DNG, CR2, NEF, NRW, ARW, SRW, ORF, RW2, PEF, ERF, 3FR: the
+largest embedded JPEG preview, turned like the RAW says). A damaged file shows a placeholder with
+its name; browsing goes on. HEIC / HEIF follow (libheif, IV-05).
 
 ## Browsing a folder
 

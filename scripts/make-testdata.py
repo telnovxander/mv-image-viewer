@@ -9,6 +9,10 @@ testdata/orientation-<1..8>.jpg (IV-04): the letter F stored as a camera would s
 EXIF Orientation value, plus that tag; shown correctly, every one looks the same — an upright F,
 the dot bottom right. The pixels come from testdata/source/f-<n>.jpg (made once with ImageMagick:
 the upright F turned by the inverse of each orientation); this script only adds the EXIF segment.
+
+IV-05: pages.tif (two pages: 64×40 and 20×20, uncompressed), sample.dng (a TIFF-based RAW
+stand-in: Orientation 6 in IFD0, a small JPEG thumbnail and the large JPEG preview in a SubIFD,
+taken from testdata/source/f-small.jpg and f-1.jpg), broken.tif and broken.dng.
 """
 import struct
 import zlib
@@ -84,6 +88,69 @@ def with_orientation(jpeg, code):
     return jpeg[:2] + b"\xff\xe1" + struct.pack(">H", len(body) + 2) + body + jpeg[2:]
 
 
+def tiff_entry(tag, kind, count, value):
+    """One little-endian IFD entry; `value` is the inline value or an offset."""
+    if kind == 3 and count == 1:
+        return struct.pack("<HHIHH", tag, kind, count, value, 0)
+    return struct.pack("<HHII", tag, kind, count, value)
+
+
+def ifd(entries, next_ifd):
+    entries = sorted(entries, key=lambda e: struct.unpack("<H", e[:2])[0])
+    return struct.pack("<H", len(entries)) + b"".join(entries) + struct.pack("<I", next_ifd)
+
+
+def tiff_pages(pages):
+    """A little-endian RGB TIFF with one IFD per (width, height, rgb) page, uncompressed."""
+    out = bytearray(b"II*\x00" + struct.pack("<I", 0))
+    offsets = []
+    for width, height, rgb in pages:
+        bits = len(out)
+        out += struct.pack("<HHH", 8, 8, 8)
+        strip = len(out)
+        out += bytes(rgb) * (width * height)
+        offsets.append((width, height, bits, strip))
+    ifd_offsets = []
+    for index, (width, height, bits, strip) in enumerate(offsets):
+        if len(out) % 2:
+            out += b"\x00"
+        ifd_offsets.append(len(out))
+        entries = [
+            tiff_entry(256, 3, 1, width), tiff_entry(257, 3, 1, height), tiff_entry(258, 3, 3, bits),
+            tiff_entry(259, 3, 1, 1), tiff_entry(262, 3, 1, 2), tiff_entry(273, 4, 1, strip),
+            tiff_entry(277, 3, 1, 3), tiff_entry(278, 3, 1, height), tiff_entry(279, 4, 1, width * height * 3),
+        ]
+        out += ifd(entries, 0)
+    for index, at in enumerate(ifd_offsets):
+        next_at = ifd_offsets[index + 1] if index + 1 < len(ifd_offsets) else 0
+        count = struct.unpack_from("<H", out, at)[0]
+        struct.pack_into("<I", out, at + 2 + count * 12, next_at)
+    struct.pack_into("<I", out, 4, ifd_offsets[0])
+    return bytes(out)
+
+
+def raw_stand_in(thumbnail, preview, orientation):
+    """A TIFF-based RAW stand-in: IFD0 (Orientation, thumbnail) and a SubIFD with the preview."""
+    out = bytearray(b"II*\x00" + struct.pack("<I", 0))
+    thumb_at = len(out)
+    out += thumbnail
+    if len(out) % 2:
+        out += b"\x00"
+    preview_at = len(out)
+    out += preview
+    if len(out) % 2:
+        out += b"\x00"
+    sub_at = len(out)
+    out += ifd([tiff_entry(259, 3, 1, 7), tiff_entry(273, 4, 1, preview_at), tiff_entry(279, 4, 1, len(preview))], 0)
+    ifd0_at = len(out)
+    out += ifd([
+        tiff_entry(274, 3, 1, orientation), tiff_entry(330, 4, 1, sub_at),
+        tiff_entry(513, 4, 1, thumb_at), tiff_entry(514, 4, 1, len(thumbnail)),
+    ], 0)
+    struct.pack_into("<I", out, 4, ifd0_at)
+    return bytes(out)
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     files = {
@@ -97,6 +164,12 @@ def main():
     for code in range(1, 9):
         source = OUT / "source" / f"f-{code}.jpg"
         files[f"orientation-{code}.jpg"] = with_orientation(source.read_bytes(), code)
+    files["pages.tif"] = tiff_pages([(64, 40, (200, 120, 40)), (20, 20, (40, 120, 200))])
+    files["sample.dng"] = raw_stand_in(
+        (OUT / "source" / "f-small.jpg").read_bytes(), (OUT / "source" / "f-1.jpg").read_bytes(), 6
+    )
+    files["broken.tif"] = files["pages.tif"][:30]
+    files["broken.dng"] = b"II*\x00" + struct.pack("<I", 8) + b"\x02\x00garbage"
     for name, data in files.items():
         (OUT / name).write_bytes(data)
         print(f"testdata/{name}: {len(data)} bytes")

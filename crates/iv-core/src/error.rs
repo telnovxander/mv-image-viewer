@@ -22,6 +22,8 @@ pub enum ErrorCode {
     ChangedMeanwhile,
     /// The written file did not match the plan; the original was kept or put back.
     VerifyFailed,
+    /// The file is damaged or not what its extension says; the window shows a placeholder.
+    Broken,
     Other,
 }
 

@@ -23,7 +23,8 @@
     "decode": "Das Bild kann nicht angezeigt werden, die Datei ist vielleicht beschädigt: {{name}}",
     "no_orientation_tag": "Die Drehung kann nicht in diese Datei geschrieben werden: Sie ist kein JPEG mit Ausrichtungs-Tag. {{path}}",
     "changed_meanwhile": "Die Datei wurde nach der Vorschau geändert, nichts wurde geschrieben: {{path}}",
-    "verify_failed": "Die Prüfung nach dem Schreiben ist fehlgeschlagen, die Originaldatei bleibt erhalten: {{path}}"
+    "verify_failed": "Die Prüfung nach dem Schreiben ist fehlgeschlagen, die Originaldatei bleibt erhalten: {{path}}",
+    "broken": "Die Datei ist beschädigt oder nicht das, was ihr Name sagt: {{path}}"
   },
   "settings": {
     "title": "Einstellungen",

@@ -3,6 +3,7 @@
 //! IV-01 has what opening one file needs: which files are images, the path from the command line
 //! and the description of the file to show; IV-11 adds the settings file, IV-03 the images of a folder. Folder listing, EXIF and decoding come with IV-03…IV-05.
 
+pub mod decode;
 pub mod error;
 pub mod exif;
 pub mod folder;

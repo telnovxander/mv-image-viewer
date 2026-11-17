@@ -15,6 +15,50 @@ use tauri_plugin_opener::OpenerExt;
 #[derive(Default)]
 struct InitialPath(Mutex<Option<PathBuf>>);
 
+/// `%XX` escapes of a URL path back to text (the window encodes file paths that way).
+fn percent_decode(text: &str) -> String {
+    let bytes = text.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        let hex = |b: u8| (b as char).to_digit(16);
+        match (
+            bytes[i],
+            bytes.get(i + 1).copied().and_then(hex),
+            bytes.get(i + 2).copied().and_then(hex),
+        ) {
+            (b'%', Some(high), Some(low)) => {
+                out.push(u8::try_from(high * 16 + low).unwrap_or(b'?'));
+                i += 3;
+            }
+            (byte, _, _) => {
+                out.push(byte);
+                i += 1;
+            }
+        }
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
+/// `ivimg://localhost/<path>` (Windows: `http://ivimg.localhost/<path>`): TIFF and RAW previews
+/// rendered by `iv-core` on a background thread (IV-05). A failure answers 422, and the window
+/// shows its placeholder.
+fn serve_decoded(request: tauri::http::Request<Vec<u8>>, responder: tauri::UriSchemeResponder) {
+    let path = percent_decode(request.uri().path().trim_start_matches('/'));
+    std::thread::spawn(move || {
+        let response = match iv_core::decode::render(std::path::Path::new(&path)) {
+            Ok(rendered) => tauri::http::Response::builder()
+                .header("Content-Type", rendered.mime)
+                .header("Cache-Control", "no-store")
+                .body(rendered.bytes),
+            Err(_) => tauri::http::Response::builder()
+                .status(422)
+                .body(Vec::new()),
+        };
+        responder.respond(response.unwrap_or_else(|_| tauri::http::Response::new(Vec::new())));
+    });
+}
+
 /// Event with the path of a file opened by a second start (`iv path`, a double-click).
 const OPEN_PATH_EVENT: &str = "open-path";
 
@@ -109,6 +153,21 @@ fn save_settings(text: String) -> Result<(), IvError> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::percent_decode;
+
+    #[test]
+    fn decodes_paths_from_urls() {
+        assert_eq!(
+            percent_decode("C%3A%5CFotos%5CIMG%201.dng"),
+            "C:\\Fotos\\IMG 1.dng"
+        );
+        assert_eq!(percent_decode("%D0%A4%D0%BE%D1%82%D0%BE.tif"), "Фото.tif");
+        assert_eq!(percent_decode("100%"), "100%");
+    }
+}
+
 pub fn run() {
     let cwd = std::env::current_dir().unwrap_or_default();
     let args: Vec<String> = std::env::args().collect();
@@ -125,6 +184,9 @@ pub fn run() {
                 let _ = app.emit(OPEN_PATH_EVENT, path.display().to_string());
             }
         }))
+        .register_asynchronous_uri_scheme_protocol("ivimg", |_context, request, responder| {
+            serve_decoded(request, responder)
+        })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .manage(InitialPath(Mutex::new(first)))
