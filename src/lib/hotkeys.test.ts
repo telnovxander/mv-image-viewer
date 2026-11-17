@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import readme from "../../README.md?raw";
+import { BEGIN, END, hotkeysMarkdown } from "../../scripts/hotkeys-markdown.mjs";
+import table from "./hotkeys.json";
 import { HOTKEYS, KEY_NAMES, localizeKeys } from "./hotkeys";
 import { LOCALES } from "./locales";
 
@@ -23,5 +26,13 @@ describe("hotkeys", () => {
     for (const key of ["← →", "Home", "End", "Ctrl+0", "F11", "Esc", "Space", "Shift+R", "I", "T", "Delete", "Ctrl+Z", "Ctrl+Shift+C", "?"]) {
       expect(all).toContain(key);
     }
+  });
+});
+
+describe("README", () => {
+  it("has the same table of keys (run: node scripts/hotkeys-markdown.mjs --write)", () => {
+    const start = readme.indexOf(BEGIN);
+    const end = readme.indexOf(END) + END.length;
+    expect(readme.slice(start, end)).toBe(hotkeysMarkdown(table, LOCALES.en as unknown as { hotkeys: Record<string, string> }));
   });
 });

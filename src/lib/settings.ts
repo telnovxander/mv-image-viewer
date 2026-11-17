@@ -23,6 +23,8 @@ export interface Settings {
   language: string | null;
   sort: SortOrder;
   cacheMb: number;
+  /** Seconds per image in the slideshow (IV-06). */
+  slideSeconds: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -32,6 +34,7 @@ export const DEFAULT_SETTINGS: Settings = {
   language: null,
   sort: "name",
   cacheMb: DEFAULT_CACHE_MB,
+  slideSeconds: 4,
 };
 
 export const BACKGROUNDS: readonly Background[] = ["theme", "black", "checker"];
@@ -56,6 +59,10 @@ export function parseSettings(raw: string | null): Settings {
         typeof value.cacheMb === "number" && Number.isFinite(value.cacheMb) && value.cacheMb >= 64 && value.cacheMb <= 8192
           ? Math.round(value.cacheMb)
           : DEFAULT_CACHE_MB,
+      slideSeconds:
+        typeof value.slideSeconds === "number" && value.slideSeconds >= 1 && value.slideSeconds <= 60
+          ? Math.round(value.slideSeconds)
+          : DEFAULT_SETTINGS.slideSeconds,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

@@ -41,7 +41,8 @@
     "sort": "Reihenfolge der Bilder",
     "sort_name": "Name",
     "sort_modified": "Änderungsdatum",
-    "sort_taken": "Aufnahmedatum"
+    "sort_taken": "Aufnahmedatum",
+    "slide_seconds": "Diashow-Intervall in Sekunden"
   },
   "about": {
     "title": "Über",
@@ -97,7 +98,7 @@
     "fit": "An das Fenster anpassen",
     "actual_size": "Originalgröße (100 %)",
     "fullscreen": "Vollbild (Esc — beenden)",
-    "slideshow": "Diashow",
+    "slideshow": "Diashow: Start · Pause",
     "rotate": "Nach rechts · links drehen (nur Ansicht)",
     "info": "Informationsbereich",
     "thumbnails": "Miniaturleiste",
@@ -108,11 +109,12 @@
     "open": "Bild öffnen",
     "mode": "Zwischen Sichel und Vollmond wechseln",
     "help": "Diese Tastenkürzel",
-    "close": "Dialog schließen",
+    "close": "Dialog schließen · Vollbild beenden",
     "fit_width": "An die Breite anpassen",
     "double_click": "Einpassen ↔ 100 % an der Klickstelle",
     "pan": "Vergrößertes Bild verschieben",
-    "write_rotation": "Ansichtsdrehung in die Datei schreiben (mit Vorschau)"
+    "write_rotation": "Ansichtsdrehung in die Datei schreiben (mit Vorschau)",
+    "background": "Hintergrund hinter dem Bild: Design · Schwarz · Schachbrett"
   },
   "browse": {
     "first": "Das ist das erste Bild im Ordner",

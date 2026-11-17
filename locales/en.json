@@ -41,7 +41,8 @@
     "sort": "Order of the images",
     "sort_name": "Name",
     "sort_modified": "Date modified",
-    "sort_taken": "Date taken"
+    "sort_taken": "Date taken",
+    "slide_seconds": "Slideshow interval, seconds"
   },
   "about": {
     "title": "About",
@@ -97,7 +98,7 @@
     "fit": "Fit to the window",
     "actual_size": "Actual size (100 %)",
     "fullscreen": "Full screen (Esc — leave)",
-    "slideshow": "Slideshow",
+    "slideshow": "Slideshow: start · pause",
     "rotate": "Rotate right · left (view only)",
     "info": "Information panel",
     "thumbnails": "Thumbnail strip",
@@ -108,11 +109,12 @@
     "open": "Open an image",
     "mode": "Switch between Sichel and Vollmond",
     "help": "These keyboard shortcuts",
-    "close": "Close a dialog",
+    "close": "Close a dialog · leave full screen",
     "fit_width": "Fit to the width",
     "double_click": "Fit ↔ 100 % at the click",
     "pan": "Move an enlarged image",
-    "write_rotation": "Write the view rotation into the file (with a preview)"
+    "write_rotation": "Write the view rotation into the file (with a preview)",
+    "background": "Background behind the image: theme · black · checkerboard"
   },
   "browse": {
     "first": "This is the first image of the folder",

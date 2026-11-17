@@ -27,7 +27,10 @@ describe("parseSettings", () => {
       language: null,
       sort: "name",
       cacheMb: 512,
+      slideSeconds: 4,
     });
+    expect(parseSettings('{"slideSeconds":10}').slideSeconds).toBe(10);
+    expect(parseSettings('{"slideSeconds":0}').slideSeconds).toBe(4);
     expect(parseSettings('{"sort":"modified","cacheMb":1024}')).toMatchObject({ sort: "modified", cacheMb: 1024 });
     expect(parseSettings('{"sort":"size","cacheMb":1}')).toMatchObject({ sort: "name", cacheMb: 512 });
     expect(parseSettings('{"language":"de"}').language).toBe("de");

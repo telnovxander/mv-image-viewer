@@ -48,12 +48,17 @@
     {
       "keys": "F · F11",
       "action": "fullscreen",
-      "done": false
+      "done": true
     },
     {
       "keys": "Space",
       "action": "slideshow",
-      "done": false
+      "done": true
+    },
+    {
+      "keys": "B",
+      "action": "background",
+      "done": true
     },
     {
       "keys": "R · Shift+R",

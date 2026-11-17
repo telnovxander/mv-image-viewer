@@ -10,6 +10,8 @@ interface SettingsDialogProps {
   background: Background;
   sort: SortOrder;
   onSortChange: (sort: SortOrder) => void;
+  slideSeconds: number;
+  onSlideSecondsChange: (seconds: number) => void;
   onThemeChange: (theme: ThemePreference) => void;
   onBackgroundChange: (background: Background) => void;
   onLanguage: (code: string) => void;
@@ -30,7 +32,7 @@ function Segmented<T extends string>({ name, values, value, label, onChange }: {
   );
 }
 
-export function SettingsDialog({ theme, background, sort, onSortChange, onThemeChange, onBackgroundChange, onLanguage, onAbout, onClose }: SettingsDialogProps) {
+export function SettingsDialog({ theme, background, sort, onSortChange, slideSeconds, onSlideSecondsChange, onThemeChange, onBackgroundChange, onLanguage, onAbout, onClose }: SettingsDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog title={t("settings.title")} onClose={onClose}>
@@ -47,6 +49,20 @@ export function SettingsDialog({ theme, background, sort, onSortChange, onThemeC
         <legend>{t("settings.sort")}</legend>
         <Segmented name="sort" values={SORT_ORDERS} value={sort} label={(v) => t(`settings.sort_${v}`)} onChange={onSortChange} />
       </fieldset>
+      <label className="field field--row">
+        <span>{t("settings.slide_seconds")}</span>
+        <input
+          className="select number-input"
+          type="number"
+          min={1}
+          max={60}
+          value={slideSeconds}
+          onChange={(event) => {
+            const value = Number(event.target.value);
+            if (Number.isFinite(value) && value >= 1 && value <= 60) onSlideSecondsChange(Math.round(value));
+          }}
+        />
+      </label>
       <label className="field field--row">
         <span>{t("settings.language")}</span>
         <LanguageSelect onChange={onLanguage} />

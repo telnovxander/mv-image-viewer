@@ -19,7 +19,7 @@ import { relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
 import { CHROME_HIDE_MS, chromeVisible } from "./lib/chrome";
 import { DECODED_EXTENSIONS, WEB_EXTENSIONS } from "./lib/formats";
-import { loadSettings, saveSettings, type Settings, type SortOrder } from "./lib/settings";
+import { BACKGROUNDS, loadSettings, saveSettings, type Settings, type SortOrder } from "./lib/settings";
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
 
@@ -69,6 +69,8 @@ export function App() {
   const [infoOpen, setInfoOpen] = useState(false);
   /** The current image could not be decoded: a placeholder with its name instead (IV-05). */
   const [broken, setBroken] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [slideshow, setSlideshow] = useState(false);
   const [plan, setPlan] = useState<OrientationPlan | null>(null);
   /** The last write, offered for undo; `undone` once it was undone. */
   const [written, setWritten] = useState<{ entry: JournalEntry; undone: boolean } | null>(null);
@@ -233,6 +235,14 @@ export function App() {
     return () => unlisten.forEach((p) => void p.then((stop) => stop()));
   }, [open]);
 
+  const toggleFullscreen = useCallback(async () => {
+    const next = !fullscreen;
+    setFullscreen(next);
+    if (inTauri) await getCurrentWindow().setFullscreen(next);
+    else if (next) await document.documentElement.requestFullscreen?.().catch(() => undefined);
+    else if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
+  }, [fullscreen]);
+
   const errorText = useCallback(
     (e: unknown, path: string) => (isBackendError(e) ? t(`error.${e.code}`, { path: e.path }) : t("error.other", { path })),
     [t],
@@ -296,6 +306,27 @@ export function App() {
         }
       }
       if (!event.ctrlKey && !event.altKey && !(event.target instanceof HTMLSelectElement)) {
+        if (event.key === "F11" || event.key === "f" || event.key === "F") {
+          event.preventDefault();
+          void toggleFullscreen();
+          return;
+        }
+        if (event.key === "Escape" && (fullscreen || slideshow)) {
+          event.preventDefault();
+          setSlideshow(false);
+          if (fullscreen) void toggleFullscreen();
+          return;
+        }
+        if (event.key === " ") {
+          event.preventDefault();
+          if (entries.length > 1) setSlideshow((on) => !on);
+          return;
+        }
+        if (event.key === "b" || event.key === "B") {
+          event.preventDefault();
+          update((s) => ({ background: BACKGROUNDS[(BACKGROUNDS.indexOf(s.background) + 1) % BACKGROUNDS.length] }));
+          return;
+        }
         if (event.key === "i" || event.key === "I") {
           event.preventDefault();
           setInfoOpen((open) => !open);
@@ -322,7 +353,18 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [chooseFile, go, previewWrite, update]);
+  }, [chooseFile, entries.length, fullscreen, go, previewWrite, slideshow, toggleFullscreen, update]);
+
+  // Slideshow: the next image every slideSeconds; it stops on the last one.
+  useEffect(() => {
+    if (!slideshow) return;
+    if (index >= entries.length - 1) {
+      setSlideshow(false);
+      return;
+    }
+    const timer = window.setTimeout(() => go(1), settings.slideSeconds * 1000);
+    return () => window.clearTimeout(timer);
+  }, [entries.length, go, index, settings.slideSeconds, slideshow]);
 
   // The bars appear on a mouse move and hide again after a pause.
   const onMouseMove = useCallback(() => {
@@ -416,6 +458,8 @@ export function App() {
           background={settings.background}
           sort={settings.sort}
           onSortChange={changeSort}
+          slideSeconds={settings.slideSeconds}
+          onSlideSecondsChange={(slideSeconds) => update(() => ({ slideSeconds }))}
           onThemeChange={(theme) => update(() => ({ theme }))}
           onBackgroundChange={(background) => update(() => ({ background }))}
           onLanguage={changeLanguage}
