@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# A newer push cancels the run of an older one on the same branch (saves Actions minutes).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux · lint and tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries for Tauri
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint (tsc, cargo fmt, cargo clippy)
+        run: npm run lint
+      - name: Tests of iv-core
+        run: cargo test -p iv-core
+      - name: Tests of the interface
+        run: npm test
+
+  windows:
+    name: Windows · build and installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests of the whole workspace
+        run: cargo test --workspace
+      - name: Build installer and app
+        run: npm run tauri build
+      - name: Name the artifacts
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          New-Item -ItemType Directory -Force out | Out-Null
+          $setup = Get-ChildItem target/release/bundle/nsis/*-setup.exe | Select-Object -First 1
+          Copy-Item $setup.FullName "out/Spiegelmond-Setup-$version.exe"
+          Copy-Item target/release/iv.exe "out/Spiegelmond-$version-portable.exe"
+          Get-ChildItem out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Spiegelmond-windows
+          path: out/*.exe
+          if-no-files-found: error

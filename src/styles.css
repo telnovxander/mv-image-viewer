@@ -1,0 +1,68 @@
+/* IV-01: a plain dark stage with the image in the middle. The brand style (palette, tokens,
+   Sichel / Vollmond) comes with IV-11 (MV/BRAND.md). */
+:root {
+  --stage: #101114;
+  --text: #e8e6e1;
+  --text-dim: #9a988f;
+  --error: #f0a39b;
+  color-scheme: dark;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--stage);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+}
+
+.viewer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Fit to the window: never larger than the window, never upscaled past 100 %. */
+.viewer__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-orientation: from-image;
+}
+
+.viewer__empty {
+  text-align: center;
+  padding: 24px;
+}
+
+.viewer__empty-title {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+
+.viewer__empty-hint {
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.viewer__error {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--error);
+}

@@ -1,0 +1,22 @@
+{
+  "_meta": { "name": "Deutsch" },
+  "empty": {
+    "title": "Kein Bild geöffnet",
+    "hint": "Bild hierher ziehen oder Strg+O drücken. In der Befehlszeile: iv Pfad\\zum\\Foto.jpg"
+  },
+  "open": {
+    "dialog_title": "Bild öffnen",
+    "filter": "Bilder"
+  },
+  "image": {
+    "alt": "Bild {{name}}"
+  },
+  "error": {
+    "not_found": "Datei nicht gefunden: {{path}}",
+    "access_denied": "Kein Zugriff auf {{path}}",
+    "not_a_file": "Das ist ein Ordner, kein Bild: {{path}}",
+    "unsupported": "Spiegelmond kann diesen Dateityp nicht anzeigen: {{path}}",
+    "other": "{{path}} konnte nicht geöffnet werden",
+    "decode": "Das Bild kann nicht angezeigt werden, die Datei ist vielleicht beschädigt: {{name}}"
+  }
+}

@@ -1,0 +1,13 @@
+[package]
+name = "iv-core"
+description = "Image logic of Spiegelmond, without Tauri or GUI"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+tempfile = "3"

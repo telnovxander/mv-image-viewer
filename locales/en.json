@@ -1,0 +1,22 @@
+{
+  "_meta": { "name": "English" },
+  "empty": {
+    "title": "No image open",
+    "hint": "Drop an image here or press Ctrl+O. From the command line: iv path\\to\\photo.jpg"
+  },
+  "open": {
+    "dialog_title": "Open an image",
+    "filter": "Images"
+  },
+  "image": {
+    "alt": "Image {{name}}"
+  },
+  "error": {
+    "not_found": "File not found: {{path}}",
+    "access_denied": "No access to {{path}}",
+    "not_a_file": "This is a folder, not an image: {{path}}",
+    "unsupported": "Spiegelmond cannot show this type of file: {{path}}",
+    "other": "Could not open {{path}}",
+    "decode": "The image cannot be shown, the file may be damaged: {{name}}"
+  }
+}
