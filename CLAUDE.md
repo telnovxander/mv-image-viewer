@@ -46,7 +46,7 @@ from `testdata/`, never on real user data.)
   for the open dialog (a test keeps them equal).
 - Colours only as tokens in `src/tokens.css` (the MV palette, checked for WCAG AA by
   `src/lib/tokens.test.ts`); amber only in Vollmond. Brand assets in `assets/brand/` come from
-  MV `projects/MV/brand/` unchanged; the mode icons are the ones of Halbmond.
+  MV `projects/MV/brand/` unchanged (the mode icons from `projects/MV/brand/modes/`).
 - Windows-only code lives under `#[cfg(windows)]` and is checked by the Windows CI job.
 - Dependencies: only those approved in `projects/IV/PROJECT.md`; anything else is a question to Alex.
 
