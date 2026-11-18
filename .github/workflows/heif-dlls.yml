@@ -1,0 +1,39 @@
+name: HEIF DLLs
+
+# IV-05: builds libheif + libde265 (LGPL, decoding only) once with vcpkg on Windows. Started by hand
+# (Actions → HEIF DLLs → Run workflow), never on push. The artifact goes into vendor/heif/ of the
+# repository; the program loads the DLLs at run time (dynamic linking, LGPL allows it).
+# Only the "libde265" feature: the default "hevc" feature pulls the x265 encoder (GPL) — not wanted.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build heif.dll and libde265.dll
+    runs-on: windows-latest
+    steps:
+      - name: Build with vcpkg
+        shell: pwsh
+        run: |
+          $vcpkg = "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe"
+          & $vcpkg install "libheif[core,libde265]:x64-windows" --clean-after-build
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $root = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows"
+          New-Item -ItemType Directory -Force out/licenses | Out-Null
+          Copy-Item "$root\bin\*.dll" out/
+          foreach ($pkg in Get-ChildItem "$root\share" -Directory) {
+            $copyright = Join-Path $pkg.FullName "copyright"
+            if (Test-Path $copyright) { Copy-Item $copyright "out/licenses/$($pkg.Name).txt" }
+          }
+          & $vcpkg list --x-full-desc | Out-File -Encoding utf8 out/VERSIONS.txt
+          git -C $env:VCPKG_INSTALLATION_ROOT rev-parse HEAD | Out-File -Encoding utf8 -Append out/VERSIONS.txt
+          Get-ChildItem -Recurse out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heif-dlls
+          path: out/
+          if-no-files-found: error
