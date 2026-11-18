@@ -13,6 +13,44 @@ Download `Spiegelmond-Setup-<version>.exe` (the artifact `Spiegelmond-windows` o
 it. It installs for the current user, without administrator rights. The polished installer comes
 with IV-10. `Spiegelmond-<version>-portable.exe` runs without installing.
 
+### If Windows blocks the installation
+
+The installer is not signed: a code signing certificate costs money, and free ways are still being
+checked (MV-12). Windows therefore shows one of two windows. The text below can be forwarded as it is.
+
+**Если Windows блокирует установку (по-русски)**
+
+- *Синее окно «Windows защитила ваш компьютер»* (SmartScreen): нажмите «Подробнее», затем
+  «Выполнить в любом случае». Это нормально для программ без платной подписи.
+- *Окно «Интеллектуальное управление приложениями заблокировало…»* (Smart App Control): кнопки
+  «всё равно запустить» нет, исключений для отдельных программ Windows не делает. Пока программа не
+  подписана, поставить её можно только выключив эту функцию: «Пуск → Безопасность Windows →
+  Управление приложениями/браузером → Параметры интеллектуального управления приложениями → Выкл.»
+  Это снижает защиту компьютера; решайте сами, нужна ли вам эта программа настолько.
+
+**If Windows blocks the installation (English)**
+
+- *Blue window "Windows protected your PC"* (SmartScreen): click "More info", then "Run anyway".
+  This is normal for programs without a paid signature.
+- *"Smart App Control blocked …"*: there is no "run anyway", and Windows makes no exceptions for
+  single programs. Until the program is signed, the only way is to turn the feature off: "Start →
+  Windows Security → App & browser control → Smart App Control settings → Off". This lowers the
+  protection of the computer; decide whether you need the program that much.
+
+**Wenn Windows die Installation blockiert (Deutsch)**
+
+- *Blaues Fenster „Der Computer wurde durch Windows geschützt"* (SmartScreen): auf „Weitere
+  Informationen" klicken, dann auf „Trotzdem ausführen". Das ist bei Programmen ohne kostenpflichtige
+  Signatur normal.
+- *„Die intelligente App-Steuerung hat … blockiert"* (Smart App Control): Es gibt kein „Trotzdem
+  ausführen", und Windows macht keine Ausnahmen für einzelne Programme. Solange das Programm nicht
+  signiert ist, geht es nur, wenn die Funktion ausgeschaltet wird: „Start → Windows-Sicherheit →
+  App- & Browsersteuerung → Einstellungen für die intelligente App-Steuerung → Aus". Das senkt den
+  Schutz des Computers; entscheiden Sie selbst, ob Sie das Programm so dringend brauchen.
+
+The names of the menu items can differ slightly between Windows versions. The program never asks
+to turn anything off by itself, and it does not try to get around these checks.
+
 ## Where the data is
 
 Settings: `%LOCALAPPDATA%\Spiegelmond\settings.json` (theme, mode, background behind the image,
