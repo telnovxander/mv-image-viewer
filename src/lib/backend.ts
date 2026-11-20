@@ -337,3 +337,28 @@ export async function findDuplicates(id: number, folder: string, recursive: bool
 export async function duplicatesPreview(groups: DuplicateGroup[], remove: string[][], protectedFolders: string[]): Promise<{ plan: Plan; summary: PlanSummary }> {
   return invoke("duplicates_preview", { groups, delete: remove, protected: protectedFolders });
 }
+
+// IV-18: similar photos.
+
+export interface Quality {
+  sharpness: number;
+  pixels: number;
+  exposure: number;
+}
+
+export interface SimilarGroup {
+  files: Indexed[];
+  qualities: Quality[];
+  best: number;
+}
+
+export type SimilarEvent =
+  | { event: "progress"; progress: { done: number; total: number } }
+  | { event: "done"; groups: SimilarGroup[]; cancelled: boolean }
+  | { event: "error"; error: BackendError };
+
+export async function findSimilar(id: number, folder: string, recursive: boolean, threshold: number, onEvent: (event: SimilarEvent) => void): Promise<void> {
+  const channel = new Channel<SimilarEvent>();
+  channel.onmessage = onEvent;
+  return invoke("find_similar", { id, folder, recursive, threshold, onEvent: channel });
+}

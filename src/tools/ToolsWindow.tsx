@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DatesSection } from "./DatesSection";
 import { DuplicatesSection } from "./DuplicatesSection";
+import { SimilarSection } from "./SimilarSection";
 import { applyBatch, cancelJob, indexFolder, inTauri, isBackendError, undoPlan, vollmondOperations, type IndexProgress, type IndexSummary, type Operation } from "../lib/backend";
 import { formatDateTime } from "../lib/format";
 
@@ -146,6 +147,7 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange }: Too
       {folder && summary && (
         <DuplicatesSection folder={folder} recursive={recursive} protectedFolders={protectedFolders} onProtectedChange={onProtectedChange} onApplied={refreshJournal} />
       )}
+      {folder && summary && <SimilarSection folder={folder} recursive={recursive} protectedFolders={protectedFolders} onApplied={refreshJournal} />}
       <section className="tools__section" aria-labelledby="tools-journal">
         <h3 id="tools-journal" className="tools__heading">
           <History size={16} aria-hidden="true" />

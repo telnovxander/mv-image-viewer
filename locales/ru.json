@@ -393,5 +393,23 @@
     "applied_few": "В корзину перемещено {{count, number}} файла.",
     "applied_many": "В корзину перемещено {{count, number}} файлов.",
     "applied_other": "В корзину перемещено {{count, number}} файла."
+  },
+  "similar": {
+    "title": "Похожие фото",
+    "threshold": "Насколько похожи",
+    "find": "Найти похожие",
+    "compare_one": "Сравнить ({{count, number}} из 2)",
+    "compare_few": "Сравнить ({{count, number}} из 2)",
+    "compare_many": "Сравнить ({{count, number}} из 2)",
+    "compare_other": "Сравнить ({{count, number}} из 2)",
+    "found_one": "{{count, number}} группа похожих фото. ★ — лучший кадр (только подсказка).",
+    "found_few": "{{count, number}} группы похожих фото. ★ — лучший кадр (только подсказка).",
+    "found_many": "{{count, number}} групп похожих фото. ★ — лучший кадр (только подсказка).",
+    "found_other": "{{count, number}} группы похожих фото. ★ — лучший кадр (только подсказка).",
+    "best": "Лучший кадр (подсказка)",
+    "quality": "резкость {{sharp}}, экспозиция {{exposure}}%",
+    "to_compare": "сравнить",
+    "compare_title": "Сравнение двух кадров",
+    "compare_keys": "+ / − — зум обоих, стрелки — сдвиг обоих, 0 — вписать, Ctrl+колесо и перетаскивание тоже; Esc — закрыть."
   }
 }

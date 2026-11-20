@@ -339,5 +339,19 @@
     "all_done": "Done. Every batch is in the journal and can be undone (the files come back from the Recycle Bin).",
     "applied_one": "{{count, number}} file moved to the Recycle Bin.",
     "applied_other": "{{count, number}} files moved to the Recycle Bin."
+  },
+  "similar": {
+    "title": "Similar photos",
+    "threshold": "How similar",
+    "find": "Find similar",
+    "compare_one": "Compare ({{count, number}} of 2)",
+    "compare_other": "Compare ({{count, number}} of 2)",
+    "found_one": "{{count, number}} group of similar photos. ★ marks the best frame (a hint only).",
+    "found_other": "{{count, number}} groups of similar photos. ★ marks the best frame (a hint only).",
+    "best": "Best frame (hint)",
+    "quality": "sharpness {{sharp}}, exposure {{exposure}}%",
+    "to_compare": "compare",
+    "compare_title": "Compare two frames",
+    "compare_keys": "+ / − zoom both, arrows move both, 0 fits, Ctrl+wheel and dragging work too; Esc closes."
   }
 }

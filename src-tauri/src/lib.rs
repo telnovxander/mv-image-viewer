@@ -508,6 +508,69 @@ fn find_duplicates(
     });
 }
 
+/// Events of a search for similar photos (IV-18).
+#[derive(Clone, serde::Serialize)]
+#[serde(tag = "event", rename_all = "snake_case")]
+enum SimilarEvent {
+    Progress {
+        progress: iv_core::vollmond::similar::Progress,
+    },
+    Done {
+        groups: Vec<iv_core::vollmond::similar::SimilarGroup>,
+        cancelled: bool,
+    },
+    Error {
+        error: IvError,
+    },
+}
+
+/// Find similar photos in an indexed folder, in the background; `cancel_job` stops it.
+#[tauri::command]
+fn find_similar(
+    id: u32,
+    folder: String,
+    recursive: bool,
+    threshold: u32,
+    on_event: tauri::ipc::Channel<SimilarEvent>,
+    jobs: tauri::State<'_, Jobs>,
+) {
+    let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    if let Ok(mut map) = jobs.0.lock() {
+        map.insert(id, cancel.clone());
+    }
+    let registry = jobs.0.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let result = vollmond_dirs().and_then(|(cache, _)| {
+            let index = iv_core::vollmond::index::Index::open(&cache.join("index.sqlite"))?;
+            let images = index.images(std::path::Path::new(&folder), recursive)?;
+            let thumbs = iv_core::thumbs::ThumbCache::new(
+                &cache.join("thumbs"),
+                iv_core::thumbs::CACHE_LIMIT,
+            );
+            Ok(iv_core::vollmond::similar::find(
+                &index,
+                &images,
+                threshold,
+                Some(&thumbs),
+                &cancel,
+                |progress| {
+                    let _ = on_event.send(SimilarEvent::Progress { progress });
+                },
+            ))
+        });
+        let _ = on_event.send(match result {
+            Ok(groups) => SimilarEvent::Done {
+                groups,
+                cancelled: cancel.load(std::sync::atomic::Ordering::Relaxed),
+            },
+            Err(error) => SimilarEvent::Error { error },
+        });
+        if let Ok(mut map) = registry.lock() {
+            map.remove(&id);
+        }
+    });
+}
+
 /// The preview of deleting the chosen duplicates (refused for a whole group or a protected folder).
 #[tauri::command]
 fn duplicates_preview(
@@ -680,6 +743,7 @@ pub fn run() {
             transfer_report,
             find_duplicates,
             duplicates_preview,
+            find_similar,
             manual_dates_preview,
             apply_batch,
             undo_plan,

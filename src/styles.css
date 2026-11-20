@@ -852,3 +852,48 @@ body {
   border: 1px solid var(--border);
   border-radius: 3px;
 }
+
+/* IV-18: comparing two frames with one zoom. */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: min(900px, calc(100vw - 80px));
+  height: min(520px, calc(100vh - 220px));
+  outline: none;
+}
+
+.compare:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+.compare__pane {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-alt);
+  border-radius: 4px;
+}
+
+.compare__pane img {
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center;
+}
+
+.compare__name {
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+  font-size: 11px;
+}
+
+.dialog:has(.compare) {
+  max-width: none;
+}
+
+.similar__best {
+  color: var(--accent-amber);
+}

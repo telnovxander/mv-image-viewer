@@ -339,5 +339,19 @@
     "all_done": "Fertig. Jeder Teil steht im Protokoll und kann rückgängig gemacht werden (die Dateien kommen aus dem Papierkorb zurück).",
     "applied_one": "{{count, number}} Datei in den Papierkorb verschoben.",
     "applied_other": "{{count, number}} Dateien in den Papierkorb verschoben."
+  },
+  "similar": {
+    "title": "Ähnliche Fotos",
+    "threshold": "Wie ähnlich",
+    "find": "Ähnliche suchen",
+    "compare_one": "Vergleichen ({{count, number}} von 2)",
+    "compare_other": "Vergleichen ({{count, number}} von 2)",
+    "found_one": "{{count, number}} Gruppe ähnlicher Fotos. ★ markiert das beste Bild (nur ein Hinweis).",
+    "found_other": "{{count, number}} Gruppen ähnlicher Fotos. ★ markiert das beste Bild (nur ein Hinweis).",
+    "best": "Bestes Bild (Hinweis)",
+    "quality": "Schärfe {{sharp}}, Belichtung {{exposure}} %",
+    "to_compare": "vergleichen",
+    "compare_title": "Zwei Bilder vergleichen",
+    "compare_keys": "+ / − zoomen beide, Pfeile verschieben beide, 0 passt ein, Strg+Rad und Ziehen gehen auch; Esc schließt."
   }
 }
