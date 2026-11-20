@@ -42,6 +42,10 @@ pub enum ErrorCode {
     CopyFailed,
     /// IV-07: Windows' "Open with" dialog could not be shown.
     OpenWithFailed,
+    /// IV-13: the index of the photo archive could not be read or written.
+    IndexFailed,
+    /// IV-13: a long operation was stopped by the user.
+    Cancelled,
     Other,
 }
 
