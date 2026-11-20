@@ -435,6 +435,44 @@ mod tests {
         assert_eq!(fs::read(&path).expect("read"), bytes);
     }
 
+    /// 50 000 rows (IV-14): `cargo test -p iv-core --release -- --ignored --nocapture dates_of_50_000`.
+    #[test]
+    #[ignore]
+    fn dates_of_50_000() {
+        let images: Vec<Indexed> = (0..50_000u32)
+            .map(|i| Indexed {
+                path: format!(
+                    r"D:\Fotos\{:03}\IMG_2023{:02}{:02}_1{:05}.jpg",
+                    i / 500,
+                    1 + i % 12,
+                    1 + i % 28,
+                    i % 60_000
+                ),
+                size: 3_000_000,
+                modified: 1_763_600_000_000,
+                taken: (i % 3 != 0).then(|| "2023-05-12T14:30:00".to_owned()),
+                camera: None,
+                width: None,
+                height: None,
+                hash: None,
+            })
+            .collect();
+        let start = std::time::Instant::now();
+        let table = rows(&images, today());
+        let built = start.elapsed();
+        let json = serde_json::to_vec(&table).expect("json");
+        let serialized = start.elapsed();
+        let plan = plan(&table, false);
+        println!(
+            "rows {built:?}, + json {serialized:?} ({} MB), plan {:?}: {} changes, {} batches",
+            json.len() / 1_000_000,
+            start.elapsed(),
+            plan.changes.len(),
+            plan.summary().batches.len()
+        );
+        assert_eq!(table.len(), 50_000);
+    }
+
     #[test]
     fn local_time_round_trip() {
         let s = Stamp::parse("2023-07-01T12:34:56").expect("s");

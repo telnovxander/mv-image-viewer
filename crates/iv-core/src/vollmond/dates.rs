@@ -12,8 +12,9 @@ use serde::Serialize;
 
 use super::plan::{Change, Plan};
 
-/// A date and time without a zone, as cameras write it: `YYYY-MM-DDTHH:MM:SS`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+/// A date and time without a zone, as cameras write it: `YYYY-MM-DDTHH:MM:SS` (also its form for
+/// the window: a short string instead of six fields keeps a table of 50 000 rows small).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Stamp {
     pub year: u16,
     pub month: u8,
@@ -114,6 +115,12 @@ impl Stamp {
             u8::try_from(rest % 3600 / 60).ok()?,
             u8::try_from(rest % 60).ok()?,
         )
+    }
+}
+
+impl Serialize for Stamp {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&self.iso())
     }
 }
 

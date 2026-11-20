@@ -403,6 +403,105 @@ fn cancel_job(id: u32, jobs: tauri::State<'_, Jobs>) {
     }
 }
 
+/// Today in the local zone, for "a date in the future" (IV-14, point 13).
+fn today() -> iv_core::vollmond::dates::Stamp {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX));
+    // 2100-01-01 if the clock cannot be read: nothing counts as "in the future" then.
+    iv_core::vollmond::dates_tool::utc_to_local(now).unwrap_or(iv_core::vollmond::dates::Stamp {
+        year: 2100,
+        month: 1,
+        day: 1,
+        hour: 0,
+        minute: 0,
+        second: 0,
+    })
+}
+
+fn indexed(
+    folder: &str,
+    recursive: bool,
+) -> Result<Vec<iv_core::vollmond::index::Indexed>, IvError> {
+    let (cache, _) = vollmond_dirs()?;
+    let index = iv_core::vollmond::index::Index::open(&cache.join("index.sqlite"))?;
+    index.images(std::path::Path::new(folder), recursive)
+}
+
+/// The dates table of an indexed folder (IV-14). Reads only.
+#[tauri::command]
+async fn dates_rows(
+    folder: String,
+    recursive: bool,
+) -> Result<Vec<iv_core::vollmond::dates::DateRow>, IvError> {
+    tauri::async_runtime::spawn_blocking(move || {
+        Ok(iv_core::vollmond::dates_tool::rows(
+            &indexed(&folder, recursive)?,
+            today(),
+        ))
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
+}
+
+/// The preview of fixing the dates: the plan and its totals; nothing is changed.
+#[derive(serde::Serialize)]
+struct Preview {
+    plan: iv_core::vollmond::plan::Plan,
+    summary: iv_core::vollmond::plan::PlanSummary,
+}
+
+#[tauri::command]
+async fn dates_preview(
+    folder: String,
+    recursive: bool,
+    with_suspicious: bool,
+) -> Result<Preview, IvError> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let rows = iv_core::vollmond::dates_tool::rows(&indexed(&folder, recursive)?, today());
+        let plan = iv_core::vollmond::dates_tool::plan(&rows, with_suspicious);
+        let summary = plan.summary();
+        Ok(Preview { plan, summary })
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
+}
+
+/// Apply one confirmed batch of a plan (journal first, the first failure stops it).
+#[tauri::command]
+async fn apply_batch(
+    plan: iv_core::vollmond::plan::Plan,
+    start: usize,
+    end: usize,
+    undoes: Option<u64>,
+) -> Result<iv_core::vollmond::plan::ApplyReport, IvError> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let (_, journal) = vollmond_dirs()?;
+        let journal = iv_core::vollmond::plan::Journal::new(&journal);
+        let apply_one = match plan.tool.as_str() {
+            iv_core::vollmond::dates_tool::TOOL => iv_core::vollmond::dates_tool::apply_change,
+            _ => {
+                return Err(IvError::new(
+                    ErrorCode::Unsupported,
+                    std::path::Path::new(&plan.tool),
+                ))
+            }
+        };
+        let cancel = std::sync::atomic::AtomicBool::new(false);
+        iv_core::vollmond::plan::apply(&plan, start..end, &journal, undoes, &cancel, apply_one)
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("apply")))?
+}
+
+/// The plan that undoes operation `op` (applied with `apply_batch`, `undoes: op`).
+#[tauri::command]
+fn undo_plan(op: u64) -> Result<iv_core::vollmond::plan::Plan, IvError> {
+    let (_, journal) = vollmond_dirs()?;
+    iv_core::vollmond::plan::undo_plan(&iv_core::vollmond::plan::Journal::new(&journal), op)
+        .ok_or_else(|| IvError::new(ErrorCode::NotFound, std::path::Path::new("journal")))
+}
+
 /// The journal of Vollmond operations, newest first (IV-13).
 #[tauri::command]
 fn vollmond_operations() -> Result<Vec<iv_core::vollmond::plan::Operation>, IvError> {
@@ -474,6 +573,10 @@ pub fn run() {
             index_folder,
             cancel_job,
             vollmond_operations,
+            dates_rows,
+            dates_preview,
+            apply_batch,
+            undo_plan,
             load_settings,
             save_settings
         ])

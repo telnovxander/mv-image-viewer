@@ -93,7 +93,12 @@
     "files_one": "{{count, number}} Datei",
     "files_other": "{{count, number}} Dateien",
     "interrupted": "unterbrochen",
-    "undone": "rückgängig gemacht"
+    "undone": "rückgängig gemacht",
+    "undo": "Rückgängig",
+    "is_undo": "Rücknahme",
+    "tool": {
+      "dates": "Daten"
+    }
   },
   "units": {
     "b": "B",
@@ -214,5 +219,40 @@
   },
   "strip": {
     "label": "Miniaturen des Ordners"
+  },
+  "dates": {
+    "title": "Daten",
+    "show": "Daten anzeigen",
+    "reload": "Neu lesen",
+    "filter": "Welche Dateien",
+    "filter_all": "Alle",
+    "filter_mismatches": "Abweichungen",
+    "filter_no_date_taken": "Ohne Aufnahmedatum",
+    "count_one": "{{count, number}} von {{total, number}} Datei",
+    "count_other": "{{count, number}} von {{total, number}} Dateien",
+    "file": "Datei",
+    "taken": "Aufnahme (EXIF)",
+    "from_name": "Aus dem Namen",
+    "modified": "Dateidatum",
+    "proposed": "Soll sein",
+    "suspicious": "verdächtig",
+    "preview": "Vorschau der Korrekturen",
+    "with_suspicious": "Auch verdächtige Daten korrigieren (Zukunft, vor 1990)",
+    "summary_one": "{{count, number}} Datei, {{changes, number}} Änderungen: fehlende Aufnahmedaten kommen aus dem Namen, Dateidaten werden aufs Aufnahmedatum gesetzt. Vorhandene Aufnahmedaten werden nie geändert.",
+    "summary_other": "{{count, number}} Dateien, {{changes, number}} Änderungen: fehlende Aufnahmedaten kommen aus dem Namen, Dateidaten werden aufs Aufnahmedatum gesetzt. Vorhandene Aufnahmedaten werden nie geändert.",
+    "summary_suspicious_one": "{{count, number}} verdächtige Änderung ist dabei.",
+    "summary_suspicious_other": "{{count, number}} verdächtige Änderungen sind dabei.",
+    "warning_cloud": "Dieser Ordner wird mit einer Cloud synchronisiert: Die Änderungen gehen auf alle Geräte. {{path}}",
+    "warning_network": "Das ist ein Netzwerkordner: Andere könnten diese Dateien nutzen. {{path}}",
+    "batches_one": "In {{count, number}} Teil, jeder bestätigt.",
+    "batches_other": "In {{count, number}} Teilen, jeder bestätigt; der erste ist ein Test mit 10 Dateien.",
+    "apply_batch_one": "Teil {{n}} von {{of}} anwenden ({{count, number}} Änderung)",
+    "apply_batch_other": "Teil {{n}} von {{of}} anwenden ({{count, number}} Änderungen)",
+    "confirm_one": "Jetzt {{count, number}} Änderung in die Dateien schreiben?",
+    "confirm_other": "Jetzt {{count, number}} Änderungen in die Dateien schreiben?",
+    "confirm_yes": "Ja, ändern",
+    "all_done": "Alle Teile angewendet. Jede Änderung steht im Protokoll und kann rückgängig gemacht werden.",
+    "applied_one": "{{count, number}} Änderung angewendet.",
+    "applied_other": "{{count, number}} Änderungen angewendet."
   }
 }

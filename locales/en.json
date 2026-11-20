@@ -93,7 +93,12 @@
     "files_one": "{{count, number}} file",
     "files_other": "{{count, number}} files",
     "interrupted": "interrupted",
-    "undone": "undone"
+    "undone": "undone",
+    "undo": "Undo",
+    "is_undo": "undo",
+    "tool": {
+      "dates": "Dates"
+    }
   },
   "units": {
     "b": "B",
@@ -214,5 +219,40 @@
   },
   "strip": {
     "label": "Thumbnails of the folder"
+  },
+  "dates": {
+    "title": "Dates",
+    "show": "Show the dates",
+    "reload": "Read again",
+    "filter": "Which files",
+    "filter_all": "All",
+    "filter_mismatches": "Mismatches",
+    "filter_no_date_taken": "No date taken",
+    "count_one": "{{count, number}} of {{total, number}} file",
+    "count_other": "{{count, number}} of {{total, number}} files",
+    "file": "File",
+    "taken": "Taken (EXIF)",
+    "from_name": "From the name",
+    "modified": "File date",
+    "proposed": "Should be",
+    "suspicious": "suspicious",
+    "preview": "Preview the fixes",
+    "with_suspicious": "Also fix suspicious dates (future, before 1990)",
+    "summary_one": "{{count, number}} file, {{changes, number}} changes: missing dates taken are added from the name, file dates set to the date taken. Existing dates taken are never changed.",
+    "summary_other": "{{count, number}} files, {{changes, number}} changes: missing dates taken are added from the name, file dates set to the date taken. Existing dates taken are never changed.",
+    "summary_suspicious_one": "{{count, number}} suspicious change is included.",
+    "summary_suspicious_other": "{{count, number}} suspicious changes are included.",
+    "warning_cloud": "This folder is synced to a cloud: the changes go to every device. {{path}}",
+    "warning_network": "This is a network folder: other people may use these files. {{path}}",
+    "batches_one": "In {{count, number}} batch, each confirmed.",
+    "batches_other": "In {{count, number}} batches, each confirmed; the first is a trial of 10 files.",
+    "apply_batch_one": "Apply batch {{n}} of {{of}} ({{count, number}} change)",
+    "apply_batch_other": "Apply batch {{n}} of {{of}} ({{count, number}} changes)",
+    "confirm_one": "Change {{count, number}} file entry now?",
+    "confirm_other": "Change {{count, number}} file entries now?",
+    "confirm_yes": "Yes, change",
+    "all_done": "All batches applied. Every change is in the journal and can be undone.",
+    "applied_one": "{{count, number}} change applied.",
+    "applied_other": "{{count, number}} changes applied."
   }
 }

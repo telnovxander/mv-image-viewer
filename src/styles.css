@@ -714,3 +714,67 @@ body {
   padding-left: 18px;
   overflow: auto;
 }
+
+/* IV-14: the dates table (virtualized: only the rows in view exist). */
+.dates__table {
+  margin-top: 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.dates__row {
+  display: grid;
+  grid-template-columns: minmax(8em, 1.3fr) repeat(4, minmax(7em, 1fr));
+  gap: 6px;
+  align-items: center;
+  height: 22px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.dates__row > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dates__row--head {
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.dates__body {
+  overflow-y: auto;
+}
+
+.dates__body .dates__row {
+  position: absolute;
+  inset: 0 0 auto 0;
+}
+
+.dates__row--mismatch {
+  box-shadow: inset 3px 0 0 var(--accent-amber);
+}
+
+.dates__row--suspicious {
+  color: var(--danger);
+}
+
+.tools__inline {
+  margin-top: 0;
+}
+
+.tools__preview {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--accent-amber);
+  background: var(--surface-alt);
+}
+
+.tools__warning {
+  color: var(--danger);
+}
+
+.tools__undo {
+  margin-left: 8px;
+}

@@ -2,7 +2,8 @@ import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, History } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { cancelJob, indexFolder, inTauri, vollmondOperations, type IndexProgress, type IndexSummary, type Operation } from "../lib/backend";
+import { DatesSection } from "./DatesSection";
+import { applyBatch, cancelJob, indexFolder, inTauri, isBackendError, undoPlan, vollmondOperations, type IndexProgress, type IndexSummary, type Operation } from "../lib/backend";
 import { formatDateTime } from "../lib/format";
 
 let nextJob = 1;
@@ -22,9 +23,27 @@ export default function ToolsWindow() {
   const [error, setError] = useState<string | null>(null);
   const [operations, setOperations] = useState<Operation[]>([]);
   const job = useRef<number | null>(null);
+  const [undoing, setUndoing] = useState<number | null>(null);
+
+  const refreshJournal = () => void vollmondOperations().then(setOperations).catch(() => setOperations([]));
+
+  /** Undo an operation: its changes reversed, through the same safe path, as a new journal entry. */
+  const undo = async (op: number) => {
+    setUndoing(op);
+    setError(null);
+    try {
+      const plan = await undoPlan(op);
+      const report = await applyBatch(plan, 0, plan.changes.length, op);
+      if (report.error) setError(t(`error.${report.error.code}`, { path: report.error.path }));
+    } catch (e) {
+      setError(isBackendError(e) ? t(`error.${e.code}`, { path: e.path }) : String(e));
+    }
+    setUndoing(null);
+    refreshJournal();
+  };
 
   useEffect(() => {
-    void vollmondOperations().then(setOperations).catch(() => setOperations([]));
+    refreshJournal();
     return () => {
       if (job.current !== null) void cancelJob(job.current);
     };
@@ -117,6 +136,7 @@ export default function ToolsWindow() {
           </p>
         )}
       </section>
+      {folder && summary && <DatesSection folder={folder} recursive={recursive} onApplied={refreshJournal} />}
       <section className="tools__section" aria-labelledby="tools-journal">
         <h3 id="tools-journal" className="tools__heading">
           <History size={16} aria-hidden="true" />
@@ -132,6 +152,12 @@ export default function ToolsWindow() {
                 {t("tools.files", { count: op.applied.length })}
                 {op.interrupted && ` · ${t("tools.interrupted")}`}
                 {op.undone && ` · ${t("tools.undone")}`}
+                {op.undoes !== null && ` · ${t("tools.is_undo")}`}
+                {!op.undone && op.undoes === null && op.applied.length > 0 && (
+                  <button type="button" className="link-button tools__undo" disabled={undoing !== null} onClick={() => void undo(op.op)}>
+                    {t("tools.undo")}
+                  </button>
+                )}
               </li>
             ))}
           </ul>

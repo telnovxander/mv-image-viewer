@@ -227,3 +227,54 @@ export interface Operation {
 export async function vollmondOperations(): Promise<Operation[]> {
   return inTauri ? invoke<Operation[]>("vollmond_operations") : [];
 }
+
+// IV-14: the dates tool.
+
+/** A local date and time without a zone: `2023-05-12T14:30:00`. */
+export type Stamp = string;
+
+export interface DateRow {
+  path: string;
+  taken: Stamp | null;
+  from_name: { stamp: Stamp; scheme: string; day_only: boolean } | null;
+  modified: Stamp | null;
+  proposed: Stamp | null;
+  mismatch: boolean;
+  suspicious: boolean;
+}
+
+export interface Plan {
+  tool: string;
+  changes: PlannedChange[];
+}
+
+export interface PlanSummary {
+  files: number;
+  changes: number;
+  suspicious: number;
+  batches: [number, number][];
+  warnings: [string, "cloud" | "network"][];
+}
+
+export interface ApplyReport {
+  op: number;
+  applied: number;
+  stopped_at: number | null;
+  error: BackendError | null;
+}
+
+export async function datesRows(folder: string, recursive: boolean): Promise<DateRow[]> {
+  return invoke<DateRow[]>("dates_rows", { folder, recursive });
+}
+
+export async function datesPreview(folder: string, recursive: boolean, withSuspicious: boolean): Promise<{ plan: Plan; summary: PlanSummary }> {
+  return invoke("dates_preview", { folder, recursive, withSuspicious });
+}
+
+export async function applyBatch(plan: Plan, start: number, end: number, undoes: number | null): Promise<ApplyReport> {
+  return invoke<ApplyReport>("apply_batch", { plan, start, end, undoes });
+}
+
+export async function undoPlan(op: number): Promise<Plan> {
+  return invoke<Plan>("undo_plan", { op });
+}

@@ -101,7 +101,12 @@
     "files_many": "{{count, number}} файлов",
     "files_other": "{{count, number}} файла",
     "interrupted": "прервано",
-    "undone": "отменено"
+    "undone": "отменено",
+    "undo": "Отменить",
+    "is_undo": "отмена",
+    "tool": {
+      "dates": "Даты"
+    }
   },
   "units": {
     "b": "Б",
@@ -226,5 +231,54 @@
   },
   "strip": {
     "label": "Миниатюры папки"
+  },
+  "dates": {
+    "title": "Даты",
+    "show": "Показать даты",
+    "reload": "Прочитать заново",
+    "filter": "Какие файлы",
+    "filter_all": "Все",
+    "filter_mismatches": "С расхождениями",
+    "filter_no_date_taken": "Без даты съёмки",
+    "count_one": "{{count, number}} из {{total, number}} файла",
+    "count_few": "{{count, number}} из {{total, number}} файлов",
+    "count_many": "{{count, number}} из {{total, number}} файлов",
+    "count_other": "{{count, number}} из {{total, number}} файлов",
+    "file": "Файл",
+    "taken": "Съёмка (EXIF)",
+    "from_name": "Из имени",
+    "modified": "Дата файла",
+    "proposed": "Должно быть",
+    "suspicious": "подозрительно",
+    "preview": "Предпросмотр исправлений",
+    "with_suspicious": "Исправлять и подозрительные даты (будущее, до 1990)",
+    "summary_one": "{{count, number}} файл, изменений {{changes, number}}: недостающие даты съёмки берутся из имени, даты файлов ставятся по дате съёмки. Существующие даты съёмки не меняются никогда.",
+    "summary_few": "{{count, number}} файла, изменений {{changes, number}}: недостающие даты съёмки берутся из имени, даты файлов ставятся по дате съёмки. Существующие даты съёмки не меняются никогда.",
+    "summary_many": "{{count, number}} файлов, изменений {{changes, number}}: недостающие даты съёмки берутся из имени, даты файлов ставятся по дате съёмки. Существующие даты съёмки не меняются никогда.",
+    "summary_other": "{{count, number}} файла, изменений {{changes, number}}: недостающие даты съёмки берутся из имени, даты файлов ставятся по дате съёмки. Существующие даты съёмки не меняются никогда.",
+    "summary_suspicious_one": "Включено {{count, number}} подозрительное изменение.",
+    "summary_suspicious_few": "Включено {{count, number}} подозрительных изменения.",
+    "summary_suspicious_many": "Включено {{count, number}} подозрительных изменений.",
+    "summary_suspicious_other": "Включено {{count, number}} подозрительных изменения.",
+    "warning_cloud": "Папка синхронизируется с облаком: изменения попадут на все устройства. {{path}}",
+    "warning_network": "Это сетевая папка: этими файлами могут пользоваться другие. {{path}}",
+    "batches_one": "{{count, number}} партия, каждая с подтверждением.",
+    "batches_few": "{{count, number}} партии, каждая с подтверждением; первая — пробная, 10 файлов.",
+    "batches_many": "{{count, number}} партий, каждая с подтверждением; первая — пробная, 10 файлов.",
+    "batches_other": "{{count, number}} партии, каждая с подтверждением; первая — пробная, 10 файлов.",
+    "apply_batch_one": "Применить партию {{n}} из {{of}} ({{count, number}} изменение)",
+    "apply_batch_few": "Применить партию {{n}} из {{of}} ({{count, number}} изменения)",
+    "apply_batch_many": "Применить партию {{n}} из {{of}} ({{count, number}} изменений)",
+    "apply_batch_other": "Применить партию {{n}} из {{of}} ({{count, number}} изменения)",
+    "confirm_one": "Внести {{count, number}} изменение в файлы сейчас?",
+    "confirm_few": "Внести {{count, number}} изменения в файлы сейчас?",
+    "confirm_many": "Внести {{count, number}} изменений в файлы сейчас?",
+    "confirm_other": "Внести {{count, number}} изменения в файлы сейчас?",
+    "confirm_yes": "Да, изменить",
+    "all_done": "Все партии применены. Каждое изменение — в журнале, его можно отменить.",
+    "applied_one": "Применено {{count, number}} изменение.",
+    "applied_few": "Применено {{count, number}} изменения.",
+    "applied_many": "Применено {{count, number}} изменений.",
+    "applied_other": "Применено {{count, number}} изменения."
   }
 }
