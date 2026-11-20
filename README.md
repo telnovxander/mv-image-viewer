@@ -172,6 +172,19 @@ read back) and only then put in place; the first problem stops the batch. The jo
 the Tools window; undoing an operation applies the old values back the same safe way (each tool
 adds its Undo button there).
 
+### Dates (IV-14)
+
+After indexing, **Show the dates**: for every photo the date taken (EXIF), the date in its file
+name (Xiaomi and other Android cameras `IMG_20230512_143000`, Pixel `PXL_…`, WhatsApp
+`IMG-20230512-WA0001`, Telegram `photo_2023-05-12_14-30-00`, screenshots, Dropbox
+`2023-05-12 14.30.00`) and the file date that phone galleries sort by. Mismatches are marked; the
+filters show all files, only mismatches or files without a date taken. **Preview the fixes** shows
+what would change: a missing date taken is added from the name (JPEG; written so that every other
+piece of metadata and the picture stay exactly as they were), the file date is set to the date
+taken. An existing date taken is never changed; dates in the future or before 1990 are left out
+unless you tick them. Then the batches are applied one by one, each after "Yes, change", and every
+batch can be undone from the journal.
+
 ## Performance (IV-09)
 
 Measured 2026-11-20 in the cloud: Linux, headless Chromium (the engine of WebView2) **without a
