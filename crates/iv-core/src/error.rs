@@ -26,6 +26,18 @@ pub enum ErrorCode {
     Broken,
     /// HEIC/HEIF: the decoder libraries (libheif, libde265) are missing next to the program.
     NoCodec,
+    /// IV-07: the file is on a removable drive, which has no Recycle Bin; it was not deleted.
+    TrashRemovable,
+    /// IV-07: the file is on a network drive, which has no Recycle Bin; it was not deleted.
+    TrashNetwork,
+    /// IV-07: the Recycle Bin is off or missing for this drive; the file was not deleted.
+    TrashUnavailable,
+    /// IV-07: Windows could not move the file to the Recycle Bin.
+    TrashFailed,
+    /// IV-07: the file could not be brought back from the Recycle Bin.
+    RestoreFailed,
+    /// IV-07: another file now has the name of the deleted one; nothing was overwritten.
+    RestoreOccupied,
     Other,
 }
 

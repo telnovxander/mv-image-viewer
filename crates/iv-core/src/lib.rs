@@ -11,6 +11,7 @@ pub mod formats;
 pub mod heif;
 pub mod open;
 pub mod orientation;
+pub mod recycle;
 pub mod settings;
 
 pub use error::{ErrorCode, IvError};
