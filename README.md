@@ -186,6 +186,29 @@ taken. An existing date taken is never changed; dates in the future or before 19
 unless you tick them. Then the batches are applied one by one, each after "Yes, change", and every
 batch can be undone from the journal.
 
+### Videos and the phone (IV-16)
+
+The dates tools handle videos too (MP4, MOV, M4V, 3GP): their creation time inside the file
+(QuickTime, stored in UTC) is read and written in place — only those few bytes change, the video
+data is checked to stay the same. Spiegelmond still does not play videos.
+
+**Why photos land on the wrong day on a phone, and what helps.** Android's media index takes the
+date taken from inside the file — EXIF `DateTimeOriginal` for photos, the creation time for videos.
+Without it, galleries fall back to the file date or to the day the file was added, and copying
+from a PC often resets the file date. One report about the Xiaomi Gallery (MIUI/HyperOS) even
+shows files without a date inside staying on the day of copying although their file dates were
+restored. So:
+
+1. **Tools → Prepare for the phone** before copying: the report lists what would sort wrong; the
+   fixes write the date taken into every JPEG and video that has one in its name and set every
+   file date to the date taken. PNG screenshots cannot hold a date inside — only their file date
+   helps them; files with no date at all need one by hand.
+2. Copy as usual (USB cable, Explorer). If the order on the phone is still wrong for some files,
+   copy the folder as a ZIP and unpack it on the phone with its file manager: unpacking keeps the
+   file dates. Then let the gallery rescan (or restart the phone).
+
+Not checked on a real Xiaomi phone yet: try a small folder first.
+
 ## Performance (IV-09)
 
 Measured 2026-11-20 in the cloud: Linux, headless Chromium (the engine of WebView2) **without a

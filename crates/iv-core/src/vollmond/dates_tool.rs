@@ -69,6 +69,52 @@ pub fn plan(rows: &[DateRow], with_suspicious: bool) -> Plan {
     plan
 }
 
+/// "Prepare for the phone" (IV-16): what in a folder would end up in the wrong place in a phone
+/// gallery, and what fixing can do about it. Android takes the date taken from EXIF
+/// `DateTimeOriginal` (videos: their creation time); without it, galleries fall back to the file
+/// date or to the day the file was added — which copying resets.
+#[derive(Debug, Clone, Default, PartialEq, Eq, serde::Serialize)]
+pub struct TransferReport {
+    pub total: usize,
+    /// A date taken inside the file and a matching file date: nothing to do.
+    pub ready: usize,
+    /// No date taken inside yet, but one from the name can be written (JPEG, video).
+    pub fixable_taken: usize,
+    /// The file date is off; it will be set to the date taken.
+    pub fixable_file_date: usize,
+    /// No date inside and the format cannot hold one (PNG, BMP, …): the gallery has only the file
+    /// date, which a copy may reset. Copy them so that file dates survive, or convert.
+    pub file_date_only: Vec<String>,
+    /// No date anywhere (not in EXIF, not in the name): they will sort by the day of copying.
+    pub no_date: Vec<String>,
+    /// Suspicious dates (future, before 1990), left out unless chosen.
+    pub suspicious: usize,
+}
+
+pub fn transfer_report(rows: &[DateRow]) -> TransferReport {
+    let mut report = TransferReport {
+        total: rows.len(),
+        ..Default::default()
+    };
+    for r in rows {
+        let writable = can_write_date_taken(&r.path);
+        if r.suspicious {
+            report.suspicious += 1;
+        }
+        match (r.taken, r.proposed) {
+            (_, None) => report.no_date.push(r.path.clone()),
+            (None, Some(_)) if writable => report.fixable_taken += 1,
+            (None, Some(_)) => report.file_date_only.push(r.path.clone()),
+            (Some(_), Some(_)) if !r.mismatch => report.ready += 1,
+            (Some(_), Some(_)) => {}
+        }
+        if r.proposed.is_some() && r.mismatch && !r.suspicious {
+            report.fixable_file_date += 1;
+        }
+    }
+    report
+}
+
 fn file_time(path: &Path) -> Result<SystemTime, IvError> {
     fs::metadata(path)
         .and_then(|m| m.modified())
@@ -461,6 +507,24 @@ mod tests {
         let p = temp.path().join("x.jpg");
         fs::write(&p, bytes).expect("write");
         read_exif(&p).and_then(|e| e.taken)
+    }
+
+    #[test]
+    fn the_report_before_the_phone() {
+        let (_temp, photos) = folder();
+        let report = transfer_report(&table(&photos));
+        assert_eq!(report.total, 5);
+        assert_eq!(
+            report.fixable_taken, 2,
+            "the WhatsApp JPEG and the camera JPEG"
+        );
+        assert_eq!(report.file_date_only.len(), 1, "the PNG screenshot");
+        assert_eq!(report.no_date.len(), 1, "holiday.bmp");
+        assert_eq!(report.ready, 0, "every file was copied today");
+        assert_eq!(
+            report.fixable_file_date, 4,
+            "both JPEGs, the PNG and the video: file date off"
+        );
     }
 
     #[test]

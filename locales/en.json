@@ -292,5 +292,21 @@
     "apply": "Write",
     "done": "Date written.",
     "undone": "The old date is back."
+  },
+  "transfer": {
+    "prepare": "Prepare for the phone",
+    "total_one": "{{count, number}} file, {{ready, number}} of them ready.",
+    "total_other": "{{count, number}} files, {{ready, number}} of them ready.",
+    "fixable_taken_one": "{{count, number}} file without a date taken inside gets it from its name.",
+    "fixable_taken_other": "{{count, number}} files without a date taken inside get it from their names.",
+    "fixable_file_date_one": "{{count, number}} file date will be set to the date taken.",
+    "fixable_file_date_other": "{{count, number}} file dates will be set to the date taken.",
+    "file_date_only_one": "{{count, number}} file (PNG, BMP…) cannot hold a date inside: on the phone it sorts by its file date, which a copy may reset.",
+    "file_date_only_other": "{{count, number}} files (PNG, BMP…) cannot hold a date inside: on the phone they sort by their file date, which a copy may reset.",
+    "no_date_one": "{{count, number}} file has no date anywhere: it will appear on the day of copying.",
+    "no_date_other": "{{count, number}} files have no date anywhere: they will appear on the day of copying. Set their dates by hand (choose them in the table).",
+    "suspicious_one": "{{count, number}} suspicious date (future, before 1990): check it.",
+    "suspicious_other": "{{count, number}} suspicious dates (future, before 1990): check them.",
+    "advice": "Phone galleries sort by the date taken inside the file; without it, by the file date or by the day of copying. Fix first, then copy; if the order is still wrong on the phone, copy a ZIP of the folder and unpack it on the phone (see README)."
   }
 }

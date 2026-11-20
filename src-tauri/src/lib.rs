@@ -444,6 +444,20 @@ async fn dates_rows(
     .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
 }
 
+/// "Prepare for the phone" (IV-16): what would sort wrong in a phone gallery. Reads only.
+#[tauri::command]
+async fn transfer_report(
+    folder: String,
+    recursive: bool,
+) -> Result<iv_core::vollmond::dates_tool::TransferReport, IvError> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let rows = iv_core::vollmond::dates_tool::rows(&indexed(&folder, recursive)?, today());
+        Ok(iv_core::vollmond::dates_tool::transfer_report(&rows))
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
+}
+
 /// The preview of fixing the dates: the plan and its totals; nothing is changed.
 #[derive(serde::Serialize)]
 struct Preview {
@@ -599,6 +613,7 @@ pub fn run() {
             vollmond_operations,
             dates_rows,
             dates_preview,
+            transfer_report,
             manual_dates_preview,
             apply_batch,
             undo_plan,

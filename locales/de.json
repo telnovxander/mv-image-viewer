@@ -292,5 +292,21 @@
     "apply": "Schreiben",
     "done": "Datum geschrieben.",
     "undone": "Das alte Datum ist zurück."
+  },
+  "transfer": {
+    "prepare": "Für das Handy vorbereiten",
+    "total_one": "{{count, number}} Datei, davon {{ready, number}} bereit.",
+    "total_other": "{{count, number}} Dateien, davon {{ready, number}} bereit.",
+    "fixable_taken_one": "{{count, number}} Datei ohne Aufnahmedatum im Inneren bekommt es aus dem Namen.",
+    "fixable_taken_other": "{{count, number}} Dateien ohne Aufnahmedatum im Inneren bekommen es aus dem Namen.",
+    "fixable_file_date_one": "{{count, number}} Dateidatum wird aufs Aufnahmedatum gesetzt.",
+    "fixable_file_date_other": "{{count, number}} Dateidaten werden aufs Aufnahmedatum gesetzt.",
+    "file_date_only_one": "{{count, number}} Datei (PNG, BMP…) kann kein Datum im Inneren speichern: Auf dem Handy zählt ihr Dateidatum, das ein Kopieren zurücksetzen kann.",
+    "file_date_only_other": "{{count, number}} Dateien (PNG, BMP…) können kein Datum im Inneren speichern: Auf dem Handy zählt ihr Dateidatum, das ein Kopieren zurücksetzen kann.",
+    "no_date_one": "{{count, number}} Datei hat nirgends ein Datum: Sie erscheint am Tag des Kopierens.",
+    "no_date_other": "{{count, number}} Dateien haben nirgends ein Datum: Sie erscheinen am Tag des Kopierens. Daten von Hand setzen (in der Tabelle wählen).",
+    "suspicious_one": "{{count, number}} verdächtiges Datum (Zukunft, vor 1990): bitte prüfen.",
+    "suspicious_other": "{{count, number}} verdächtige Daten (Zukunft, vor 1990): bitte prüfen.",
+    "advice": "Handy-Galerien sortieren nach dem Aufnahmedatum in der Datei, ohne es nach dem Dateidatum oder dem Tag des Kopierens. Erst korrigieren, dann kopieren; stimmt die Reihenfolge auf dem Handy trotzdem nicht, den Ordner als ZIP kopieren und auf dem Handy entpacken (siehe README)."
   }
 }

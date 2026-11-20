@@ -2,7 +2,7 @@ import { CalendarClock } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { inputToStamp } from "../components/DateEditDialog";
-import { applyBatch, datesPreview, isBackendError, manualDatesPreview, datesRows, type ManualDates, type ApplyReport, type DateRow, type Plan, type PlanSummary } from "../lib/backend";
+import { applyBatch, transferReport, type TransferReport, datesPreview, isBackendError, manualDatesPreview, datesRows, type ManualDates, type ApplyReport, type DateRow, type Plan, type PlanSummary } from "../lib/backend";
 import { filterRows, stampText, visibleRows, type DateFilter } from "../lib/dates";
 
 const ROW = 22;
@@ -35,6 +35,8 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
   const [busy, setBusy] = useState(false);
   const [report, setReport] = useState<ApplyReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** IV-16: the report before copying to a phone. */
+  const [transfer, setTransfer] = useState<TransferReport | null>(null);
   /** IV-15: the rows chosen for a date by hand, in table order. */
   const [chosen, setChosen] = useState<ReadonlySet<string>>(new Set());
   const [manualMode, setManualMode] = useState<"same" | "step" | "shift" | "approximate">("same");
@@ -138,6 +140,18 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
         <button type="button" className="button" onClick={() => void load()}>
           {t(rows ? "dates.reload" : "dates.show")}
         </button>
+        <button
+          type="button"
+          className="button"
+          onClick={() => {
+            setError(null);
+            void transferReport(folder, recursive)
+              .then(setTransfer)
+              .catch((e: unknown) => setError(errorText(e)));
+          }}
+        >
+          {t("transfer.prepare")}
+        </button>
         {rows && (
           <div className="segmented" role="radiogroup" aria-label={t("dates.filter")}>
             {(["all", "mismatches", "no_date_taken"] as const).map((f) => (
@@ -149,6 +163,31 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
           </div>
         )}
       </div>
+      {transfer && (
+        <div className="tools__preview" role="status">
+          <p className="dialog__text">{t("transfer.total", { count: transfer.total, ready: transfer.ready })}</p>
+          <ul className="tools__journal">
+            {transfer.fixable_taken > 0 && <li>{t("transfer.fixable_taken", { count: transfer.fixable_taken })}</li>}
+            {transfer.fixable_file_date > 0 && <li>{t("transfer.fixable_file_date", { count: transfer.fixable_file_date })}</li>}
+            {transfer.file_date_only.length > 0 && <li>{t("transfer.file_date_only", { count: transfer.file_date_only.length })}</li>}
+            {transfer.no_date.length > 0 && <li>{t("transfer.no_date", { count: transfer.no_date.length })}</li>}
+            {transfer.suspicious > 0 && <li>{t("transfer.suspicious", { count: transfer.suspicious })}</li>}
+          </ul>
+          <p className="dialog__text dialog__muted">{t("transfer.advice")}</p>
+          {(transfer.fixable_taken > 0 || transfer.fixable_file_date > 0) && (
+            <button
+              type="button"
+              className="button button--primary"
+              onClick={() => {
+                if (!rows) void load();
+                void makePreview();
+              }}
+            >
+              {t("dates.preview")}
+            </button>
+          )}
+        </div>
+      )}
       {rows && (
         <>
           <p className="dialog__text dialog__muted">{t("dates.count", { count: shown.length, total: rows.length })}</p>

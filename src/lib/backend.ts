@@ -289,3 +289,18 @@ export type ManualDates =
 export async function manualDatesPreview(paths: string[], how: ManualDates, withSuspicious: boolean): Promise<{ plan: Plan; summary: PlanSummary }> {
   return invoke("manual_dates_preview", { paths, how, withSuspicious });
 }
+
+/** IV-16: what would sort wrong in a phone gallery. */
+export interface TransferReport {
+  total: number;
+  ready: number;
+  fixable_taken: number;
+  fixable_file_date: number;
+  file_date_only: string[];
+  no_date: string[];
+  suspicious: number;
+}
+
+export async function transferReport(folder: string, recursive: boolean): Promise<TransferReport> {
+  return invoke<TransferReport>("transfer_report", { folder, recursive });
+}
