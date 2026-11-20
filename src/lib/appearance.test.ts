@@ -29,7 +29,9 @@ describe("parseSettings", () => {
       cacheMb: 512,
       slideSeconds: 4,
       thumbnails: false,
+      protectedFolders: [],
     });
+    expect(parseSettings('{"protectedFolders":["D:\\\\Archiv",7,""]}').protectedFolders).toEqual(["D:\\Archiv"]);
     expect(parseSettings('{"thumbnails":true}').thumbnails).toBe(true);
     expect(parseSettings('{"thumbnails":"yes"}').thumbnails).toBe(false);
     expect(parseSettings('{"slideSeconds":10}').slideSeconds).toBe(10);

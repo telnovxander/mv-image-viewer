@@ -10,7 +10,7 @@ export interface ImageFile {
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "index_failed" | "cancelled" | "picture_changed" | "too_many_files" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "index_failed" | "cancelled" | "picture_changed" | "too_many_files" | "whole_group" | "protected_folder" | "other";
   path: string;
 }
 
@@ -303,4 +303,37 @@ export interface TransferReport {
 
 export async function transferReport(folder: string, recursive: boolean): Promise<TransferReport> {
   return invoke<TransferReport>("transfer_report", { folder, recursive });
+}
+
+// IV-17: exact duplicates.
+
+export interface Indexed {
+  path: string;
+  size: number;
+  modified: number;
+  taken: string | null;
+  camera: string | null;
+  width: number | null;
+  height: number | null;
+  hash: string | null;
+}
+
+export interface DuplicateGroup {
+  files: Indexed[];
+  keep: number;
+}
+
+export type DuplicatesEvent =
+  | { event: "progress"; progress: { done: number; total: number } }
+  | { event: "done"; groups: DuplicateGroup[]; cancelled: boolean }
+  | { event: "error"; error: BackendError };
+
+export async function findDuplicates(id: number, folder: string, recursive: boolean, onEvent: (event: DuplicatesEvent) => void): Promise<void> {
+  const channel = new Channel<DuplicatesEvent>();
+  channel.onmessage = onEvent;
+  return invoke("find_duplicates", { id, folder, recursive, onEvent: channel });
+}
+
+export async function duplicatesPreview(groups: DuplicateGroup[], remove: string[][], protectedFolders: string[]): Promise<{ plan: Plan; summary: PlanSummary }> {
+  return invoke("duplicates_preview", { groups, delete: remove, protected: protectedFolders });
 }

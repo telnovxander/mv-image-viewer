@@ -37,7 +37,9 @@
     "index_failed": "Der Index des Fotoarchivs konnte nicht gelesen oder geschrieben werden: {{path}}",
     "cancelled": "Angehalten: {{path}}",
     "picture_changed": "Die Änderung hätte das Bild verändert; die Datei blieb, wie sie war: {{path}}",
-    "too_many_files": "Mehr als 500 Dateien auf einmal; Spiegelmond arbeitet in Teilen: {{path}}"
+    "too_many_files": "Mehr als 500 Dateien auf einmal; Spiegelmond arbeitet in Teilen: {{path}}",
+    "whole_group": "Von jeder Duplikatgruppe bleibt immer eine Datei; weniger Dateien wählen: {{path}}",
+    "protected_folder": "Diese Datei liegt in einem geschützten Ordner und wird nie gelöscht: {{path}}"
   },
   "settings": {
     "title": "Einstellungen",
@@ -97,7 +99,8 @@
     "undo": "Rückgängig",
     "is_undo": "Rücknahme",
     "tool": {
-      "dates": "Daten"
+      "dates": "Daten",
+      "duplicates": "Duplikate"
     }
   },
   "units": {
@@ -308,5 +311,33 @@
     "suspicious_one": "{{count, number}} verdächtiges Datum (Zukunft, vor 1990): bitte prüfen.",
     "suspicious_other": "{{count, number}} verdächtige Daten (Zukunft, vor 1990): bitte prüfen.",
     "advice": "Handy-Galerien sortieren nach dem Aufnahmedatum in der Datei, ohne es nach dem Dateidatum oder dem Tag des Kopierens. Erst korrigieren, dann kopieren; stimmt die Reihenfolge auf dem Handy trotzdem nicht, den Ordner als ZIP kopieren und auf dem Handy entpacken (siehe README)."
+  },
+  "duplicates": {
+    "title": "Exakte Duplikate",
+    "find": "Duplikate suchen",
+    "no_protected": "Keine geschützten Ordner.",
+    "protected": "Nie löschen aus:",
+    "unprotect": "Schutz von {{path}} aufheben",
+    "add_protected": "Ordner schützen…",
+    "found_one": "{{count, number}} Gruppe gleicher Dateien.",
+    "found_other": "{{count, number}} Gruppen gleicher Dateien.",
+    "chosen_one": "{{count, number}} Datei für den Papierkorb gewählt.",
+    "chosen_other": "{{count, number}} Dateien für den Papierkorb gewählt.",
+    "locked": "In einem geschützten Ordner: wird nie gelöscht",
+    "to_bin": "in den Papierkorb",
+    "keep": "behalten",
+    "more_one": "{{count, number}} weitere Gruppe zeigen",
+    "more_other": "{{count, number}} weitere Gruppen zeigen",
+    "preview": "Vorschau des Löschens",
+    "summary_one": "{{count, number}} Datei geht in den Papierkorb; von jeder Gruppe bleibt eine Datei.",
+    "summary_other": "{{count, number}} Dateien gehen in den Papierkorb; von jeder Gruppe bleibt eine Datei.",
+    "apply_batch_one": "Teil {{n}} von {{of}}: {{count, number}} Datei in den Papierkorb",
+    "apply_batch_other": "Teil {{n}} von {{of}}: {{count, number}} Dateien in den Papierkorb",
+    "confirm_one": "Jetzt {{count, number}} Datei in den Papierkorb verschieben?",
+    "confirm_other": "Jetzt {{count, number}} Dateien in den Papierkorb verschieben?",
+    "confirm_yes": "Ja, in den Papierkorb",
+    "all_done": "Fertig. Jeder Teil steht im Protokoll und kann rückgängig gemacht werden (die Dateien kommen aus dem Papierkorb zurück).",
+    "applied_one": "{{count, number}} Datei in den Papierkorb verschoben.",
+    "applied_other": "{{count, number}} Dateien in den Papierkorb verschoben."
   }
 }

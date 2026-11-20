@@ -790,3 +790,65 @@ body {
 .tools__manual .tools__row {
   flex-wrap: wrap;
 }
+
+/* IV-17: duplicate groups side by side. */
+.dup__group {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.dup__file {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) max-content;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.dup__file img {
+  width: 48px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--surface-alt);
+}
+
+.dup__file--remove .dup__info {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.dup__info {
+  display: grid;
+  min-width: 0;
+}
+
+.dup__info > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dup__toggle {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.tools__protected {
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.tools__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}

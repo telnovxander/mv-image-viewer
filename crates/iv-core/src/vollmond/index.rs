@@ -29,7 +29,7 @@ const SCHEMA: i64 = 1;
 const REPORT_EVERY: u64 = 250;
 
 /// One image of the index.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, serde::Deserialize)]
 pub struct Indexed {
     pub path: String,
     pub size: u64,
@@ -649,5 +649,18 @@ mod tests {
             again.unchanged
         );
         assert_eq!((first.images, again.unchanged), (50_000, 50_000));
+        // IV-17: all 50 000 files have the same bytes: one group, every byte compared.
+        let images = index.images(temp.path(), true).expect("images");
+        let start = std::time::Instant::now();
+        let mut reports = 0;
+        let groups =
+            crate::vollmond::duplicates::find(&images, &AtomicBool::new(false), |_| reports += 1);
+        println!(
+            "duplicates: {:?}, {} group(s), {} files",
+            start.elapsed(),
+            groups.len(),
+            groups.iter().map(|g| g.files.len()).sum::<usize>()
+        );
+        assert_eq!(groups.len(), 1);
     }
 }

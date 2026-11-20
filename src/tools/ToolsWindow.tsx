@@ -3,6 +3,7 @@ import { FolderOpen, History } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DatesSection } from "./DatesSection";
+import { DuplicatesSection } from "./DuplicatesSection";
 import { applyBatch, cancelJob, indexFolder, inTauri, isBackendError, undoPlan, vollmondOperations, type IndexProgress, type IndexSummary, type Operation } from "../lib/backend";
 import { formatDateTime } from "../lib/format";
 
@@ -13,7 +14,12 @@ let nextJob = 1;
  * indexing with progress and stop, and the journal of operations. The tools themselves (dates,
  * duplicates, batch) come with IV-14…IV-19 and use the same index, preview and journal.
  */
-export default function ToolsWindow() {
+interface ToolsWindowProps {
+  protectedFolders: string[];
+  onProtectedChange: (folders: string[]) => void;
+}
+
+export default function ToolsWindow({ protectedFolders, onProtectedChange }: ToolsWindowProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage ?? "en";
   const [folder, setFolder] = useState<string | null>(null);
@@ -137,6 +143,9 @@ export default function ToolsWindow() {
         )}
       </section>
       {folder && summary && <DatesSection folder={folder} recursive={recursive} onApplied={refreshJournal} />}
+      {folder && summary && (
+        <DuplicatesSection folder={folder} recursive={recursive} protectedFolders={protectedFolders} onProtectedChange={onProtectedChange} onApplied={refreshJournal} />
+      )}
       <section className="tools__section" aria-labelledby="tools-journal">
         <h3 id="tools-journal" className="tools__heading">
           <History size={16} aria-hidden="true" />

@@ -27,6 +27,8 @@ export interface Settings {
   slideSeconds: number;
   /** The film strip is shown (T, IV-08). */
   thumbnails: boolean;
+  /** IV-17, point 19: folders whose files can never be chosen for deletion. */
+  protectedFolders: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -38,6 +40,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cacheMb: DEFAULT_CACHE_MB,
   slideSeconds: 4,
   thumbnails: false,
+  protectedFolders: [],
 };
 
 export const BACKGROUNDS: readonly Background[] = ["theme", "black", "checker"];
@@ -67,6 +70,7 @@ export function parseSettings(raw: string | null): Settings {
           ? Math.round(value.slideSeconds)
           : DEFAULT_SETTINGS.slideSeconds,
       thumbnails: value.thumbnails === true,
+      protectedFolders: Array.isArray(value.protectedFolders) ? value.protectedFolders.filter((f): f is string => typeof f === "string" && f !== "") : [],
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

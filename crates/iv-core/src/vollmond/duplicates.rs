@@ -23,7 +23,7 @@ use crate::recycle::{self, Trashed};
 pub const TOOL: &str = "duplicates";
 
 /// A group of files with identical content.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, serde::Deserialize)]
 pub struct Group {
     pub files: Vec<Indexed>,
     /// The index (in `files`) of the file kept by default.

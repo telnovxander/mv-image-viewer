@@ -7,12 +7,18 @@ import { Dialog } from "./Dialog";
 const ToolsWindow = lazy(() => import("../tools/ToolsWindow"));
 
 /** The Vollmond "Tools" window. */
-export function ToolsDialog({ onClose }: { onClose: () => void }) {
+interface ToolsDialogProps {
+  protectedFolders: string[];
+  onProtectedChange: (folders: string[]) => void;
+  onClose: () => void;
+}
+
+export function ToolsDialog({ protectedFolders, onProtectedChange, onClose }: ToolsDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog title={t("tools.title")} onClose={onClose}>
       <Suspense fallback={<p className="dialog__text dialog__muted">{t("tools.loading")}</p>}>
-        <ToolsWindow />
+        <ToolsWindow protectedFolders={protectedFolders} onProtectedChange={onProtectedChange} />
       </Suspense>
       <div className="dialog__actions">
         <button type="button" className="button button--primary" onClick={onClose}>

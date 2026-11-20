@@ -458,6 +458,69 @@ async fn transfer_report(
     .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
 }
 
+/// Events of a duplicate search (IV-17).
+#[derive(Clone, serde::Serialize)]
+#[serde(tag = "event", rename_all = "snake_case")]
+enum DuplicatesEvent {
+    Progress {
+        progress: iv_core::vollmond::duplicates::Progress,
+    },
+    Done {
+        groups: Vec<iv_core::vollmond::duplicates::Group>,
+        cancelled: bool,
+    },
+    Error {
+        error: IvError,
+    },
+}
+
+/// Find exact duplicates in an indexed folder, in the background; `cancel_job` stops it.
+#[tauri::command]
+fn find_duplicates(
+    id: u32,
+    folder: String,
+    recursive: bool,
+    on_event: tauri::ipc::Channel<DuplicatesEvent>,
+    jobs: tauri::State<'_, Jobs>,
+) {
+    let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    if let Ok(mut map) = jobs.0.lock() {
+        map.insert(id, cancel.clone());
+    }
+    let registry = jobs.0.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let event = match indexed(&folder, recursive) {
+            Ok(images) => {
+                let groups = iv_core::vollmond::duplicates::find(&images, &cancel, |progress| {
+                    let _ = on_event.send(DuplicatesEvent::Progress { progress });
+                });
+                DuplicatesEvent::Done {
+                    groups,
+                    cancelled: cancel.load(std::sync::atomic::Ordering::Relaxed),
+                }
+            }
+            Err(error) => DuplicatesEvent::Error { error },
+        };
+        let _ = on_event.send(event);
+        if let Ok(mut map) = registry.lock() {
+            map.remove(&id);
+        }
+    });
+}
+
+/// The preview of deleting the chosen duplicates (refused for a whole group or a protected folder).
+#[tauri::command]
+fn duplicates_preview(
+    groups: Vec<iv_core::vollmond::duplicates::Group>,
+    delete: Vec<Vec<String>>,
+    protected: Vec<String>,
+) -> Result<Preview, IvError> {
+    let protected: Vec<PathBuf> = protected.into_iter().map(PathBuf::from).collect();
+    let plan = iv_core::vollmond::duplicates::plan(&groups, &delete, &protected)?;
+    let summary = plan.summary();
+    Ok(Preview { plan, summary })
+}
+
 /// The preview of fixing the dates: the plan and its totals; nothing is changed.
 #[derive(serde::Serialize)]
 struct Preview {
@@ -518,6 +581,7 @@ async fn apply_batch(
         let journal = iv_core::vollmond::plan::Journal::new(&journal);
         let apply_one = match plan.tool.as_str() {
             iv_core::vollmond::dates_tool::TOOL => iv_core::vollmond::dates_tool::apply_change,
+            iv_core::vollmond::duplicates::TOOL => iv_core::vollmond::duplicates::apply_change,
             _ => {
                 return Err(IvError::new(
                     ErrorCode::Unsupported,
@@ -614,6 +678,8 @@ pub fn run() {
             dates_rows,
             dates_preview,
             transfer_report,
+            find_duplicates,
+            duplicates_preview,
             manual_dates_preview,
             apply_batch,
             undo_plan,

@@ -632,7 +632,13 @@ export function App() {
         />
       )}
       {dialog === "about" && <AboutDialog onClose={() => setDialog(null)} />}
-      {dialog === "tools" && <ToolsDialog onClose={() => setDialog(null)} />}
+      {dialog === "tools" && (
+        <ToolsDialog
+          protectedFolders={settings.protectedFolders}
+          onProtectedChange={(protectedFolders) => update(() => ({ protectedFolders }))}
+          onClose={() => setDialog(null)}
+        />
+      )}
       {dialog === "help" && <HelpDialog onClose={() => setDialog(null)} />}
       {dialog === "date" && image && (
         <DateEditDialog

@@ -37,7 +37,9 @@
     "index_failed": "The index of the photo archive could not be read or written: {{path}}",
     "cancelled": "Stopped: {{path}}",
     "picture_changed": "The change would have altered the picture; the file was kept as it was: {{path}}",
-    "too_many_files": "More than 500 files at once; Spiegelmond works in batches: {{path}}"
+    "too_many_files": "More than 500 files at once; Spiegelmond works in batches: {{path}}",
+    "whole_group": "One file of every duplicate group always stays; choose fewer files: {{path}}",
+    "protected_folder": "This file is in a protected folder and is never deleted: {{path}}"
   },
   "settings": {
     "title": "Settings",
@@ -97,7 +99,8 @@
     "undo": "Undo",
     "is_undo": "undo",
     "tool": {
-      "dates": "Dates"
+      "dates": "Dates",
+      "duplicates": "Duplicates"
     }
   },
   "units": {
@@ -308,5 +311,33 @@
     "suspicious_one": "{{count, number}} suspicious date (future, before 1990): check it.",
     "suspicious_other": "{{count, number}} suspicious dates (future, before 1990): check them.",
     "advice": "Phone galleries sort by the date taken inside the file; without it, by the file date or by the day of copying. Fix first, then copy; if the order is still wrong on the phone, copy a ZIP of the folder and unpack it on the phone (see README)."
+  },
+  "duplicates": {
+    "title": "Exact duplicates",
+    "find": "Find duplicates",
+    "no_protected": "No protected folders.",
+    "protected": "Never delete from:",
+    "unprotect": "Remove the protection of {{path}}",
+    "add_protected": "Protect a folder…",
+    "found_one": "{{count, number}} group of identical files.",
+    "found_other": "{{count, number}} groups of identical files.",
+    "chosen_one": "{{count, number}} file chosen for the Recycle Bin.",
+    "chosen_other": "{{count, number}} files chosen for the Recycle Bin.",
+    "locked": "In a protected folder: never deleted",
+    "to_bin": "to the Recycle Bin",
+    "keep": "keep",
+    "more_one": "Show {{count, number}} more group",
+    "more_other": "Show {{count, number}} more groups",
+    "preview": "Preview the deletion",
+    "summary_one": "{{count, number}} file goes to the Recycle Bin; one file of every group stays.",
+    "summary_other": "{{count, number}} files go to the Recycle Bin; one file of every group stays.",
+    "apply_batch_one": "Batch {{n}} of {{of}}: {{count, number}} file to the Recycle Bin",
+    "apply_batch_other": "Batch {{n}} of {{of}}: {{count, number}} files to the Recycle Bin",
+    "confirm_one": "Move {{count, number}} file to the Recycle Bin now?",
+    "confirm_other": "Move {{count, number}} files to the Recycle Bin now?",
+    "confirm_yes": "Yes, to the Recycle Bin",
+    "all_done": "Done. Every batch is in the journal and can be undone (the files come back from the Recycle Bin).",
+    "applied_one": "{{count, number}} file moved to the Recycle Bin.",
+    "applied_other": "{{count, number}} files moved to the Recycle Bin."
   }
 }
