@@ -93,7 +93,9 @@ pub fn restore(trashed: &Trashed) -> Result<(), IvError> {
     // The newest copy of this path deleted not before this deletion (a minute of slack for clocks).
     let item = items
         .into_iter()
-        .filter(|item| item.original_path() == path && item.time_deleted >= trashed.deleted_at - 60)
+        .filter(|item| {
+            same_place(&item.original_path(), path) && item.time_deleted >= trashed.deleted_at - 60
+        })
         .max_by_key(|item| item.time_deleted)
         .ok_or_else(failed)?;
     trash::os_limited::restore_all([item]).map_err(|_| failed())?;
@@ -101,6 +103,26 @@ pub fn restore(trashed: &Trashed) -> Result<(), IvError> {
         Ok(())
     } else {
         Err(failed())
+    }
+}
+
+/// Whether two paths name the same file, although it no longer exists: the same name in the same
+/// folder. The folders are compared resolved, because Windows writes the long path into the
+/// Recycle Bin while the program may know a short (8.3) one, such as `C:\Users\RUNNER~1\…`.
+pub fn same_place(a: &Path, b: &Path) -> bool {
+    let name = |p: &Path| p.file_name().map(|n| n.to_string_lossy().to_lowercase());
+    if name(a).is_none() || name(a) != name(b) {
+        return false;
+    }
+    match (a.parent(), b.parent()) {
+        (Some(x), Some(y)) => {
+            x == y
+                || matches!(
+                    (std::fs::canonicalize(x), std::fs::canonicalize(y)),
+                    (Ok(x), Ok(y)) if x == y
+                )
+        }
+        _ => false,
     }
 }
 
@@ -220,6 +242,19 @@ mod tests {
             ErrorCode::NotAFile
         );
         assert!(folder.join("keep.jpg").is_file());
+    }
+
+    #[test]
+    fn same_place_through_another_spelling_of_the_folder() {
+        let temp = tempfile::tempdir().expect("temp");
+        let folder = temp.path().join("Fotos");
+        fs::create_dir(&folder).expect("mkdir");
+        let direct = folder.join("a.jpg");
+        let roundabout = temp.path().join("Fotos").join(".").join("a.jpg");
+        assert!(same_place(&direct, &roundabout));
+        assert!(same_place(&direct, &folder.join("A.JPG")));
+        assert!(!same_place(&direct, &folder.join("b.jpg")));
+        assert!(!same_place(&direct, &temp.path().join("a.jpg")));
     }
 
     #[test]
