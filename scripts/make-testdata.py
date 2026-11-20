@@ -13,6 +13,8 @@ the upright F turned by the inverse of each orientation); this script only adds 
 IV-05: pages.tif (two pages: 64×40 and 20×20, uncompressed), sample.dng (a TIFF-based RAW
 stand-in: Orientation 6 in IFD0, a small JPEG thumbnail and the large JPEG preview in a SubIFD,
 taken from testdata/source/f-small.jpg and f-1.jpg), broken.tif and broken.dng.
+thumb-6.jpg (IV-08): source/f-6.jpg with Orientation 6 and an EXIF thumbnail (source/f-small.jpg, 40×30)
+in IFD1, as cameras store it.
 sample.cr3: a Canon CR3 stand-in (ISO BMFF: ftyp "crx ", moov → Canon uuid → CMT1 with Orientation 8,
 a uuid box with the PRVW preview from source/f-1.jpg); broken.cr3 ends inside the preview box.
 anim.webp (two frames, 0.5 s, looping) and sample.avif are testdata/source/anim.webp and f-1.avif (made
@@ -90,6 +92,20 @@ def with_orientation(jpeg, code):
     assert jpeg[:2] == b"\xff\xd8"
     tiff = b"II*\x00" + struct.pack("<I", 8) + struct.pack("<H", 1)
     tiff += struct.pack("<HHIHH", 0x0112, 3, 1, code, 0) + struct.pack("<I", 0)
+    body = b"Exif\x00\x00" + tiff
+    return jpeg[:2] + b"\xff\xe1" + struct.pack(">H", len(body) + 2) + body + jpeg[2:]
+
+
+def with_thumbnail(jpeg, thumb, code):
+    """EXIF APP1 with Orientation in IFD0 and a JPEG thumbnail in IFD1 (as cameras write it)."""
+    assert jpeg[:2] == b"\xff\xd8"
+    ifd0_at = 8
+    ifd1_at = ifd0_at + 2 + 12 + 4
+    thumb_at = ifd1_at + 2 + 2 * 12 + 4
+    tiff = b"II*\x00" + struct.pack("<I", ifd0_at)
+    tiff += ifd([tiff_entry(0x0112, 3, 1, code)], ifd1_at)
+    tiff += ifd([tiff_entry(0x0201, 4, 1, thumb_at), tiff_entry(0x0202, 4, 1, len(thumb))], 0)
+    tiff += thumb
     body = b"Exif\x00\x00" + tiff
     return jpeg[:2] + b"\xff\xe1" + struct.pack(">H", len(body) + 2) + body + jpeg[2:]
 
@@ -191,6 +207,9 @@ def main():
     )
     files["broken.tif"] = files["pages.tif"][:30]
     files["broken.dng"] = b"II*\x00" + struct.pack("<I", 8) + b"\x02\x00garbage"
+    files["thumb-6.jpg"] = with_thumbnail(
+        (OUT / "source" / "f-6.jpg").read_bytes(), (OUT / "source" / "f-small.jpg").read_bytes(), 6
+    )
     files["sample.cr3"] = cr3_stand_in((OUT / "source" / "f-1.jpg").read_bytes(), 8)
     files["broken.cr3"] = files["sample.cr3"][:-500]
     files["anim.webp"] = (OUT / "source" / "anim.webp").read_bytes()

@@ -15,6 +15,7 @@ pub mod open_with;
 pub mod orientation;
 pub mod recycle;
 pub mod settings;
+pub mod thumbs;
 
 pub use error::{ErrorCode, IvError};
 pub use exif::{read_exif, ExifInfo};
