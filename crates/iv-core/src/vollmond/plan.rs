@@ -33,6 +33,9 @@ pub struct Change {
     /// Point 13: looks wrong (a date in the future, before 1990); not applied unless chosen.
     #[serde(default)]
     pub suspicious: bool,
+    /// Something the journal should keep about the value, e.g. "approximate: summer 2005" (IV-15).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
 }
 
 /// What a tool proposes; nothing is changed by building it.
@@ -298,6 +301,7 @@ pub fn undo_plan(journal: &Journal, op: u64) -> Option<Plan> {
             before: c.after,
             after: c.before,
             suspicious: false,
+            note: None,
         })
         .collect();
     Some(Plan {
@@ -415,6 +419,7 @@ mod tests {
                     before: Some("1".into()),
                     after: Some(to.into()),
                     suspicious: false,
+                    note: None,
                 })
                 .collect(),
         }

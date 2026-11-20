@@ -6,5 +6,6 @@ pub mod dates;
 pub mod dates_tool;
 pub mod exif_write;
 pub mod index;
+pub mod manual_dates;
 pub mod plan;
 pub mod safety;

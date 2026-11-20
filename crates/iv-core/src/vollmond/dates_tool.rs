@@ -426,6 +426,7 @@ mod tests {
             before: Some("2020-01-01T00:00:00".into()),
             after: Some("2023-05-12T12:00:00".into()),
             suspicious: false,
+            note: None,
         };
         let bytes = fs::read(&path).expect("read");
         assert_eq!(

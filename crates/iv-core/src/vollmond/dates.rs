@@ -386,6 +386,7 @@ pub fn plan(rows: &[DateRow]) -> Plan {
                 before: None,
                 after: Some(proposed.iso()),
                 suspicious: r.suspicious,
+                note: None,
             });
         }
         let modified_off = r
@@ -398,6 +399,7 @@ pub fn plan(rows: &[DateRow]) -> Plan {
                 before: r.modified.map(|m| m.iso()),
                 after: Some(proposed.iso()),
                 suspicious: r.suspicious,
+                note: None,
             });
         }
     }
