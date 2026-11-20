@@ -116,8 +116,29 @@ Opening an image shows it at once; the other images of its folder are listed in 
 EXIF; the order is a setting). There is no wrap-around: at the ends a short hint appears. The two
 images on each side are decoded ahead, within a memory budget (`cacheMb`, 512 MB by default,
 least recently used out first). Files added or removed meanwhile are picked up on the next
-step; a vanished file is skipped. Listing speed (`cargo test -p iv-core --release -- --ignored
---nocapture`): 1 000 files ~3 ms, 10 000 files ~30 ms.
+step; a vanished file is skipped.
+
+**T** shows the film strip: thumbnails of the folder along the bottom, the current one lit and in
+the middle, a click goes there. Only the thumbnails in view exist in the page, so a folder of
+10 000 photos scrolls as smoothly as one of 10. Thumbnails come from the photo's EXIF thumbnail
+when it has one, otherwise from a scaled copy; they are built in the background (what is on screen
+first) and kept on disk (`%LOCALAPPDATA%\Spiegelmond\cache\thumbs`, at most 256 MB; a changed
+photo gets a new thumbnail).
+
+## Performance (IV-09)
+
+Measured 2026-11-20 in the cloud: Linux, headless Chromium (the engine of WebView2) **without a
+GPU**, so drawing is done in software — a Windows PC with a graphics card is at least as fast.
+
+| What | Result |
+|---|---|
+| Listing a folder, 5 000 / 20 000 files (`cargo test -p iv-core --release -- --ignored --nocapture`) | ~11 ms / ~50 ms |
+| Opening a 50 / 100 / 200 MP JPEG until it is on screen | ~0.2 s each |
+| Zooming (Ctrl+wheel, to 32×) and panning a 50 MP photo | 60 frames/s; one 83 ms pause at the first zoom step |
+| The same, 100 MP | 60 frames/s; one 133 ms pause at the first zoom step |
+| The same, 200 MP | 60 frames/s between pauses of 1–1.5 s (software drawing; to be checked on Windows) |
+| Film strip of 10 000 files, fast scrolling | 60 frames/s (median frame 16.7 ms, slowest 17.7 ms) |
+| Memory over 1 000 images in a row (12 MP each, ±2 decoded ahead, 512 MB budget) | the cache stays at 504 MB; the whole browser grows to ~1.3 GB by image 700 and stays there — no leak |
 
 ## Writing a rotation into a file
 

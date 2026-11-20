@@ -277,7 +277,7 @@ mod tests {
     #[test]
     #[ignore]
     fn timing_of_a_large_folder() {
-        for count in [1_000, 10_000] {
+        for count in [1_000, 5_000, 20_000] {
             let temp = tempfile::tempdir().expect("temp dir");
             for i in 0..count {
                 fs::write(temp.path().join(format!("IMG_{i:05}.jpg")), b"x").expect("write");

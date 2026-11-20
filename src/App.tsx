@@ -32,15 +32,17 @@ const DARK_QUERY = "(prefers-color-scheme: dark)";
 const REFRESH_MS = 2000;
 const EDGE_HINT_MS = 1200;
 
-/** Browser preview only (`npm run dev`, `?demo`): a picture to look at the style without Tauri. */
+/** Browser preview only (`npm run dev`, `?demo`): a picture to look at the style without Tauri;
+ * `?demo&image=<url>` shows another one (IV-09: timing of 50–200 MP photos in Chromium). */
+const DEMO_PARAMS = new URLSearchParams(window.location.search);
 const DEMO: ImageFile | null =
-  !inTauri && new URLSearchParams(window.location.search).has("demo")
-    ? { path: demoImage, name: "spiegelmond-demo.jpg", size: 412_345, format: "web" }
+  !inTauri && DEMO_PARAMS.has("demo")
+    ? { path: DEMO_PARAMS.get("image") ?? demoImage, name: "spiegelmond-demo.jpg", size: 412_345, format: "web" }
     : null;
 /** Preview only (`?demo&folder=10000`): a folder of that many copies of the demo picture, to try
  * the film strip with a big folder (IV-08). */
 const DEMO_FOLDER: FolderEntry[] = DEMO
-  ? Array.from({ length: Number(new URLSearchParams(window.location.search).get("folder") ?? 0) }, (_, i) => ({
+  ? Array.from({ length: Number(DEMO_PARAMS.get("folder") ?? 0) }, (_, i) => ({
       path: `${demoImage}#${i}`,
       name: `IMG_${String(i + 1).padStart(5, "0")}.jpg`,
       size: 412_345,
