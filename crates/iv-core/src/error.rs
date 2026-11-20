@@ -24,6 +24,8 @@ pub enum ErrorCode {
     VerifyFailed,
     /// The file is damaged or not what its extension says; the window shows a placeholder.
     Broken,
+    /// HEIC/HEIF: the decoder libraries (libheif, libde265) are missing next to the program.
+    NoCodec,
     Other,
 }
 

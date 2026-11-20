@@ -8,6 +8,7 @@ pub mod error;
 pub mod exif;
 pub mod folder;
 pub mod formats;
+pub mod heif;
 pub mod open;
 pub mod orientation;
 pub mod settings;

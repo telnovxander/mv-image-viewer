@@ -24,7 +24,8 @@
     "no_orientation_tag": "The rotation cannot be written into this file: it is not a JPEG with an orientation tag. {{path}}",
     "changed_meanwhile": "The file changed after the preview, nothing was written: {{path}}",
     "verify_failed": "The check after writing failed; the original file was kept: {{path}}",
-    "broken": "This file is damaged or not what its name says: {{path}}"
+    "broken": "This file is damaged or not what its name says: {{path}}",
+    "no_codec": "HEIC photos need the libheif decoder, which is missing next to Spiegelmond. Reinstall the program: {{name}}"
   },
   "settings": {
     "title": "Settings",

@@ -59,6 +59,13 @@ fn serve_decoded(request: tauri::http::Request<Vec<u8>>, responder: tauri::UriSc
     });
 }
 
+/// Whether the HEIC decoder (libheif next to the program) could be loaded: the window then tells a
+/// missing decoder from a damaged HEIC file.
+#[tauri::command]
+fn heif_available() -> bool {
+    iv_core::heif::available()
+}
+
 /// Event with the path of a file opened by a second start (`iv path`, a double-click).
 const OPEN_PATH_EVENT: &str = "open-path";
 
@@ -180,6 +187,7 @@ pub fn run() {
             open_image,
             list_folder,
             exif_of,
+            heif_available,
             open_map,
             plan_rotation,
             apply_rotation,

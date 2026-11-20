@@ -13,6 +13,8 @@ the upright F turned by the inverse of each orientation); this script only adds 
 IV-05: pages.tif (two pages: 64×40 and 20×20, uncompressed), sample.dng (a TIFF-based RAW
 stand-in: Orientation 6 in IFD0, a small JPEG thumbnail and the large JPEG preview in a SubIFD,
 taken from testdata/source/f-small.jpg and f-1.jpg), broken.tif and broken.dng.
+sample.heic is testdata/source/f-1.heic (made once with libheif: heif-enc -q 40 f-1.jpg), broken.heic
+its first 120 bytes (the header boxes without the image data).
 """
 import struct
 import zlib
@@ -170,6 +172,8 @@ def main():
     )
     files["broken.tif"] = files["pages.tif"][:30]
     files["broken.dng"] = b"II*\x00" + struct.pack("<I", 8) + b"\x02\x00garbage"
+    files["sample.heic"] = (OUT / "source" / "f-1.heic").read_bytes()
+    files["broken.heic"] = files["sample.heic"][:120]
     for name, data in files.items():
         (OUT / name).write_bytes(data)
         print(f"testdata/{name}: {len(data)} bytes")

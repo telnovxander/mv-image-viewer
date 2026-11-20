@@ -2,7 +2,7 @@
 //!
 //! `Web` formats are shown by WebView2 itself through the asset protocol: hardware decoding,
 //! animation and EXIF orientation for free (IV/PROJECT.md, "Двухуровневое декодирование").
-//! Formats decoded by `iv-core` (TIFF, HEIC, RAW previews) come with IV-05.
+//! Formats decoded by `iv-core` (IV-05): TIFF, HEIC/HEIF (libheif, loaded at run time), RAW previews.
 
 use std::path::Path;
 
@@ -12,7 +12,7 @@ use serde::Serialize;
 #[serde(rename_all = "snake_case")]
 pub enum Format {
     Web,
-    /// Decoded by `iv-core` and served through the `ivimg` protocol (IV-05): TIFF, RAW previews.
+    /// Decoded by `iv-core` and served through the `ivimg` protocol (IV-05): TIFF, HEIF, RAW previews.
     Decoded,
 }
 
@@ -21,6 +21,9 @@ pub const WEB_EXTENSIONS: &[&str] = &["jpg", "jpeg", "jfif", "png", "gif", "webp
 
 /// TIFF, decoded by `iv-core` (first page).
 pub const TIFF_EXTENSIONS: &[&str] = &["tif", "tiff"];
+
+/// HEIC / HEIF (HEVC inside: iPhone photos and others), decoded by libheif (`heif.rs`).
+pub const HEIF_EXTENSIONS: &[&str] = &["heic", "heif", "hif"];
 
 /// Camera RAW files built on TIFF: their largest embedded JPEG preview is shown.
 pub const RAW_EXTENSIONS: &[&str] = &[
@@ -33,6 +36,7 @@ pub fn format_of(path: &Path) -> Option<Format> {
     if WEB_EXTENSIONS.contains(&extension.as_str()) {
         Some(Format::Web)
     } else if TIFF_EXTENSIONS.contains(&extension.as_str())
+        || HEIF_EXTENSIONS.contains(&extension.as_str())
         || RAW_EXTENSIONS.contains(&extension.as_str())
     {
         Some(Format::Decoded)
@@ -62,6 +66,8 @@ mod tests {
             "photo.NEF",
             "photo.arw",
             "photo.cr2",
+            "IMG_0001.HEIC",
+            "photo.heif",
         ] {
             assert_eq!(format_of(Path::new(name)), Some(Format::Decoded), "{name}");
         }

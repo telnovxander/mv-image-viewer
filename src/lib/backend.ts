@@ -10,7 +10,7 @@ export interface ImageFile {
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "other";
   path: string;
 }
 
@@ -94,6 +94,15 @@ export async function exifOf(path: string): Promise<ExifInfo | null> {
 }
 
 /** Open the place on OpenStreetMap in the browser (only after a click). */
+let heifCheck: Promise<boolean> | null = null;
+
+/** Whether HEIC can be decoded (libheif loaded); asked once. */
+export async function heifAvailable(): Promise<boolean> {
+  if (!inTauri) return false;
+  heifCheck ??= invoke<boolean>("heif_available").catch(() => false);
+  return heifCheck;
+}
+
 export async function openMap(latitude: number, longitude: number): Promise<void> {
   if (inTauri) await invoke("open_map", { latitude, longitude });
 }

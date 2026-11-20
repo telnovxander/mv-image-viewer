@@ -14,9 +14,6 @@ use std::sync::OnceLock;
 use image::codecs::png::{CompressionType, FilterType, PngEncoder};
 use image::{ExtendedColorType, ImageEncoder};
 
-/// Extensions of HEIF files (HEVC inside: iPhone photos and others).
-pub const HEIF_EXTENSIONS: &[&str] = &["heic", "heif", "hif"];
-
 #[repr(C)]
 struct HeifError {
     code: c_int,
@@ -33,15 +30,27 @@ const CHROMA_INTERLEAVED_RGB: c_int = 10;
 const CHROMA_INTERLEAVED_RGBA: c_int = 11;
 const CHANNEL_INTERLEAVED: c_int = 10;
 
+type ReadFromMemory =
+    unsafe extern "C" fn(*mut Ctx, *const c_void, usize, *const c_void) -> HeifError;
+type Decode =
+    unsafe extern "C" fn(*const Handle, *mut *mut Image, c_int, c_int, *const c_void) -> HeifError;
+
 /// The functions of libheif that are used.
 struct Api {
     context_alloc: unsafe extern "C" fn() -> *mut Ctx,
     context_free: unsafe extern "C" fn(*mut Ctx),
-    read_from_memory: unsafe extern "C" fn(*mut Ctx, *const c_void, usize, *const c_void) -> HeifError,
+    read_from_memory:
+        unsafe extern "C" fn(*mut Ctx, *const c_void, usize, *const c_void) -> HeifError,
     primary_handle: unsafe extern "C" fn(*mut Ctx, *mut *mut Handle) -> HeifError,
     handle_release: unsafe extern "C" fn(*const Handle),
     has_alpha: unsafe extern "C" fn(*const Handle) -> c_int,
-    decode: unsafe extern "C" fn(*const Handle, *mut *mut Image, c_int, c_int, *const c_void) -> HeifError,
+    decode: unsafe extern "C" fn(
+        *const Handle,
+        *mut *mut Image,
+        c_int,
+        c_int,
+        *const c_void,
+    ) -> HeifError,
     image_release: unsafe extern "C" fn(*const Image),
     width: unsafe extern "C" fn(*const Image, c_int) -> c_int,
     height: unsafe extern "C" fn(*const Image, c_int) -> c_int,
@@ -70,7 +79,10 @@ mod platform {
 
     fn candidates() -> Vec<PathBuf> {
         let mut list = Vec::new();
-        if let Some(dir) = std::env::current_exe().ok().and_then(|e| e.parent().map(Path::to_path_buf)) {
+        if let Some(dir) = std::env::current_exe()
+            .ok()
+            .and_then(|e| e.parent().map(Path::to_path_buf))
+        {
             list.push(dir.join("heif.dll"));
             // Tests and `tauri dev` run from target/<profile>[/deps]: the vendored copy.
             for up in dir.ancestors().take(5) {
@@ -81,12 +93,21 @@ mod platform {
     }
 
     pub fn open() -> Option<*mut c_void> {
-        candidates().into_iter().filter(|p| p.is_file()).find_map(|path| {
-            let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
-            // SAFETY: a NUL-terminated wide path; a null result means "not loaded".
-            let module = unsafe { LoadLibraryExW(wide.as_ptr(), std::ptr::null_mut(), LOAD_WITH_ALTERED_SEARCH_PATH) };
-            (!module.is_null()).then_some(module)
-        })
+        candidates()
+            .into_iter()
+            .filter(|p| p.is_file())
+            .find_map(|path| {
+                let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
+                // SAFETY: a NUL-terminated wide path; a null result means "not loaded".
+                let module = unsafe {
+                    LoadLibraryExW(
+                        wide.as_ptr(),
+                        std::ptr::null_mut(),
+                        LOAD_WITH_ALTERED_SEARCH_PATH,
+                    )
+                };
+                (!module.is_null()).then_some(module)
+            })
     }
 
     pub fn symbol(library: *mut c_void, name: &[u8]) -> *mut c_void {
@@ -107,7 +128,12 @@ mod platform {
     const RTLD_NOW: c_int = 2;
 
     pub fn open() -> Option<*mut c_void> {
-        let names: &[&[u8]] = &[b"libheif.so.1\0", b"libheif.so\0", b"libheif.1.dylib\0", b"libheif.dylib\0"];
+        let names: &[&[u8]] = &[
+            b"libheif.so.1\0",
+            b"libheif.so\0",
+            b"libheif.1.dylib\0",
+            b"libheif.dylib\0",
+        ];
         names.iter().find_map(|name| {
             // SAFETY: a NUL-terminated name; a null result means "not loaded".
             let library = unsafe { dlopen(name.as_ptr().cast(), RTLD_NOW) };
@@ -135,35 +161,57 @@ mod platform {
 fn load() -> Option<Api> {
     let library = platform::open()?;
     macro_rules! get {
-        ($name:literal) => {{
+        ($name:literal, $kind:ty) => {{
             let pointer = platform::symbol(library, concat!($name, "\0").as_bytes());
             if pointer.is_null() {
                 return None;
             }
             // SAFETY: the symbol of libheif's documented C API with this signature.
-            unsafe { std::mem::transmute::<*mut c_void, _>(pointer) }
+            unsafe { std::mem::transmute::<*mut c_void, $kind>(pointer) }
         }};
     }
     // heif_init exists since libheif 1.13 and loads its plugins (libde265); call it when present.
     let init = platform::symbol(library, b"heif_init\0");
     if !init.is_null() {
         // SAFETY: `heif_error heif_init(struct heif_init_params*)`, NULL is allowed.
-        let init: unsafe extern "C" fn(*const c_void) -> HeifError = unsafe { std::mem::transmute(init) };
+        let init = unsafe {
+            std::mem::transmute::<*mut c_void, unsafe extern "C" fn(*const c_void) -> HeifError>(
+                init,
+            )
+        };
         // SAFETY: see above.
         let _ = unsafe { init(std::ptr::null()) };
     }
     Some(Api {
-        context_alloc: get!("heif_context_alloc"),
-        context_free: get!("heif_context_free"),
-        read_from_memory: get!("heif_context_read_from_memory_without_copy"),
-        primary_handle: get!("heif_context_get_primary_image_handle"),
-        handle_release: get!("heif_image_handle_release"),
-        has_alpha: get!("heif_image_handle_has_alpha_channel"),
-        decode: get!("heif_decode_image"),
-        image_release: get!("heif_image_release"),
-        width: get!("heif_image_get_width"),
-        height: get!("heif_image_get_height"),
-        plane: get!("heif_image_get_plane_readonly"),
+        context_alloc: get!("heif_context_alloc", unsafe extern "C" fn() -> *mut Ctx),
+        context_free: get!("heif_context_free", unsafe extern "C" fn(*mut Ctx)),
+        read_from_memory: get!("heif_context_read_from_memory_without_copy", ReadFromMemory),
+        primary_handle: get!(
+            "heif_context_get_primary_image_handle",
+            unsafe extern "C" fn(*mut Ctx, *mut *mut Handle) -> HeifError
+        ),
+        handle_release: get!(
+            "heif_image_handle_release",
+            unsafe extern "C" fn(*const Handle)
+        ),
+        has_alpha: get!(
+            "heif_image_handle_has_alpha_channel",
+            unsafe extern "C" fn(*const Handle) -> c_int
+        ),
+        decode: get!("heif_decode_image", Decode),
+        image_release: get!("heif_image_release", unsafe extern "C" fn(*const Image)),
+        width: get!(
+            "heif_image_get_width",
+            unsafe extern "C" fn(*const Image, c_int) -> c_int
+        ),
+        height: get!(
+            "heif_image_get_height",
+            unsafe extern "C" fn(*const Image, c_int) -> c_int
+        ),
+        plane: get!(
+            "heif_image_get_plane_readonly",
+            unsafe extern "C" fn(*const Image, c_int, *mut c_int) -> *const u8
+        ),
     })
 }
 
@@ -227,19 +275,42 @@ pub fn render(data: &[u8]) -> Result<Vec<u8>, HeifFailure> {
         if guard.ctx.is_null() {
             return Err(HeifFailure::Broken);
         }
-        let ok = |e: HeifError| if e.code == 0 { Ok(()) } else { Err(HeifFailure::Broken) };
-        ok((api.read_from_memory)(guard.ctx, data.as_ptr().cast(), data.len(), std::ptr::null()))?;
+        let ok = |e: HeifError| {
+            if e.code == 0 {
+                Ok(())
+            } else {
+                Err(HeifFailure::Broken)
+            }
+        };
+        ok((api.read_from_memory)(
+            guard.ctx,
+            data.as_ptr().cast(),
+            data.len(),
+            std::ptr::null(),
+        ))?;
         ok((api.primary_handle)(guard.ctx, &mut guard.handle))?;
         let alpha = (api.has_alpha)(guard.handle) != 0;
-        let chroma = if alpha { CHROMA_INTERLEAVED_RGBA } else { CHROMA_INTERLEAVED_RGB };
-        ok((api.decode)(guard.handle, &mut guard.image, COLORSPACE_RGB, chroma, std::ptr::null()))?;
+        let chroma = if alpha {
+            CHROMA_INTERLEAVED_RGBA
+        } else {
+            CHROMA_INTERLEAVED_RGB
+        };
+        ok((api.decode)(
+            guard.handle,
+            &mut guard.image,
+            COLORSPACE_RGB,
+            chroma,
+            std::ptr::null(),
+        ))?;
         let width = (api.width)(guard.image, CHANNEL_INTERLEAVED);
         let height = (api.height)(guard.image, CHANNEL_INTERLEAVED);
         let mut stride: c_int = 0;
         let plane = (api.plane)(guard.image, CHANNEL_INTERLEAVED, &mut stride);
-        let (Ok(width), Ok(height), Ok(stride)) =
-            (usize::try_from(width), usize::try_from(height), usize::try_from(stride))
-        else {
+        let (Ok(width), Ok(height), Ok(stride)) = (
+            usize::try_from(width),
+            usize::try_from(height),
+            usize::try_from(stride),
+        ) else {
             return Err(HeifFailure::Broken);
         };
         let channels = if alpha { 4 } else { 3 };
@@ -264,7 +335,11 @@ pub fn render(data: &[u8]) -> Result<Vec<u8>, HeifFailure> {
             &pixels,
             width,
             height,
-            if alpha { ExtendedColorType::Rgba8 } else { ExtendedColorType::Rgb8 },
+            if alpha {
+                ExtendedColorType::Rgba8
+            } else {
+                ExtendedColorType::Rgb8
+            },
         )
         .map_err(|_| HeifFailure::Broken)?;
     Ok(png.into_inner())

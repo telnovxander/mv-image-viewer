@@ -13,12 +13,12 @@ import { WriteRotationDialog } from "./components/WriteRotationDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
-import { applyRotation, exifOf, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
+import { applyRotation, exifOf, heifAvailable, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
 import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
 import { CHROME_HIDE_MS, chromeVisible } from "./lib/chrome";
-import { DECODED_EXTENSIONS, WEB_EXTENSIONS } from "./lib/formats";
+import { DECODED_EXTENSIONS, isHeif, WEB_EXTENSIONS } from "./lib/formats";
 import { BACKGROUNDS, loadSettings, saveSettings, type Settings, type SortOrder } from "./lib/settings";
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
@@ -69,6 +69,8 @@ export function App() {
   const [infoOpen, setInfoOpen] = useState(false);
   /** The current image could not be decoded: a placeholder with its name instead (IV-05). */
   const [broken, setBroken] = useState(false);
+  // A HEIC that cannot be shown: decoder missing (true) or the file is damaged (false).
+  const [noCodec, setNoCodec] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [slideshow, setSlideshow] = useState(false);
   const [plan, setPlan] = useState<OrientationPlan | null>(null);
@@ -386,6 +388,7 @@ export function App() {
     setRotation(0);
     setShownSize(null);
     setBroken(false);
+    setNoCodec(false);
     if (!image || !inTauri) return;
     let current = true;
     void exifOf(image.path).then((info) => {
@@ -420,7 +423,11 @@ export function App() {
             onWheelPage={go}
             rotation={rotation}
             alt={t("image.alt", { name: image.name })}
-            onError={() => setBroken(true)}
+            onError={() => {
+              setBroken(true);
+              const path = image.path;
+              if (isHeif(path)) void heifAvailable().then((ok) => setNoCodec(!ok));
+            }}
             onLoad={(size) => {
               setError(null);
               setBroken(false);
@@ -432,7 +439,7 @@ export function App() {
         {image && broken && (
           <div className="viewer__empty" role="alert">
             <p className="viewer__empty-title">{image.name}</p>
-            <p className="viewer__empty-hint">{t("error.decode", { name: image.name })}</p>
+            <p className="viewer__empty-hint">{t(noCodec ? "error.no_codec" : "error.decode", { name: image.name })}</p>
           </div>
         )}
         {!image && !error && (

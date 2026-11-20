@@ -1,6 +1,7 @@
 //! Images WebView2 cannot show itself (IV-05), turned into something it can: TIFF → PNG of the
 //! first page with its orientation applied; camera RAW → the largest embedded JPEG preview with the
-//! RAW's orientation written into it (the WebView turns it, nothing is re-encoded). Reading only.
+//! RAW's orientation written into it (the WebView turns it, nothing is re-encoded); HEIC/HEIF →
+//! PNG of the primary image through libheif (`heif.rs`), upright. Reading only.
 
 use std::fs;
 use std::io::Cursor;
@@ -9,7 +10,8 @@ use std::path::Path;
 use image::{ImageDecoder, ImageFormat};
 
 use crate::error::{ErrorCode, IvError};
-use crate::formats::{RAW_EXTENSIONS, TIFF_EXTENSIONS};
+use crate::formats::{HEIF_EXTENSIONS, RAW_EXTENSIONS, TIFF_EXTENSIONS};
+use crate::heif::{self, HeifFailure};
 
 /// Bytes the window can show, with their MIME type.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -22,7 +24,7 @@ fn broken(path: &Path) -> IvError {
     IvError::new(ErrorCode::Broken, path)
 }
 
-/// Render a TIFF or RAW file for the window.
+/// Render a TIFF, HEIF or RAW file for the window.
 pub fn render(path: &Path) -> Result<Rendered, IvError> {
     let extension = path
         .extension()
@@ -32,6 +34,15 @@ pub fn render(path: &Path) -> Result<Rendered, IvError> {
     let data = fs::read(path).map_err(|e| IvError::from_io(&e, path))?;
     if TIFF_EXTENSIONS.contains(&extension.as_str()) {
         render_tiff(&data).ok_or_else(|| broken(path))
+    } else if HEIF_EXTENSIONS.contains(&extension.as_str()) {
+        match heif::render(&data) {
+            Ok(bytes) => Ok(Rendered {
+                bytes,
+                mime: "image/png",
+            }),
+            Err(HeifFailure::NoLibrary) => Err(IvError::new(ErrorCode::NoCodec, path)),
+            Err(HeifFailure::Broken) => Err(broken(path)),
+        }
     } else if RAW_EXTENSIONS.contains(&extension.as_str()) {
         raw_preview(&data).ok_or_else(|| broken(path))
     } else {
@@ -262,6 +273,45 @@ mod tests {
         );
         assert!(raw_preview(&[]).is_none());
         assert!(raw_preview(b"II*\0\xff\xff\xff\xff").is_none());
+    }
+
+    /// HEIC needs libheif: on Windows CI the vendored DLLs (`vendor/heif/`) must load, elsewhere
+    /// the system library is used when installed and the decoding tests are skipped otherwise.
+    fn heif_or_skip() -> bool {
+        let vendored = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../vendor/heif/heif.dll")
+            .is_file();
+        if cfg!(windows) && vendored {
+            assert!(
+                heif::available(),
+                "vendor/heif/heif.dll is there but did not load"
+            );
+        }
+        if !heif::available() {
+            eprintln!("libheif not found: HEIC decoding tests skipped");
+        }
+        heif::available()
+    }
+
+    #[test]
+    fn heic_primary_image_as_png() {
+        if !heif_or_skip() {
+            return;
+        }
+        let rendered = render(&testdata("sample.heic")).expect("heic");
+        assert_eq!(rendered.mime, "image/png");
+        // Made from source/f-1.jpg (160×120); the HEIC keeps its size.
+        assert_eq!(png_size(&rendered.bytes), (160, 120));
+    }
+
+    #[test]
+    fn broken_heic_is_an_error() {
+        let code = render(&testdata("broken.heic")).expect_err("broken").code;
+        if heif::available() {
+            assert_eq!(code, ErrorCode::Broken);
+        } else {
+            assert_eq!(code, ErrorCode::NoCodec);
+        }
     }
 
     #[test]
