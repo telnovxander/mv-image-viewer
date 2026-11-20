@@ -186,6 +186,16 @@ taken. An existing date taken is never changed; dates in the future or before 19
 unless you tick them. Then the batches are applied one by one, each after "Yes, change", and every
 batch can be undone from the journal.
 
+### Dates by hand (IV-15)
+
+In the dates table, tick the photos (or "Choose all shown") and set their dates: one date for all,
+a start date with a step (each next photo a minute later, so the order stays), a shift of every date
+taken (a camera left in another time zone), or an approximate date — a year, a month or a season
+("summer 2005"): the middle of the period is written and the journal says it was approximate. In
+the viewer, **D** (or "Change the date taken" in the I panel) does the same for the current photo.
+Replacing a date taken a photo already has is your explicit choice; the preview says so, and undo
+brings the old one back.
+
 ### Videos and the phone (IV-16)
 
 The dates tools handle videos too (MP4, MOV, M4V, 3GP): their creation time inside the file
