@@ -1,5 +1,5 @@
 // Calls into the Rust side (src-tauri). Errors arrive as { code, path } (iv-core IvError).
-import { convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
+import { Channel, convertFileSrc, invoke, isTauri } from "@tauri-apps/api/core";
 import { isDecoded } from "./formats";
 
 export interface ImageFile {
@@ -10,7 +10,7 @@ export interface ImageFile {
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "index_failed" | "cancelled" | "picture_changed" | "too_many_files" | "other";
   path: string;
 }
 
@@ -172,4 +172,57 @@ export async function revealFile(path: string): Promise<void> {
 /** Windows' "Open with" dialog. */
 export async function openWith(path: string): Promise<void> {
   return invoke("open_with", { path });
+}
+
+// Vollmond (IV-13): the index of a photo archive and the journal of operations.
+
+export type IndexProgress = { phase: "files"; seen: number } | { phase: "hashes"; done: number; total: number };
+
+export interface IndexSummary {
+  images: number;
+  added: number;
+  changed: number;
+  unchanged: number;
+  removed: number;
+  hashed: number;
+  skipped_folders: number;
+  cancelled: boolean;
+}
+
+export type IndexEvent =
+  | { event: "progress"; progress: IndexProgress }
+  | { event: "done"; summary: IndexSummary }
+  | { event: "error"; error: BackendError };
+
+/** Index `root` in the background; events arrive until "done" or "error". */
+export async function indexFolder(id: number, root: string, recursive: boolean, onEvent: (event: IndexEvent) => void): Promise<void> {
+  const channel = new Channel<IndexEvent>();
+  channel.onmessage = onEvent;
+  return invoke("index_folder", { id, root, recursive, onEvent: channel });
+}
+
+export async function cancelJob(id: number): Promise<void> {
+  return invoke("cancel_job", { id });
+}
+
+export interface PlannedChange {
+  path: string;
+  field: string;
+  before: string | null;
+  after: string | null;
+  suspicious: boolean;
+}
+
+export interface Operation {
+  op: number;
+  time: number;
+  tool: string;
+  undoes: number | null;
+  applied: PlannedChange[];
+  interrupted: boolean;
+  undone: boolean;
+}
+
+export async function vollmondOperations(): Promise<Operation[]> {
+  return inTauri ? invoke<Operation[]>("vollmond_operations") : [];
 }

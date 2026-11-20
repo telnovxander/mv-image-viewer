@@ -652,3 +652,65 @@ body {
 .app:has(.filmstrip) .toast {
   bottom: 96px;
 }
+
+/* IV-13: Vollmond's "Tools" window, amber accents (MV/BRAND.md: amber only in Vollmond). */
+.dialog:has(.tools) {
+  max-width: min(640px, calc(100vw - 32px));
+  border-top: 3px solid var(--accent-amber);
+}
+
+.tools {
+  display: grid;
+  gap: 16px;
+  width: min(600px, calc(100vw - 64px));
+}
+
+.tools__heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.tools__heading svg {
+  color: var(--accent-amber);
+}
+
+.tools__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.tools__folder {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.tools__progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tools__progress progress {
+  flex: 1;
+  accent-color: var(--accent-amber);
+}
+
+.tools__error {
+  color: var(--danger);
+}
+
+.tools__journal {
+  max-height: 180px;
+  margin: 0;
+  padding-left: 18px;
+  overflow: auto;
+}

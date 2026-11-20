@@ -33,7 +33,11 @@
     "restore_failed": "The file could not be brought back from the Recycle Bin; restore it there: {{path}}",
     "restore_occupied": "Another file now has this name, nothing was overwritten; the deleted one stays in the Recycle Bin: {{path}}",
     "copy_failed": "This image cannot be copied: {{path}}",
-    "open_with_failed": "The “Open with” window of Windows could not be shown: {{path}}"
+    "open_with_failed": "The “Open with” window of Windows could not be shown: {{path}}",
+    "index_failed": "The index of the photo archive could not be read or written: {{path}}",
+    "cancelled": "Stopped: {{path}}",
+    "picture_changed": "The change would have altered the picture; the file was kept as it was: {{path}}",
+    "too_many_files": "More than 500 files at once; Spiegelmond works in batches: {{path}}"
   },
   "settings": {
     "title": "Settings",
@@ -69,7 +73,26 @@
   },
   "tools": {
     "title": "Tools",
-    "placeholder": "The Vollmond tools for a photo archive (dates, duplicates, batch processing) will appear here."
+    "loading": "Loading the tools…",
+    "archive": "Photo archive",
+    "choose_folder": "Choose a folder",
+    "no_folder": "No folder chosen yet",
+    "subfolders": "Include subfolders",
+    "index": "Index",
+    "stop": "Stop",
+    "progress_files_one": "Reading files… {{count, number}} image",
+    "progress_files_other": "Reading files… {{count, number}} images",
+    "progress_hashes": "Checking contents… {{done, number}} of {{total, number}}",
+    "summary_one": "{{count, number}} image in the index: {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone.",
+    "summary_other": "{{count, number}} images in the index: {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone.",
+    "summary_stopped_one": "Stopped; {{count, number}} image indexed so far. The next run goes on from there.",
+    "summary_stopped_other": "Stopped; {{count, number}} images indexed so far. The next run goes on from there.",
+    "journal": "Journal of changes",
+    "journal_empty": "No changes yet. Every change of a tool appears here and can be undone.",
+    "files_one": "{{count, number}} file",
+    "files_other": "{{count, number}} files",
+    "interrupted": "interrupted",
+    "undone": "undone"
   },
   "units": {
     "b": "B",

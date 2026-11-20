@@ -312,6 +312,86 @@ async fn open_with(window: tauri::WebviewWindow, path: String) -> Result<(), IvE
         .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&path)))?
 }
 
+/// Long Vollmond jobs that can be stopped: their cancel flags by id (IV-13).
+#[derive(Default)]
+struct Jobs(std::sync::Arc<Mutex<JobMap>>);
+
+type JobMap = std::collections::HashMap<u32, std::sync::Arc<std::sync::atomic::AtomicBool>>;
+
+/// Events of an indexing job.
+#[derive(Clone, serde::Serialize)]
+#[serde(tag = "event", rename_all = "snake_case")]
+enum IndexEvent {
+    Progress {
+        progress: iv_core::vollmond::index::Progress,
+    },
+    Done {
+        summary: iv_core::vollmond::index::IndexSummary,
+    },
+    Error {
+        error: IvError,
+    },
+}
+
+/// Where Vollmond keeps its index (next to the thumbnails, `<data>/cache`) and its journal.
+fn vollmond_dirs() -> Result<(PathBuf, PathBuf), IvError> {
+    let data = settings::data_dir().ok_or_else(|| {
+        IvError::new(
+            ErrorCode::NotFound,
+            std::path::Path::new(settings::APP_FOLDER),
+        )
+    })?;
+    Ok((data.join("cache"), data.join("journal")))
+}
+
+/// Index a folder of the archive in the background; stopped with `cancel_job` and the same id.
+#[tauri::command]
+fn index_folder(
+    id: u32,
+    root: String,
+    recursive: bool,
+    on_event: tauri::ipc::Channel<IndexEvent>,
+    jobs: tauri::State<'_, Jobs>,
+) {
+    let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    if let Ok(mut map) = jobs.0.lock() {
+        map.insert(id, cancel.clone());
+    }
+    let registry = jobs.0.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let path = PathBuf::from(&root);
+        let result = vollmond_dirs().and_then(|(cache, _)| {
+            let mut index = iv_core::vollmond::index::Index::open(&cache.join("index.sqlite"))?;
+            index.index(&path, recursive, true, &cancel, |progress| {
+                let _ = on_event.send(IndexEvent::Progress { progress });
+            })
+        });
+        let _ = on_event.send(match result {
+            Ok(summary) => IndexEvent::Done { summary },
+            Err(error) => IndexEvent::Error { error },
+        });
+        if let Ok(mut map) = registry.lock() {
+            map.remove(&id);
+        }
+    });
+}
+
+#[tauri::command]
+fn cancel_job(id: u32, jobs: tauri::State<'_, Jobs>) {
+    if let Ok(mut map) = jobs.0.lock() {
+        if let Some(cancel) = map.remove(&id) {
+            cancel.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
+    }
+}
+
+/// The journal of Vollmond operations, newest first (IV-13).
+#[tauri::command]
+fn vollmond_operations() -> Result<Vec<iv_core::vollmond::plan::Operation>, IvError> {
+    let (_, journal) = vollmond_dirs()?;
+    Ok(iv_core::vollmond::plan::Journal::new(&journal).operations())
+}
+
 #[tauri::command]
 fn load_settings() -> Result<Option<String>, IvError> {
     match settings::data_dir() {
@@ -356,6 +436,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .manage(InitialPath(Mutex::new(first)))
+        .manage(Jobs::default())
         .invoke_handler(tauri::generate_handler![
             initial_path,
             open_image,
@@ -372,6 +453,9 @@ pub fn run() {
             copy_path,
             reveal_file,
             open_with,
+            index_folder,
+            cancel_job,
+            vollmond_operations,
             load_settings,
             save_settings
         ])

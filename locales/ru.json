@@ -33,7 +33,11 @@
     "restore_failed": "Не удалось вернуть файл из корзины; восстановите его там: {{path}}",
     "restore_occupied": "Файл с таким именем уже есть, ничего не перезаписано; удалённый остаётся в корзине: {{path}}",
     "copy_failed": "Это изображение нельзя скопировать: {{path}}",
-    "open_with_failed": "Не удалось показать окно Windows «Открыть с помощью»: {{path}}"
+    "open_with_failed": "Не удалось показать окно Windows «Открыть с помощью»: {{path}}",
+    "index_failed": "Не удалось прочитать или записать индекс фотоархива: {{path}}",
+    "cancelled": "Остановлено: {{path}}",
+    "picture_changed": "Изменение затронуло бы само изображение; файл оставлен как был: {{path}}",
+    "too_many_files": "Больше 500 файлов за раз; Spiegelmond работает партиями: {{path}}"
   },
   "settings": {
     "title": "Настройки",
@@ -69,7 +73,34 @@
   },
   "tools": {
     "title": "Инструменты",
-    "placeholder": "Здесь появятся инструменты Vollmond для фотоархива: даты, дубликаты, пакетная обработка."
+    "loading": "Загружаю инструменты…",
+    "archive": "Фотоархив",
+    "choose_folder": "Выбрать папку",
+    "no_folder": "Папка не выбрана",
+    "subfolders": "С подпапками",
+    "index": "Индексировать",
+    "stop": "Остановить",
+    "progress_files_one": "Читаю файлы… {{count, number}} изображение",
+    "progress_files_few": "Читаю файлы… {{count, number}} изображения",
+    "progress_files_many": "Читаю файлы… {{count, number}} изображений",
+    "progress_files_other": "Читаю файлы… {{count, number}} изображения",
+    "progress_hashes": "Проверяю содержимое… {{done, number}} из {{total, number}}",
+    "summary_one": "В индексе {{count, number}} изображение: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",
+    "summary_few": "В индексе {{count, number}} изображения: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",
+    "summary_many": "В индексе {{count, number}} изображений: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",
+    "summary_other": "В индексе {{count, number}} изображения: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",
+    "summary_stopped_one": "Остановлено; проиндексировано {{count, number}} изображение. Следующий запуск продолжит с этого места.",
+    "summary_stopped_few": "Остановлено; проиндексировано {{count, number}} изображения. Следующий запуск продолжит с этого места.",
+    "summary_stopped_many": "Остановлено; проиндексировано {{count, number}} изображений. Следующий запуск продолжит с этого места.",
+    "summary_stopped_other": "Остановлено; проиндексировано {{count, number}} изображения. Следующий запуск продолжит с этого места.",
+    "journal": "Журнал изменений",
+    "journal_empty": "Изменений пока нет. Каждое изменение инструмента появится здесь, и его можно будет отменить.",
+    "files_one": "{{count, number}} файл",
+    "files_few": "{{count, number}} файла",
+    "files_many": "{{count, number}} файлов",
+    "files_other": "{{count, number}} файла",
+    "interrupted": "прервано",
+    "undone": "отменено"
   },
   "units": {
     "b": "Б",

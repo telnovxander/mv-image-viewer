@@ -33,7 +33,11 @@
     "restore_failed": "Die Datei konnte nicht aus dem Papierkorb zurückgeholt werden; dort wiederherstellen: {{path}}",
     "restore_occupied": "Eine andere Datei hat jetzt diesen Namen, nichts wurde überschrieben; die gelöschte bleibt im Papierkorb: {{path}}",
     "copy_failed": "Dieses Bild kann nicht kopiert werden: {{path}}",
-    "open_with_failed": "Das Windows-Fenster „Öffnen mit“ konnte nicht angezeigt werden: {{path}}"
+    "open_with_failed": "Das Windows-Fenster „Öffnen mit“ konnte nicht angezeigt werden: {{path}}",
+    "index_failed": "Der Index des Fotoarchivs konnte nicht gelesen oder geschrieben werden: {{path}}",
+    "cancelled": "Angehalten: {{path}}",
+    "picture_changed": "Die Änderung hätte das Bild verändert; die Datei blieb, wie sie war: {{path}}",
+    "too_many_files": "Mehr als 500 Dateien auf einmal; Spiegelmond arbeitet in Teilen: {{path}}"
   },
   "settings": {
     "title": "Einstellungen",
@@ -69,7 +73,26 @@
   },
   "tools": {
     "title": "Werkzeuge",
-    "placeholder": "Hier erscheinen die Vollmond-Werkzeuge für das Fotoarchiv: Daten, Duplikate, Stapelverarbeitung."
+    "loading": "Die Werkzeuge werden geladen…",
+    "archive": "Fotoarchiv",
+    "choose_folder": "Ordner wählen",
+    "no_folder": "Noch kein Ordner gewählt",
+    "subfolders": "Mit Unterordnern",
+    "index": "Indizieren",
+    "stop": "Anhalten",
+    "progress_files_one": "Dateien werden gelesen… {{count, number}} Bild",
+    "progress_files_other": "Dateien werden gelesen… {{count, number}} Bilder",
+    "progress_hashes": "Inhalte werden geprüft… {{done, number}} von {{total, number}}",
+    "summary_one": "{{count, number}} Bild im Index: {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
+    "summary_other": "{{count, number}} Bilder im Index: {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
+    "summary_stopped_one": "Angehalten; bisher {{count, number}} Bild indiziert. Der nächste Lauf macht dort weiter.",
+    "summary_stopped_other": "Angehalten; bisher {{count, number}} Bilder indiziert. Der nächste Lauf macht dort weiter.",
+    "journal": "Protokoll der Änderungen",
+    "journal_empty": "Noch keine Änderungen. Jede Änderung eines Werkzeugs erscheint hier und kann rückgängig gemacht werden.",
+    "files_one": "{{count, number}} Datei",
+    "files_other": "{{count, number}} Dateien",
+    "interrupted": "unterbrochen",
+    "undone": "rückgängig gemacht"
   },
   "units": {
     "b": "B",
