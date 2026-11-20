@@ -101,12 +101,36 @@ mod tests {
     #[test]
     fn describes_every_image_of_testdata() {
         let temp = testdata();
-        for name in ["red.png", "blue.bmp", "green.gif"] {
+        for name in [
+            "red.png",
+            "blue.bmp",
+            "green.gif",
+            "anim.webp",
+            "sample.avif",
+        ] {
             let file = describe(&temp.path().join(name)).expect(name);
             assert_eq!(file.name, name);
             assert_eq!(file.format, Format::Web);
             assert!(file.size > 0);
             assert!(Path::new(&file.path).is_absolute());
+        }
+    }
+
+    #[test]
+    fn webp_and_avif_samples_are_what_the_webview_expects() {
+        let temp = testdata();
+        let webp = fs::read(temp.path().join("anim.webp")).expect("webp");
+        assert_eq!((&webp[0..4], &webp[8..12]), (&b"RIFF"[..], &b"WEBP"[..]));
+        // Animated: an ANIM chunk and two ANMF frames (the WebView plays them).
+        assert!(webp.windows(4).any(|w| w == b"ANIM"));
+        assert_eq!(webp.windows(4).filter(|w| *w == b"ANMF").count(), 2);
+        let avif = fs::read(temp.path().join("sample.avif")).expect("avif");
+        assert_eq!(&avif[4..12], b"ftypavif");
+        for name in ["broken.webp", "broken.avif"] {
+            assert_eq!(
+                describe(&temp.path().join(name)).expect(name).format,
+                Format::Web
+            );
         }
     }
 

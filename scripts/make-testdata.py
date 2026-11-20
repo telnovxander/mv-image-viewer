@@ -13,6 +13,10 @@ the upright F turned by the inverse of each orientation); this script only adds 
 IV-05: pages.tif (two pages: 64×40 and 20×20, uncompressed), sample.dng (a TIFF-based RAW
 stand-in: Orientation 6 in IFD0, a small JPEG thumbnail and the large JPEG preview in a SubIFD,
 taken from testdata/source/f-small.jpg and f-1.jpg), broken.tif and broken.dng.
+sample.cr3: a Canon CR3 stand-in (ISO BMFF: ftyp "crx ", moov → Canon uuid → CMT1 with Orientation 8,
+a uuid box with the PRVW preview from source/f-1.jpg); broken.cr3 ends inside the preview box.
+anim.webp (two frames, 0.5 s, looping) and sample.avif are testdata/source/anim.webp and f-1.avif (made
+once with Pillow); broken.webp and broken.avif are cut short, the window shows its placeholder.
 sample.heic is testdata/source/f-1.heic (made once with libheif: heif-enc -q 40 f-1.jpg), broken.heic
 its first 120 bytes (the header boxes without the image data).
 """
@@ -153,6 +157,21 @@ def raw_stand_in(thumbnail, preview, orientation):
     return bytes(out)
 
 
+def box(kind, payload):
+    return struct.pack(">I", 8 + len(payload)) + kind + payload
+
+
+def cr3_stand_in(jpeg, orientation):
+    """The parts of a CR3 Spiegelmond reads: brand, CMT1 (TIFF IFD0) and the PRVW preview."""
+    cmt1 = b"II*\x00" + struct.pack("<I", 8) + struct.pack("<H", 1)
+    cmt1 += struct.pack("<HHIHH", 0x0112, 3, 1, orientation, 0) + struct.pack("<I", 0)
+    canon = bytes.fromhex("85c0b687820f11e08111f4ce462b6a48")
+    moov = box(b"moov", box(b"uuid", canon + box(b"CMT1", cmt1)))
+    prvw = box(b"PRVW", struct.pack(">IHHHHI", 0, 1, 160, 120, 1, len(jpeg)) + jpeg)
+    preview = box(b"uuid", bytes.fromhex("eaf42b5e1c984b88b9fbb7dc406e4d16") + bytes(8) + prvw)
+    return box(b"ftyp", b"crx " + struct.pack(">I", 1) + b"crx isom") + moov + preview
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     files = {
@@ -172,6 +191,12 @@ def main():
     )
     files["broken.tif"] = files["pages.tif"][:30]
     files["broken.dng"] = b"II*\x00" + struct.pack("<I", 8) + b"\x02\x00garbage"
+    files["sample.cr3"] = cr3_stand_in((OUT / "source" / "f-1.jpg").read_bytes(), 8)
+    files["broken.cr3"] = files["sample.cr3"][:-500]
+    files["anim.webp"] = (OUT / "source" / "anim.webp").read_bytes()
+    files["broken.webp"] = files["anim.webp"][:40]
+    files["sample.avif"] = (OUT / "source" / "f-1.avif").read_bytes()
+    files["broken.avif"] = files["sample.avif"][:60]
     files["sample.heic"] = (OUT / "source" / "f-1.heic").read_bytes()
     files["broken.heic"] = files["sample.heic"][:120]
     for name, data in files.items():

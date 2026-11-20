@@ -25,9 +25,9 @@ pub const TIFF_EXTENSIONS: &[&str] = &["tif", "tiff"];
 /// HEIC / HEIF (HEVC inside: iPhone photos and others), decoded by libheif (`heif.rs`).
 pub const HEIF_EXTENSIONS: &[&str] = &["heic", "heif", "hif"];
 
-/// Camera RAW files built on TIFF: their largest embedded JPEG preview is shown.
+/// Camera RAW files: their largest embedded JPEG preview is shown (CR3 is ISO BMFF, the rest TIFF).
 pub const RAW_EXTENSIONS: &[&str] = &[
-    "dng", "cr2", "nef", "nrw", "arw", "srw", "orf", "rw2", "pef", "erf", "3fr",
+    "dng", "cr2", "nef", "nrw", "arw", "srw", "orf", "rw2", "pef", "erf", "3fr", "cr3",
 ];
 
 /// The format of a file by its extension, or `None` if Spiegelmond cannot show it.
@@ -66,6 +66,7 @@ mod tests {
             "photo.NEF",
             "photo.arw",
             "photo.cr2",
+            "IMG_0001.CR3",
             "IMG_0001.HEIC",
             "photo.heif",
         ] {

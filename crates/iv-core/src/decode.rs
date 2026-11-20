@@ -1,5 +1,6 @@
 //! Images WebView2 cannot show itself (IV-05), turned into something it can: TIFF → PNG of the
-//! first page with its orientation applied; camera RAW → the largest embedded JPEG preview with the
+//! first page with its orientation applied; camera RAW (TIFF-based, and Canon CR3) → the largest
+//! embedded JPEG preview with the
 //! RAW's orientation written into it (the WebView turns it, nothing is re-encoded); HEIC/HEIF →
 //! PNG of the primary image through libheif (`heif.rs`), upright. Reading only.
 
@@ -43,6 +44,8 @@ pub fn render(path: &Path) -> Result<Rendered, IvError> {
             Err(HeifFailure::NoLibrary) => Err(IvError::new(ErrorCode::NoCodec, path)),
             Err(HeifFailure::Broken) => Err(broken(path)),
         }
+    } else if extension == "cr3" {
+        cr3_preview(&data).ok_or_else(|| broken(path))
     } else if RAW_EXTENSIONS.contains(&extension.as_str()) {
         raw_preview(&data).ok_or_else(|| broken(path))
     } else {
@@ -191,6 +194,60 @@ fn raw_preview(data: &[u8]) -> Option<Rendered> {
     })
 }
 
+/// The payload of the first ISO BMFF box of kind `kind` anywhere in `data` (its size field and
+/// end checked). CR3 nests its boxes in `moov` and Canon `uuid` boxes with private headers, so a
+/// scan for the kind is simpler and as safe as walking them: only a checked range is returned.
+fn find_box<'a>(data: &'a [u8], kind: &[u8; 4]) -> Option<&'a [u8]> {
+    let mut from = 4;
+    while from + 4 <= data.len() {
+        let at = from + data.get(from..)?.windows(4).position(|w| w == kind)?;
+        let start = at - 4;
+        let size = data
+            .get(start..at)
+            .map(|b| u32::from_be_bytes([b[0], b[1], b[2], b[3]]))
+            .and_then(|s| usize::try_from(s).ok())
+            .unwrap_or(0);
+        if size >= 8 && start + size <= data.len() {
+            return data.get(at + 4..start + size);
+        }
+        from = at + 1;
+    }
+    None
+}
+
+/// Canon CR3: the JPEG preview of the `PRVW` box (1620×1080 in real files), turned like the
+/// Orientation of IFD0 in the `CMT1` box (a little TIFF) says.
+fn cr3_preview(data: &[u8]) -> Option<Rendered> {
+    if data.get(4..12)? != b"ftypcrx " {
+        return None;
+    }
+    let preview = find_box(data, b"PRVW")?;
+    let start = preview.windows(3).position(|w| w == [0xFF, 0xD8, 0xFF])?;
+    let jpeg = &preview[start..];
+    let orientation = find_box(data, b"CMT1")
+        .and_then(|tiff| {
+            let little = match tiff.get(0..2)? {
+                b"II" => true,
+                b"MM" => false,
+                _ => return None,
+            };
+            let reader = Tiff { data: tiff, little };
+            let ifd = usize::try_from(reader.u32(4)?).ok()?;
+            reader
+                .entries(ifd)
+                .into_iter()
+                .find(|e| e.0 == 0x0112)
+                .and_then(|(_, kind, _, at)| reader.value(kind, at))
+        })
+        .and_then(|o| u16::try_from(o).ok())
+        .filter(|o| (1..=8).contains(o))
+        .unwrap_or(1);
+    Some(Rendered {
+        bytes: with_orientation(jpeg, orientation),
+        mime: "image/jpeg",
+    })
+}
+
 /// The JPEG with an EXIF segment holding only `orientation`, replacing any EXIF it had: the
 /// WebView then turns the preview like the RAW file says.
 pub fn with_orientation(jpeg: &[u8], orientation: u16) -> Vec<u8> {
@@ -259,8 +316,21 @@ mod tests {
     }
 
     #[test]
+    fn cr3_preview_with_its_orientation() {
+        let rendered = render(&testdata("sample.cr3")).expect("cr3");
+        assert_eq!(rendered.mime, "image/jpeg");
+        let temp = tempfile::tempdir().expect("temp dir");
+        let out = temp.path().join("preview.jpg");
+        fs::write(&out, &rendered.bytes).expect("write");
+        assert_eq!(read_exif(&out).and_then(|e| e.orientation), Some(8));
+        // The whole preview, only the EXIF segment is new.
+        let source = fs::read(testdata("source/f-1.jpg")).expect("source");
+        assert_eq!(rendered.bytes, with_orientation(&source, 8));
+    }
+
+    #[test]
     fn broken_files_are_errors_not_panics() {
-        for name in ["broken.tif", "broken.dng"] {
+        for name in ["broken.tif", "broken.dng", "broken.cr3"] {
             assert_eq!(
                 render(&testdata(name)).expect_err(name).code,
                 ErrorCode::Broken,
@@ -273,6 +343,13 @@ mod tests {
         );
         assert!(raw_preview(&[]).is_none());
         assert!(raw_preview(b"II*\0\xff\xff\xff\xff").is_none());
+        assert!(cr3_preview(b"\0\0\0\x10ftypcrx \0\0\0\x01").is_none());
+        // A PRVW box whose size runs past the end of the file is not trusted.
+        assert!(find_box(
+            b"\0\0\0\x10ftypcrx \xff\xff\xff\xffPRVW\xff\xd8\xff",
+            b"PRVW"
+        )
+        .is_none());
     }
 
     /// HEIC needs libheif: on Windows CI the vendored DLLs (`vendor/heif/`) must load, elsewhere

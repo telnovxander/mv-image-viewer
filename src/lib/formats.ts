@@ -6,7 +6,7 @@ export const WEB_EXTENSIONS = ["jpg", "jpeg", "jfif", "png", "gif", "webp", "bmp
 export const HEIF_EXTENSIONS = ["heic", "heif", "hif"];
 
 /** TIFF, HEIF and RAW: rendered by iv-core and served through the `ivimg` protocol (IV-05). */
-export const DECODED_EXTENSIONS = ["tif", "tiff", "heic", "heif", "hif", "dng", "cr2", "nef", "nrw", "arw", "srw", "orf", "rw2", "pef", "erf", "3fr"];
+export const DECODED_EXTENSIONS = ["tif", "tiff", "heic", "heif", "hif", "dng", "cr2", "nef", "nrw", "arw", "srw", "orf", "rw2", "pef", "erf", "3fr", "cr3"];
 
 function extensionOf(path: string): string {
   return path.split(".").pop()?.toLowerCase() ?? "";
