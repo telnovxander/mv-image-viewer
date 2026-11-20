@@ -176,7 +176,7 @@ export async function openWith(path: string): Promise<void> {
 
 // Vollmond (IV-13): the index of a photo archive and the journal of operations.
 
-export type IndexProgress = { phase: "files"; seen: number } | { phase: "hashes"; done: number; total: number };
+export type IndexProgress = { phase: "files"; seen: number } | { phase: "hashes" | "thumbnails"; done: number; total: number };
 
 export interface IndexSummary {
   images: number;
@@ -185,6 +185,7 @@ export interface IndexSummary {
   unchanged: number;
   removed: number;
   hashed: number;
+  thumbnails: number;
   skipped_folders: number;
   cancelled: boolean;
 }

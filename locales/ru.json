@@ -85,6 +85,7 @@
     "progress_files_many": "Читаю файлы… {{count, number}} изображений",
     "progress_files_other": "Читаю файлы… {{count, number}} изображения",
     "progress_hashes": "Проверяю содержимое… {{done, number}} из {{total, number}}",
+    "progress_thumbnails": "Делаю миниатюры… {{done, number}} из {{total, number}}",
     "summary_one": "В индексе {{count, number}} изображение: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",
     "summary_few": "В индексе {{count, number}} изображения: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",
     "summary_many": "В индексе {{count, number}} изображений: новых {{added, number}}, изменённых {{changed, number}}, исчезнувших {{removed, number}}.",

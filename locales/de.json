@@ -83,6 +83,7 @@
     "progress_files_one": "Dateien werden gelesen… {{count, number}} Bild",
     "progress_files_other": "Dateien werden gelesen… {{count, number}} Bilder",
     "progress_hashes": "Inhalte werden geprüft… {{done, number}} von {{total, number}}",
+    "progress_thumbnails": "Miniaturen werden erstellt… {{done, number}} von {{total, number}}",
     "summary_one": "{{count, number}} Bild im Index: {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
     "summary_other": "{{count, number}} Bilder im Index: {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
     "summary_stopped_one": "Angehalten; bisher {{count, number}} Bild indiziert. Der nächste Lauf macht dort weiter.",

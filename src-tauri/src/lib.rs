@@ -362,9 +362,27 @@ fn index_folder(
         let path = PathBuf::from(&root);
         let result = vollmond_dirs().and_then(|(cache, _)| {
             let mut index = iv_core::vollmond::index::Index::open(&cache.join("index.sqlite"))?;
-            index.index(&path, recursive, true, &cancel, |progress| {
+            let mut summary = index.index(&path, recursive, true, &cancel, |progress| {
                 let _ = on_event.send(IndexEvent::Progress { progress });
-            })
+            })?;
+            if !summary.cancelled {
+                // The same cache as the film strip (thumb_queue): built once for both.
+                let thumbs = iv_core::thumbs::ThumbCache::new(
+                    &cache.join("thumbs"),
+                    iv_core::thumbs::CACHE_LIMIT,
+                );
+                index.thumbnails(
+                    &path,
+                    recursive,
+                    &thumbs,
+                    &cancel,
+                    &mut summary,
+                    |progress| {
+                        let _ = on_event.send(IndexEvent::Progress { progress });
+                    },
+                )?;
+            }
+            Ok(summary)
         });
         let _ = on_event.send(match result {
             Ok(summary) => IndexEvent::Done { summary },

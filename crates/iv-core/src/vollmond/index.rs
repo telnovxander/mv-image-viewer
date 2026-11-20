@@ -7,7 +7,8 @@
 //!    time match the index is skipped (so opening the same folder again is instant), a new or
 //!    changed one gets its EXIF read again, a vanished one leaves the index;
 //! 2. **hashes**: BLAKE3 of the content of every file without a hash yet (the slow part: it reads
-//!    every byte; a cancelled pass goes on where it stopped next time).
+//!    every byte; a cancelled pass goes on where it stopped next time);
+//! 3. **thumbnails**: into the cache the film strip uses (IV-08), so they are built once.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -50,6 +51,8 @@ pub enum Progress {
     Files { seen: u64 },
     /// Hashes done of `total`.
     Hashes { done: u64, total: u64 },
+    /// Thumbnails done of `total`.
+    Thumbnails { done: u64, total: u64 },
 }
 
 /// What indexing did.
@@ -61,6 +64,8 @@ pub struct IndexSummary {
     pub unchanged: u64,
     pub removed: u64,
     pub hashed: u64,
+    /// Thumbnails built (the ones already in the cache are not counted).
+    pub thumbnails: u64,
     /// Folders that could not be read (no access, vanished).
     pub skipped_folders: u64,
     pub cancelled: bool,
@@ -271,6 +276,35 @@ impl Index {
             self.hash_pass(root, recursive, cancel, &mut summary, &mut on_progress)?;
         }
         Ok(summary)
+    }
+
+    /// The thumbnail pass: every image of `root` gets its thumbnail in `cache` (already cached
+    /// ones cost a file lookup). Run after [`Index::index`]; stopped by `cancel`.
+    pub fn thumbnails(
+        &self,
+        root: &Path,
+        recursive: bool,
+        cache: &crate::thumbs::ThumbCache,
+        cancel: &AtomicBool,
+        summary: &mut IndexSummary,
+        mut on_progress: impl FnMut(Progress),
+    ) -> Result<(), IvError> {
+        let images = self.images(root, recursive)?;
+        let total = u64::try_from(images.len()).unwrap_or(u64::MAX);
+        for (done, image) in images.iter().enumerate() {
+            if cancel.load(Ordering::Relaxed) {
+                summary.cancelled = true;
+                break;
+            }
+            if let Ok(true) = cache.ensure(Path::new(&image.path)) {
+                summary.thumbnails += 1;
+            }
+            let done = u64::try_from(done + 1).unwrap_or(u64::MAX);
+            if done % 50 == 0 || done == total {
+                on_progress(Progress::Thumbnails { done, total });
+            }
+        }
+        Ok(())
     }
 
     fn hash_pass(
@@ -511,6 +545,45 @@ mod tests {
         run(&mut Index::open(&db).expect("db"), temp.path(), true);
         let mut reopened = Index::open(&db).expect("reopen");
         assert_eq!(run(&mut reopened, temp.path(), true).unchanged, 5);
+    }
+
+    #[test]
+    fn thumbnails_go_into_the_shared_cache_once() {
+        let temp = archive();
+        let mut index = Index::in_memory().expect("db");
+        let mut summary = run(&mut index, temp.path(), true);
+        let cache =
+            crate::thumbs::ThumbCache::new(&temp.path().join("cache"), crate::thumbs::CACHE_LIMIT);
+        index
+            .thumbnails(
+                temp.path(),
+                true,
+                &cache,
+                &AtomicBool::new(false),
+                &mut summary,
+                |_| {},
+            )
+            .expect("thumbs");
+        assert_eq!(summary.thumbnails, 5);
+        assert_eq!(fs::read_dir(cache.dir()).expect("dir").count(), 5);
+        let mut again = IndexSummary::default();
+        index
+            .thumbnails(
+                temp.path(),
+                true,
+                &cache,
+                &AtomicBool::new(false),
+                &mut again,
+                |_| {},
+            )
+            .expect("again");
+        assert_eq!(again.thumbnails, 0, "already in the cache");
+        // The strip asks the same cache and gets the same thumbnail.
+        let strip = cache.get(&temp.path().join("a.jpg")).expect("strip");
+        assert_eq!(
+            strip,
+            crate::thumbs::make(&temp.path().join("a.jpg")).expect("make")
+        );
     }
 
     #[test]

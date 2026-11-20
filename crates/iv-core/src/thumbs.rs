@@ -152,6 +152,16 @@ impl ThumbCache {
         Ok(jpeg)
     }
 
+    /// Make sure the thumbnail of `path` is in the cache: `Ok(true)` when it was built now,
+    /// `Ok(false)` when it was there already.
+    pub fn ensure(&self, path: &Path) -> Result<bool, IvError> {
+        let entry = self.dir.join(format!("{}.jpg", cache_key(path)?));
+        if entry.is_file() {
+            return Ok(false);
+        }
+        self.get(path).map(|_| true)
+    }
+
     /// Delete the oldest entries until the cache is under its limit; the bytes left.
     pub fn trim(&self) -> u64 {
         let Ok(items) = fs::read_dir(&self.dir) else {

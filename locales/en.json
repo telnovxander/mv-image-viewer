@@ -83,6 +83,7 @@
     "progress_files_one": "Reading files… {{count, number}} image",
     "progress_files_other": "Reading files… {{count, number}} images",
     "progress_hashes": "Checking contents… {{done, number}} of {{total, number}}",
+    "progress_thumbnails": "Making thumbnails… {{done, number}} of {{total, number}}",
     "summary_one": "{{count, number}} image in the index: {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone.",
     "summary_other": "{{count, number}} images in the index: {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone.",
     "summary_stopped_one": "Stopped; {{count, number}} image indexed so far. The next run goes on from there.",

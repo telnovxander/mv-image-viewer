@@ -60,7 +60,7 @@ export default function ToolsWindow() {
   };
 
   const running = progress !== null;
-  const percent = progress?.phase === "hashes" && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : null;
+  const percent = progress && progress.phase !== "files" && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : null;
 
   return (
     <div className="tools">
@@ -97,7 +97,7 @@ export default function ToolsWindow() {
             <span>
               {progress.phase === "files"
                 ? t("tools.progress_files", { count: progress.seen })
-                : t("tools.progress_hashes", { done: progress.done, total: progress.total })}
+                : t(progress.phase === "hashes" ? "tools.progress_hashes" : "tools.progress_thumbnails", { done: progress.done, total: progress.total })}
             </span>
           </div>
         )}
