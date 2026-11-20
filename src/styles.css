@@ -897,3 +897,14 @@ body {
 .similar__best {
   color: var(--accent-amber);
 }
+
+/* IV-19: the chain of a batch. */
+.batch__steps {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.tools__wrap {
+  flex-wrap: wrap;
+}

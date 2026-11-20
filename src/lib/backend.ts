@@ -10,7 +10,7 @@ export interface ImageFile {
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "index_failed" | "cancelled" | "picture_changed" | "too_many_files" | "whole_group" | "protected_folder" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "index_failed" | "cancelled" | "picture_changed" | "too_many_files" | "whole_group" | "protected_folder" | "too_large_for_limit" | "same_folder" | "other";
   path: string;
 }
 
@@ -361,4 +361,25 @@ export async function findSimilar(id: number, folder: string, recursive: boolean
   const channel = new Channel<SimilarEvent>();
   channel.onmessage = onEvent;
   return invoke("find_similar", { id, folder, recursive, threshold, onEvent: channel });
+}
+
+// IV-19: batch processing.
+
+export type BatchStep =
+  | { step: "resize"; long_side: number }
+  | { step: "fit_size"; max_bytes: number }
+  | { step: "convert"; to: "jpeg" | "png" }
+  | { step: "strip_gps" }
+  | { step: "strip_all" }
+  | { step: "rename_by_date"; template: string };
+
+export interface Planned {
+  source: string;
+  target: string;
+  width: number;
+  height: number;
+}
+
+export async function batchPreview(folder: string, recursive: boolean, steps: BatchStep[], outDir: string): Promise<{ plan: Plan; summary: PlanSummary; planned: Planned[] }> {
+  return invoke("batch_preview", { folder, recursive, steps, outDir });
 }

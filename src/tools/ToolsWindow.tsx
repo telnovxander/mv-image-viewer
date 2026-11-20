@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { DatesSection } from "./DatesSection";
 import { DuplicatesSection } from "./DuplicatesSection";
 import { SimilarSection } from "./SimilarSection";
+import { BatchSection } from "./BatchSection";
+import type { Preset } from "../lib/batch";
 import { applyBatch, cancelJob, indexFolder, inTauri, isBackendError, undoPlan, vollmondOperations, type IndexProgress, type IndexSummary, type Operation } from "../lib/backend";
 import { formatDateTime } from "../lib/format";
 
@@ -18,9 +20,11 @@ let nextJob = 1;
 interface ToolsWindowProps {
   protectedFolders: string[];
   onProtectedChange: (folders: string[]) => void;
+  presets: Preset[];
+  onPresetsChange: (presets: Preset[]) => void;
 }
 
-export default function ToolsWindow({ protectedFolders, onProtectedChange }: ToolsWindowProps) {
+export default function ToolsWindow({ protectedFolders, onProtectedChange, presets, onPresetsChange }: ToolsWindowProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage ?? "en";
   const [folder, setFolder] = useState<string | null>(null);
@@ -148,6 +152,7 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange }: Too
         <DuplicatesSection folder={folder} recursive={recursive} protectedFolders={protectedFolders} onProtectedChange={onProtectedChange} onApplied={refreshJournal} />
       )}
       {folder && summary && <SimilarSection folder={folder} recursive={recursive} protectedFolders={protectedFolders} onApplied={refreshJournal} />}
+      {folder && summary && <BatchSection folder={folder} recursive={recursive} presets={presets} onPresetsChange={onPresetsChange} onApplied={refreshJournal} />}
       <section className="tools__section" aria-labelledby="tools-journal">
         <h3 id="tools-journal" className="tools__heading">
           <History size={16} aria-hidden="true" />

@@ -325,7 +325,8 @@ pub fn plan(
             before: None,
             after: Some(target.display().to_string()),
             suspicious: false,
-            note: None,
+            // The chain goes into the journal with each copy: what was done, and how to redo it.
+            note: serde_json::to_string(steps).ok(),
         });
     }
     Ok((
@@ -339,6 +340,16 @@ pub fn plan(
 
 /// Apply one change: write the processed copy (never over an existing file); undo (`after` empty,
 /// `before` the copy) moves the copy to the Recycle Bin. The original is only read.
+/// `apply_change` with the steps from the change's note (as the journal keeps them).
+pub fn apply_journalled(change: &Change) -> Result<(), IvError> {
+    let steps: Vec<Step> = match &change.note {
+        Some(json) => serde_json::from_str(json)
+            .map_err(|_| IvError::new(ErrorCode::Other, Path::new(&change.path)))?,
+        None => Vec::new(),
+    };
+    apply_change(change, &steps)
+}
+
 pub fn apply_change(change: &Change, steps: &[Step]) -> Result<(), IvError> {
     match (&change.before, &change.after) {
         (None, Some(target)) => {

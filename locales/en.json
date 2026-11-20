@@ -39,7 +39,9 @@
     "picture_changed": "The change would have altered the picture; the file was kept as it was: {{path}}",
     "too_many_files": "More than 500 files at once; Spiegelmond works in batches: {{path}}",
     "whole_group": "One file of every duplicate group always stays; choose fewer files: {{path}}",
-    "protected_folder": "This file is in a protected folder and is never deleted: {{path}}"
+    "protected_folder": "This file is in a protected folder and is never deleted: {{path}}",
+    "too_large_for_limit": "This picture cannot be made small enough for the size limit: {{path}}",
+    "same_folder": "Choose a new folder for the results, not the folder of the originals: {{path}}"
   },
   "settings": {
     "title": "Settings",
@@ -100,7 +102,8 @@
     "is_undo": "undo",
     "tool": {
       "dates": "Dates",
-      "duplicates": "Duplicates"
+      "duplicates": "Duplicates",
+      "batch": "Batch"
     }
   },
   "units": {
@@ -353,5 +356,38 @@
     "to_compare": "compare",
     "compare_title": "Compare two frames",
     "compare_keys": "+ / − zoom both, arrows move both, 0 fits, Ctrl+wheel and dragging work too; Esc closes."
+  },
+  "batch": {
+    "title": "Batch processing",
+    "presets": "Presets:",
+    "preset_messenger": "For a messenger",
+    "preset_publish": "For publishing",
+    "delete_preset": "Delete the preset {{name}}",
+    "resize": "Long side at most (px)",
+    "fit": "File at most (MB)",
+    "convert": "Format",
+    "convert_keep": "as it is",
+    "metadata": "Metadata",
+    "metadata_keep": "keep",
+    "metadata_gps": "remove the GPS position",
+    "metadata_all": "remove all",
+    "rename": "Name by the date taken",
+    "preset_name": "Name of a new preset",
+    "save_preset": "Save as preset",
+    "out_dir": "Folder for the results…",
+    "no_out_dir": "Choose a new folder: the originals are never changed",
+    "preview": "Preview",
+    "summary_one": "{{count, number}} copy will be made in the new folder; the original stays as it is.",
+    "summary_other": "{{count, number}} copies will be made in the new folder; the originals stay as they are.",
+    "more_one": "…and {{count, number}} more",
+    "more_other": "…and {{count, number}} more",
+    "apply_batch_one": "Batch {{n}} of {{of}}: {{count, number}} copy",
+    "apply_batch_other": "Batch {{n}} of {{of}}: {{count, number}} copies",
+    "confirm_one": "Make {{count, number}} copy now?",
+    "confirm_other": "Make {{count, number}} copies now?",
+    "confirm_yes": "Yes, make them",
+    "all_done": "Done. Every batch is in the journal; undo moves its copies to the Recycle Bin.",
+    "convert_jpeg": "JPEG",
+    "convert_png": "PNG"
   }
 }

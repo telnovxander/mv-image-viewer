@@ -30,6 +30,7 @@ describe("parseSettings", () => {
       slideSeconds: 4,
       thumbnails: false,
       protectedFolders: [],
+      batchPresets: [],
     });
     expect(parseSettings('{"protectedFolders":["D:\\\\Archiv",7,""]}').protectedFolders).toEqual(["D:\\Archiv"]);
     expect(parseSettings('{"thumbnails":true}').thumbnails).toBe(true);

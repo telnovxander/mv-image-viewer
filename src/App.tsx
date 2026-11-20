@@ -636,6 +636,8 @@ export function App() {
         <ToolsDialog
           protectedFolders={settings.protectedFolders}
           onProtectedChange={(protectedFolders) => update(() => ({ protectedFolders }))}
+          presets={settings.batchPresets}
+          onPresetsChange={(batchPresets) => update(() => ({ batchPresets }))}
           onClose={() => setDialog(null)}
         />
       )}

@@ -571,6 +571,40 @@ fn find_similar(
     });
 }
 
+/// The preview of a batch (IV-19): every image of the indexed folder, its copy and its size.
+#[derive(serde::Serialize)]
+struct BatchPreview {
+    plan: iv_core::vollmond::plan::Plan,
+    summary: iv_core::vollmond::plan::PlanSummary,
+    planned: Vec<iv_core::vollmond::batch::Planned>,
+}
+
+#[tauri::command]
+async fn batch_preview(
+    folder: String,
+    recursive: bool,
+    steps: Vec<iv_core::vollmond::batch::Step>,
+    out_dir: String,
+) -> Result<BatchPreview, IvError> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let sources: Vec<PathBuf> = indexed(&folder, recursive)?
+            .into_iter()
+            .map(|i| PathBuf::from(i.path))
+            .filter(|p| !iv_core::vollmond::video::is_video(p))
+            .collect();
+        let (plan, planned) =
+            iv_core::vollmond::batch::plan(&sources, &steps, std::path::Path::new(&out_dir))?;
+        let summary = plan.summary();
+        Ok(BatchPreview {
+            plan,
+            summary,
+            planned,
+        })
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("batch")))?
+}
+
 /// The preview of deleting the chosen duplicates (refused for a whole group or a protected folder).
 #[tauri::command]
 fn duplicates_preview(
@@ -645,6 +679,7 @@ async fn apply_batch(
         let apply_one = match plan.tool.as_str() {
             iv_core::vollmond::dates_tool::TOOL => iv_core::vollmond::dates_tool::apply_change,
             iv_core::vollmond::duplicates::TOOL => iv_core::vollmond::duplicates::apply_change,
+            iv_core::vollmond::batch::TOOL => iv_core::vollmond::batch::apply_journalled,
             _ => {
                 return Err(IvError::new(
                     ErrorCode::Unsupported,
@@ -744,6 +779,7 @@ pub fn run() {
             find_duplicates,
             duplicates_preview,
             find_similar,
+            batch_preview,
             manual_dates_preview,
             apply_batch,
             undo_plan,

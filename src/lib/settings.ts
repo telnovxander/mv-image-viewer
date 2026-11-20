@@ -1,6 +1,7 @@
 // Interface preferences, stored as JSON in %LOCALAPPDATA%\Spiegelmond\settings.json by the Rust side
 // (MV/STANDARD.md). Outside the app (browser preview, tests) they live in localStorage.
 import { loadSettingsText, saveSettingsText } from "./backend";
+import { parsePresets, type Preset } from "./batch";
 
 export type ThemePreference = "system" | "light" | "dark";
 export type Mode = "sichel" | "vollmond";
@@ -29,6 +30,8 @@ export interface Settings {
   thumbnails: boolean;
   /** IV-17, point 19: folders whose files can never be chosen for deletion. */
   protectedFolders: string[];
+  /** IV-19: the user's own batch presets. */
+  batchPresets: Preset[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -41,6 +44,7 @@ export const DEFAULT_SETTINGS: Settings = {
   slideSeconds: 4,
   thumbnails: false,
   protectedFolders: [],
+  batchPresets: [],
 };
 
 export const BACKGROUNDS: readonly Background[] = ["theme", "black", "checker"];
@@ -70,6 +74,7 @@ export function parseSettings(raw: string | null): Settings {
           ? Math.round(value.slideSeconds)
           : DEFAULT_SETTINGS.slideSeconds,
       thumbnails: value.thumbnails === true,
+      batchPresets: parsePresets(value.batchPresets),
       protectedFolders: Array.isArray(value.protectedFolders) ? value.protectedFolders.filter((f): f is string => typeof f === "string" && f !== "") : [],
     };
   } catch {

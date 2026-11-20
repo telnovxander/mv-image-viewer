@@ -39,7 +39,9 @@
     "picture_changed": "Die Änderung hätte das Bild verändert; die Datei blieb, wie sie war: {{path}}",
     "too_many_files": "Mehr als 500 Dateien auf einmal; Spiegelmond arbeitet in Teilen: {{path}}",
     "whole_group": "Von jeder Duplikatgruppe bleibt immer eine Datei; weniger Dateien wählen: {{path}}",
-    "protected_folder": "Diese Datei liegt in einem geschützten Ordner und wird nie gelöscht: {{path}}"
+    "protected_folder": "Diese Datei liegt in einem geschützten Ordner und wird nie gelöscht: {{path}}",
+    "too_large_for_limit": "Dieses Bild lässt sich nicht klein genug für die Größengrenze machen: {{path}}",
+    "same_folder": "Einen neuen Ordner für die Ergebnisse wählen, nicht den der Originale: {{path}}"
   },
   "settings": {
     "title": "Einstellungen",
@@ -100,7 +102,8 @@
     "is_undo": "Rücknahme",
     "tool": {
       "dates": "Daten",
-      "duplicates": "Duplikate"
+      "duplicates": "Duplikate",
+      "batch": "Stapel"
     }
   },
   "units": {
@@ -353,5 +356,38 @@
     "to_compare": "vergleichen",
     "compare_title": "Zwei Bilder vergleichen",
     "compare_keys": "+ / − zoomen beide, Pfeile verschieben beide, 0 passt ein, Strg+Rad und Ziehen gehen auch; Esc schließt."
+  },
+  "batch": {
+    "title": "Stapelverarbeitung",
+    "presets": "Voreinstellungen:",
+    "preset_messenger": "Für einen Messenger",
+    "preset_publish": "Zum Veröffentlichen",
+    "delete_preset": "Voreinstellung {{name}} löschen",
+    "resize": "Lange Seite höchstens (px)",
+    "fit": "Datei höchstens (MB)",
+    "convert": "Format",
+    "convert_keep": "wie es ist",
+    "metadata": "Metadaten",
+    "metadata_keep": "behalten",
+    "metadata_gps": "GPS-Position entfernen",
+    "metadata_all": "alle entfernen",
+    "rename": "Name nach Aufnahmedatum",
+    "preset_name": "Name einer neuen Voreinstellung",
+    "save_preset": "Als Voreinstellung speichern",
+    "out_dir": "Ordner für die Ergebnisse…",
+    "no_out_dir": "Einen neuen Ordner wählen: die Originale werden nie geändert",
+    "preview": "Vorschau",
+    "summary_one": "{{count, number}} Kopie entsteht im neuen Ordner; das Original bleibt, wie es ist.",
+    "summary_other": "{{count, number}} Kopien entstehen im neuen Ordner; die Originale bleiben, wie sie sind.",
+    "more_one": "…und {{count, number}} weitere",
+    "more_other": "…und {{count, number}} weitere",
+    "apply_batch_one": "Teil {{n}} von {{of}}: {{count, number}} Kopie",
+    "apply_batch_other": "Teil {{n}} von {{of}}: {{count, number}} Kopien",
+    "confirm_one": "Jetzt {{count, number}} Kopie erstellen?",
+    "confirm_other": "Jetzt {{count, number}} Kopien erstellen?",
+    "confirm_yes": "Ja, erstellen",
+    "all_done": "Fertig. Jeder Teil steht im Protokoll; Rückgängig verschiebt seine Kopien in den Papierkorb.",
+    "convert_jpeg": "JPEG",
+    "convert_png": "PNG"
   }
 }

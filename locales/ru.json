@@ -39,7 +39,9 @@
     "picture_changed": "Изменение затронуло бы само изображение; файл оставлен как был: {{path}}",
     "too_many_files": "Больше 500 файлов за раз; Spiegelmond работает партиями: {{path}}",
     "whole_group": "В каждой группе дубликатов всегда остаётся один файл; выберите меньше файлов: {{path}}",
-    "protected_folder": "Файл в защищённой папке и не удаляется никогда: {{path}}"
+    "protected_folder": "Файл в защищённой папке и не удаляется никогда: {{path}}",
+    "too_large_for_limit": "Это изображение нельзя уменьшить до заданного размера файла: {{path}}",
+    "same_folder": "Выберите для результата новую папку, а не папку оригиналов: {{path}}"
   },
   "settings": {
     "title": "Настройки",
@@ -108,7 +110,8 @@
     "is_undo": "отмена",
     "tool": {
       "dates": "Даты",
-      "duplicates": "Дубликаты"
+      "duplicates": "Дубликаты",
+      "batch": "Пакетная обработка"
     }
   },
   "units": {
@@ -411,5 +414,46 @@
     "to_compare": "сравнить",
     "compare_title": "Сравнение двух кадров",
     "compare_keys": "+ / − — зум обоих, стрелки — сдвиг обоих, 0 — вписать, Ctrl+колесо и перетаскивание тоже; Esc — закрыть."
+  },
+  "batch": {
+    "title": "Пакетная обработка",
+    "presets": "Пресеты:",
+    "preset_messenger": "Для мессенджера",
+    "preset_publish": "Для публикации",
+    "delete_preset": "Удалить пресет {{name}}",
+    "resize": "Длинная сторона не больше (px)",
+    "fit": "Файл не больше (МБ)",
+    "convert": "Формат",
+    "convert_keep": "как есть",
+    "metadata": "Метаданные",
+    "metadata_keep": "оставить",
+    "metadata_gps": "убрать GPS-координаты",
+    "metadata_all": "убрать все",
+    "rename": "Имя по дате съёмки",
+    "preset_name": "Имя нового пресета",
+    "save_preset": "Сохранить как пресет",
+    "out_dir": "Папка для результата…",
+    "no_out_dir": "Выберите новую папку: оригиналы не меняются никогда",
+    "preview": "Предпросмотр",
+    "summary_one": "В новой папке будет сделана {{count, number}} копия; оригинал останется как есть.",
+    "summary_few": "В новой папке будут сделаны {{count, number}} копии; оригиналы останутся как есть.",
+    "summary_many": "В новой папке будут сделаны {{count, number}} копий; оригиналы останутся как есть.",
+    "summary_other": "В новой папке будут сделаны {{count, number}} копии; оригиналы останутся как есть.",
+    "more_one": "…и ещё {{count, number}}",
+    "more_few": "…и ещё {{count, number}}",
+    "more_many": "…и ещё {{count, number}}",
+    "more_other": "…и ещё {{count, number}}",
+    "apply_batch_one": "Партия {{n}} из {{of}}: {{count, number}} копия",
+    "apply_batch_few": "Партия {{n}} из {{of}}: {{count, number}} копии",
+    "apply_batch_many": "Партия {{n}} из {{of}}: {{count, number}} копий",
+    "apply_batch_other": "Партия {{n}} из {{of}}: {{count, number}} копии",
+    "confirm_one": "Сделать {{count, number}} копию сейчас?",
+    "confirm_few": "Сделать {{count, number}} копии сейчас?",
+    "confirm_many": "Сделать {{count, number}} копий сейчас?",
+    "confirm_other": "Сделать {{count, number}} копии сейчас?",
+    "confirm_yes": "Да, сделать",
+    "all_done": "Готово. Каждая партия — в журнале; отмена отправляет её копии в корзину.",
+    "convert_jpeg": "JPEG",
+    "convert_png": "PNG"
   }
 }
