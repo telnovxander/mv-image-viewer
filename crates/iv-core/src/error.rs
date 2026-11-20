@@ -50,6 +50,10 @@ pub enum ErrorCode {
     PictureChanged,
     /// IV-13, point 5: more than 500 files in one operation.
     TooManyFiles,
+    /// IV-17, point 16: every file of a duplicate group was chosen; one always stays.
+    WholeGroup,
+    /// IV-17, point 19: the file is in a folder marked "never delete from here".
+    ProtectedFolder,
     Other,
 }
 

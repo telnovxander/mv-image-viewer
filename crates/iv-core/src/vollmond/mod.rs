@@ -4,6 +4,7 @@
 
 pub mod dates;
 pub mod dates_tool;
+pub mod duplicates;
 pub mod exif_write;
 pub mod index;
 pub mod manual_dates;
