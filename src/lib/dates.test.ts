@@ -32,3 +32,13 @@ describe("dates table (IV-14)", () => {
     expect(last - first).toBeLessThan(45);
   });
 });
+
+import { inputToStamp } from "../components/DateEditDialog";
+
+describe("date input (IV-15)", () => {
+  it("turns the date field into a stamp with seconds", () => {
+    expect(inputToStamp("2023-05-12T14:30")).toBe("2023-05-12T14:30:00");
+    expect(inputToStamp("2023-05-12T14:30:15")).toBe("2023-05-12T14:30:15");
+    expect(inputToStamp("")).toBeNull();
+  });
+});

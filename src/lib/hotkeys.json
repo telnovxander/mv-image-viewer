@@ -76,6 +76,11 @@
       "done": true
     },
     {
+      "keys": "D",
+      "action": "edit_date",
+      "done": true
+    },
+    {
       "keys": "T",
       "action": "thumbnails",
       "done": true

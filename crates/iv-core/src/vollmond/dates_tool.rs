@@ -78,6 +78,22 @@ fn system_time(seconds: i64) -> SystemTime {
     }
 }
 
+/// The current dates of a file, read from the disk (IV-15: the preview never trusts the window).
+pub fn current(path: &Path) -> Result<super::manual_dates::Chosen, IvError> {
+    let time = file_time(path)?;
+    let seconds = time
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX));
+    Ok(super::manual_dates::Chosen {
+        path: path.display().to_string(),
+        taken: read_exif(path)
+            .and_then(|e| e.taken)
+            .as_deref()
+            .and_then(Stamp::parse),
+        modified: utc_to_local(seconds),
+    })
+}
+
 /// Apply one change of a dates plan (the `apply_one` of `plan::apply`).
 ///
 /// - `taken`: the JPEG gets `DateTimeOriginal` = `after` (or loses it when `after` is empty, for
@@ -110,6 +126,8 @@ pub fn apply_change(change: &Change) -> Result<(), IvError> {
             })?;
             set_file_time(path, kept_time)
         }
+        // Undoing a file date that had no readable value before: nothing to go back to.
+        "file_modified" if change.after.is_none() => Ok(()),
         "file_modified" => {
             let target = change
                 .after

@@ -108,6 +108,7 @@ reads the same table.
 | R · Shift+R | Rotate right · left (view only) |
 | Ctrl+S | Write the view rotation into the file (with a preview) |
 | I | Information panel |
+| D | Set the date taken by hand (preview, undo) |
 | T | Thumbnail strip |
 | Delete | Delete to the Recycle Bin |
 | Ctrl+Z | Undo the deletion |

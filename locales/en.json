@@ -152,7 +152,8 @@
     "double_click": "Fit ↔ 100 % at the click",
     "pan": "Move an enlarged image",
     "write_rotation": "Write the view rotation into the file (with a preview)",
-    "background": "Background behind the image: theme · black · checkerboard"
+    "background": "Background behind the image: theme · black · checkerboard",
+    "edit_date": "Set the date taken by hand (preview, undo)"
   },
   "browse": {
     "first": "This is the first image of the folder",
@@ -253,6 +254,43 @@
     "confirm_yes": "Yes, change",
     "all_done": "All batches applied. Every change is in the journal and can be undone.",
     "applied_one": "{{count, number}} change applied.",
-    "applied_other": "{{count, number}} changes applied."
+    "applied_other": "{{count, number}} changes applied.",
+    "choose_shown": "Choose all shown",
+    "manual_title_one": "Set a date for {{count, number}} chosen file:",
+    "manual_title_other": "Set dates for {{count, number}} chosen files:",
+    "manual_how": "How",
+    "manual_same": "One date for all",
+    "manual_step": "From a date, with a step (keeps the order)",
+    "manual_shift": "Shift the dates taken by",
+    "manual_approximate": "Approximate (middle of the period)",
+    "manual_step_minutes": "Step, minutes",
+    "manual_hours": "Hours",
+    "manual_minutes": "Minutes",
+    "manual_preview": "Preview",
+    "season_1": "Spring",
+    "season_2": "Summer",
+    "season_3": "Autumn",
+    "season_4": "Winter",
+    "overwrites": "Some of these photos already have a date taken; it will be replaced (you chose them, and it can be undone)."
+  },
+  "date_edit": {
+    "title": "Date taken",
+    "open": "Change the date taken (D)",
+    "kind": "Kind of date",
+    "exact": "Exact",
+    "approximate": "Approximate",
+    "date": "Date and time",
+    "year": "Year",
+    "month": "Month",
+    "whole_year": "Whole year",
+    "preview": "Preview",
+    "what": "What",
+    "field_taken": "Date taken (EXIF)",
+    "field_file_modified": "File date",
+    "nothing": "Nothing would change.",
+    "overwrites": "The photo already has a date taken; it will be replaced (you chose it, and it can be undone).",
+    "apply": "Write",
+    "done": "Date written.",
+    "undone": "The old date is back."
   }
 }

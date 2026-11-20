@@ -9,10 +9,12 @@ interface InfoPanelProps {
   size: Size | null;
   exif: ExifInfo | null;
   onOpenMap: (latitude: number, longitude: number) => void;
+  /** IV-15: set the date taken by hand (D). */
+  onEditDate?: () => void;
 }
 
 /** I: the information panel — file, size, resolution and the EXIF fields (IV-04). */
-export function InfoPanel({ file, size, exif, onOpenMap }: InfoPanelProps) {
+export function InfoPanel({ file, size, exif, onOpenMap, onEditDate }: InfoPanelProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.language;
   const rows: [string, string | null][] = [
@@ -54,6 +56,11 @@ export function InfoPanel({ file, size, exif, onOpenMap }: InfoPanelProps) {
         )}
       </dl>
       {!exif && <p className="info-panel__muted">{t("info.no_exif")}</p>}
+      {onEditDate && (
+        <button type="button" className="link-button" onClick={onEditDate}>
+          {t("date_edit.open")}
+        </button>
+      )}
     </aside>
   );
 }

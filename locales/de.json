@@ -152,7 +152,8 @@
     "double_click": "Einpassen ↔ 100 % an der Klickstelle",
     "pan": "Vergrößertes Bild verschieben",
     "write_rotation": "Ansichtsdrehung in die Datei schreiben (mit Vorschau)",
-    "background": "Hintergrund hinter dem Bild: Design · Schwarz · Schachbrett"
+    "background": "Hintergrund hinter dem Bild: Design · Schwarz · Schachbrett",
+    "edit_date": "Aufnahmedatum von Hand setzen (Vorschau, rückgängig)"
   },
   "browse": {
     "first": "Das ist das erste Bild im Ordner",
@@ -253,6 +254,43 @@
     "confirm_yes": "Ja, ändern",
     "all_done": "Alle Teile angewendet. Jede Änderung steht im Protokoll und kann rückgängig gemacht werden.",
     "applied_one": "{{count, number}} Änderung angewendet.",
-    "applied_other": "{{count, number}} Änderungen angewendet."
+    "applied_other": "{{count, number}} Änderungen angewendet.",
+    "choose_shown": "Alle angezeigten wählen",
+    "manual_title_one": "Datum für {{count, number}} gewählte Datei setzen:",
+    "manual_title_other": "Daten für {{count, number}} gewählte Dateien setzen:",
+    "manual_how": "Wie",
+    "manual_same": "Ein Datum für alle",
+    "manual_step": "Ab einem Datum, mit Schritt (behält die Reihenfolge)",
+    "manual_shift": "Aufnahmedaten verschieben um",
+    "manual_approximate": "Ungefähr (Mitte des Zeitraums)",
+    "manual_step_minutes": "Schritt, Minuten",
+    "manual_hours": "Stunden",
+    "manual_minutes": "Minuten",
+    "manual_preview": "Vorschau",
+    "season_1": "Frühling",
+    "season_2": "Sommer",
+    "season_3": "Herbst",
+    "season_4": "Winter",
+    "overwrites": "Einige dieser Fotos haben schon ein Aufnahmedatum; es wird ersetzt (Ihre Wahl, rückgängig machbar)."
+  },
+  "date_edit": {
+    "title": "Aufnahmedatum",
+    "open": "Aufnahmedatum ändern (D)",
+    "kind": "Art des Datums",
+    "exact": "Genau",
+    "approximate": "Ungefähr",
+    "date": "Datum und Uhrzeit",
+    "year": "Jahr",
+    "month": "Monat",
+    "whole_year": "Ganzes Jahr",
+    "preview": "Vorschau",
+    "what": "Was",
+    "field_taken": "Aufnahmedatum (EXIF)",
+    "field_file_modified": "Dateidatum",
+    "nothing": "Es würde sich nichts ändern.",
+    "overwrites": "Das Foto hat schon ein Aufnahmedatum; es wird ersetzt (Ihre Wahl, rückgängig machbar).",
+    "apply": "Schreiben",
+    "done": "Datum geschrieben.",
+    "undone": "Das alte Datum ist zurück."
   }
 }

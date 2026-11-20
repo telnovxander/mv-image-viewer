@@ -467,6 +467,30 @@ async fn dates_preview(
     .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
 }
 
+/// The preview of setting dates by hand (IV-15) for `paths`: their current dates are read from
+/// the disk here; nothing is changed.
+#[tauri::command]
+async fn manual_dates_preview(
+    paths: Vec<String>,
+    how: iv_core::vollmond::manual_dates::Manual,
+    with_suspicious: bool,
+) -> Result<Preview, IvError> {
+    tauri::async_runtime::spawn_blocking(move || {
+        let chosen = paths
+            .iter()
+            .map(|p| iv_core::vollmond::dates_tool::current(std::path::Path::new(p)))
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut plan = iv_core::vollmond::manual_dates::plan(&chosen, &how, today());
+        if !with_suspicious {
+            plan.changes.retain(|c| !c.suspicious);
+        }
+        let summary = plan.summary();
+        Ok(Preview { plan, summary })
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new("dates")))?
+}
+
 /// Apply one confirmed batch of a plan (journal first, the first failure stops it).
 #[tauri::command]
 async fn apply_batch(
@@ -575,6 +599,7 @@ pub fn run() {
             vollmond_operations,
             dates_rows,
             dates_preview,
+            manual_dates_preview,
             apply_batch,
             undo_plan,
             load_settings,

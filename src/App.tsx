@@ -8,6 +8,7 @@ import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
 import { HelpDialog } from "./components/HelpDialog";
 import { ImageView } from "./components/ImageView";
+import { DateEditDialog } from "./components/DateEditDialog";
 import { Filmstrip } from "./components/Filmstrip";
 import { ImageMenu, type ImageAction } from "./components/ImageMenu";
 import { InfoPanel } from "./components/InfoPanel";
@@ -15,7 +16,7 @@ import { WriteRotationDialog } from "./components/WriteRotationDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
-import { applyRotation, copyImage, copyPath, exifOf, heifAvailable, openWith, restoreFile, revealFile, trashFile, type Trashed, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
+import { applyBatch, undoPlan, applyRotation, copyImage, copyPath, exifOf, heifAvailable, openWith, restoreFile, revealFile, trashFile, type Trashed, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
 import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { afterRemoval, relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
@@ -25,7 +26,7 @@ import { BACKGROUNDS, loadSettings, saveSettings, type Settings, type SortOrder 
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
 
-type DialogName = "settings" | "about" | "tools" | "help" | "write" | null;
+type DialogName = "settings" | "about" | "tools" | "help" | "write" | null | "date";
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 /** The folder is read again on browsing at most this often, to pick up added or removed files. */
@@ -95,7 +96,9 @@ export function App() {
   /** The last file moved to the Recycle Bin, for Ctrl+Z (IV-07). */
   const [trashed, setTrashed] = useState<Trashed | null>(null);
   /** A short message at the bottom (deleted, copied, "only to the Recycle Bin"). */
-  const [notice, setNotice] = useState<{ text: string; undo: boolean } | null>(null);
+  const [notice, setNotice] = useState<{ text: string; undo: "trash" | "date" | null } | null>(null);
+  /** The journal operation of the last date set by hand (IV-15), for undo from the notice. */
+  const [dateOp, setDateOp] = useState<number | null>(null);
   const noticeTimer = useRef<number>(0);
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [index, setIndex] = useState(0);
@@ -311,7 +314,7 @@ export function App() {
     }
   }, [errorText, reload, written]);
 
-  const showNotice = useCallback((text: string, undo = false) => {
+  const showNotice = useCallback((text: string, undo: "trash" | "date" | null = null) => {
     setNotice({ text, undo });
     window.clearTimeout(noticeTimer.current);
     noticeTimer.current = window.setTimeout(() => setNotice(null), 6000);
@@ -330,7 +333,7 @@ export function App() {
       const done = await trashFile(path);
       setTrashed(done);
       setSlideshow(false);
-      showNotice(t("delete.done", { name: image.name }), true);
+      showNotice(t("delete.done", { name: image.name }), "trash");
       const list = entries.filter((e) => e.path !== path);
       const next = afterRemoval(index, entries.length);
       setEntries(list);
@@ -396,6 +399,21 @@ export function App() {
     [copyCurrent, copyCurrentPath, deleteCurrent, errorText, image],
   );
 
+  /** Undo the last date set by hand: the old values back through the same safe write. */
+  const undoDate = useCallback(async () => {
+    if (dateOp === null || !image) return;
+    try {
+      const plan = await undoPlan(dateOp);
+      const report = await applyBatch(plan, 0, plan.changes.length, dateOp);
+      if (report.error) setError(errorText(report.error, image.path));
+      else showNotice(t("date_edit.undone"));
+      setDateOp(null);
+      setExif(await exifOf(image.path));
+    } catch (e) {
+      setError(errorText(e, image.path));
+    }
+  }, [dateOp, errorText, image, showNotice, t]);
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "F1" || (event.key === "?" && !(event.target instanceof HTMLInputElement))) {
@@ -441,6 +459,12 @@ export function App() {
           update((s) => ({ background: BACKGROUNDS[(BACKGROUNDS.indexOf(s.background) + 1) % BACKGROUNDS.length] }));
           return;
         }
+        if ((event.key === "d" || event.key === "D") && image && inTauri) {
+          // IV-15: the date of the current photo by hand (also the button in the I panel).
+          event.preventDefault();
+          setDialog((current) => current ?? "date");
+          return;
+        }
         if (event.key === "t" || event.key === "T") {
           event.preventDefault();
           update((s) => ({ thumbnails: !s.thumbnails }));
@@ -479,7 +503,7 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [chooseFile, copyCurrent, copyCurrentPath, deleteCurrent, entries.length, fullscreen, go, previewWrite, showNotice, slideshow, t, toggleFullscreen, undoDelete, update]);
+  }, [chooseFile, copyCurrent, copyCurrentPath, deleteCurrent, entries.length, image, fullscreen, go, previewWrite, showNotice, slideshow, t, toggleFullscreen, undoDelete, update]);
 
   // Slideshow: the next image every slideSeconds; it stops on the last one.
   useEffect(() => {
@@ -565,7 +589,7 @@ export function App() {
             }}
           />
         )}
-        {image && infoOpen && <InfoPanel file={image} size={shownSize} exif={exif} onOpenMap={(lat, lon) => void openMap(lat, lon)} />}
+        {image && infoOpen && <InfoPanel file={image} size={shownSize} exif={exif} onOpenMap={(lat, lon) => void openMap(lat, lon)} onEditDate={inTauri ? () => setDialog("date") : undefined} />}
         {image && broken && (
           <div className="viewer__empty" role="alert">
             <p className="viewer__empty-title">{image.name}</p>
@@ -610,6 +634,20 @@ export function App() {
       {dialog === "about" && <AboutDialog onClose={() => setDialog(null)} />}
       {dialog === "tools" && <ToolsDialog onClose={() => setDialog(null)} />}
       {dialog === "help" && <HelpDialog onClose={() => setDialog(null)} />}
+      {dialog === "date" && image && (
+        <DateEditDialog
+          path={image.path}
+          name={image.name}
+          taken={exif?.taken ?? null}
+          onDone={(op) => {
+            setDialog(null);
+            setDateOp(op);
+            showNotice(t("date_edit.done"), "date");
+            void exifOf(image.path).then(setExif);
+          }}
+          onClose={() => setDialog(null)}
+        />
+      )}
       {dialog === "write" && plan && image && (
         <WriteRotationDialog plan={plan} name={image.name} onApply={() => void applyWrite()} onClose={() => setDialog(null)} />
       )}
@@ -617,9 +655,14 @@ export function App() {
       {notice && !written && (
         <div className="toast" role="status">
           <span>{notice.text}</span>
-          {notice.undo && trashed && (
+          {notice.undo === "trash" && trashed && (
             <button type="button" className="link-button" onClick={() => void undoDelete()}>
               {t("delete.undo")}
+            </button>
+          )}
+          {notice.undo === "date" && dateOp !== null && (
+            <button type="button" className="link-button" onClick={() => void undoDate()}>
+              {t("tools.undo")}
             </button>
           )}
           <button type="button" className="icon-button" onClick={() => setNotice(null)} aria-label={t("common.close")} title={t("common.close")}>

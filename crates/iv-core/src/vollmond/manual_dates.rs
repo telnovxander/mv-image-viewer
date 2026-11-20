@@ -278,11 +278,7 @@ mod tests {
             .collect();
         let files: Vec<Chosen> = paths
             .iter()
-            .map(|p| Chosen {
-                path: p.display().to_string(),
-                taken: None,
-                modified: None,
-            })
+            .map(|p| crate::vollmond::dates_tool::current(p).expect("current"))
             .collect();
         let journal = Journal::new(&temp.path().join("journal"));
         let step = plan(
@@ -317,14 +313,6 @@ mod tests {
         );
         // Undo: the dates taken are gone again (file dates without a "before" stay; nothing to go back to).
         let undo = undo_plan(&journal, report.op).expect("undo");
-        let undo = Plan {
-            changes: undo
-                .changes
-                .into_iter()
-                .filter(|c| c.after.is_some() || c.field == "taken")
-                .collect(),
-            ..undo
-        };
         apply(
             &undo,
             0..undo.changes.len(),

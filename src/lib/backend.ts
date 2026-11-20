@@ -278,3 +278,14 @@ export async function applyBatch(plan: Plan, start: number, end: number, undoes:
 export async function undoPlan(op: number): Promise<Plan> {
   return invoke<Plan>("undo_plan", { op });
 }
+
+/** IV-15: how dates are set by hand. */
+export type ManualDates =
+  | { mode: "same"; date: Stamp }
+  | { mode: "step"; start: Stamp; step_seconds: number }
+  | { mode: "shift"; seconds: number }
+  | { mode: "approximate"; year: number; month?: number; season?: number };
+
+export async function manualDatesPreview(paths: string[], how: ManualDates, withSuspicious: boolean): Promise<{ plan: Plan; summary: PlanSummary }> {
+  return invoke("manual_dates_preview", { paths, how, withSuspicious });
+}
