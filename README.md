@@ -152,6 +152,26 @@ when it has one, otherwise from a scaled copy; they are built in the background 
 first) and kept on disk (`%LOCALAPPDATA%\Spiegelmond\cache\thumbs`, at most 256 MB; a changed
 photo gets a new thumbnail).
 
+## Vollmond: tools for a photo archive (IV-13)
+
+Ctrl+M switches to Vollmond; the Tools button opens its window (loaded only then, so the viewer
+starts as fast as without it). Choose the folder of the archive (with or without subfolders) and
+**Index**: in the background, with progress and **Stop**, Spiegelmond reads which images are there
+and their EXIF, then a fingerprint of each file's content (for duplicates), then the thumbnails
+(the same cache as the film strip). Nothing is changed in the photos. Opening the same folder again
+is instant: only new and changed files are read again (50 000 files: 3.7 s the first time, 0.13 s
+again, measured with tiny synthetic files). The index lives in `%LOCALAPPDATA%\Spiegelmond\cache`.
+
+Every tool that will change files (dates, duplicates, batch processing: IV-14…IV-19) works the
+same safe way: a preview "before → after" with totals first; at most 500 files at once, and for
+100 files or more a trial batch of 10 first; a warning for folders synced to a cloud (OneDrive,
+kDrive, Google Drive, Dropbox…) or on the network; the old values go to the journal of changes
+(`%LOCALAPPDATA%\Spiegelmond\journal\operations.jsonl`) before a file is touched; each file is
+written next to the original, checked (the picture must stay exactly the same, the new values must
+read back) and only then put in place; the first problem stops the batch. The journal is shown in
+the Tools window; undoing an operation applies the old values back the same safe way (each tool
+adds its Undo button there).
+
 ## Performance (IV-09)
 
 Measured 2026-11-20 in the cloud: Linux, headless Chromium (the engine of WebView2) **without a
