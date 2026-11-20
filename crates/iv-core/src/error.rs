@@ -9,7 +9,7 @@ use std::path::Path;
 use serde::Serialize;
 
 /// Stable error codes shared with the interface (`error.<code>` keys).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorCode {
     NotFound,
@@ -46,10 +46,14 @@ pub enum ErrorCode {
     IndexFailed,
     /// IV-13: a long operation was stopped by the user.
     Cancelled,
+    /// IV-13, point 9: the written file would show another picture; the original was kept.
+    PictureChanged,
+    /// IV-13, point 5: more than 500 files in one operation.
+    TooManyFiles,
     Other,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, serde::Deserialize)]
 pub struct IvError {
     pub code: ErrorCode,
     pub path: String,

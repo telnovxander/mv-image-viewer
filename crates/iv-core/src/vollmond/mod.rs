@@ -3,3 +3,5 @@
 //! atomic writes, deleting only to the Recycle Bin (`crate::recycle`), tests only on `testdata/`.
 
 pub mod index;
+pub mod plan;
+pub mod safety;
