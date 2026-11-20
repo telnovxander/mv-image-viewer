@@ -3,6 +3,7 @@
 //! atomic writes, deleting only to the Recycle Bin (`crate::recycle`), tests only on `testdata/`.
 
 pub mod dates;
+pub mod dates_tool;
 pub mod exif_write;
 pub mod index;
 pub mod plan;
