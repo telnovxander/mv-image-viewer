@@ -8,14 +8,15 @@ import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
 import { HelpDialog } from "./components/HelpDialog";
 import { ImageView } from "./components/ImageView";
+import { ImageMenu, type ImageAction } from "./components/ImageMenu";
 import { InfoPanel } from "./components/InfoPanel";
 import { WriteRotationDialog } from "./components/WriteRotationDialog";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
-import { applyRotation, exifOf, heifAvailable, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
+import { applyRotation, copyImage, copyPath, exifOf, heifAvailable, openWith, restoreFile, revealFile, trashFile, type Trashed, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
 import { rotate, type Rotation, type Size } from "./lib/zoom";
-import { relocate, step, type Edge } from "./lib/browse";
+import { afterRemoval, relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
 import { CHROME_HIDE_MS, chromeVisible } from "./lib/chrome";
 import { DECODED_EXTENSIONS, isHeif, WEB_EXTENSIONS } from "./lib/formats";
@@ -78,6 +79,12 @@ export function App() {
   const [written, setWritten] = useState<{ entry: JournalEntry; undone: boolean } | null>(null);
   /** Changes when a file was rewritten, so the WebView loads it again. */
   const [version, setVersion] = useState(0);
+  /** The last file moved to the Recycle Bin, for Ctrl+Z (IV-07). */
+  const [trashed, setTrashed] = useState<Trashed | null>(null);
+  /** A short message at the bottom (deleted, copied, "only to the Recycle Bin"). */
+  const [notice, setNotice] = useState<{ text: string; undo: boolean } | null>(null);
+  const noticeTimer = useRef<number>(0);
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const [index, setIndex] = useState(0);
   const [edge, setEdge] = useState<Edge>(null);
   const edgeTimer = useRef<number | undefined>(undefined);
@@ -291,6 +298,91 @@ export function App() {
     }
   }, [errorText, reload, written]);
 
+  const showNotice = useCallback((text: string, undo = false) => {
+    setNotice({ text, undo });
+    window.clearTimeout(noticeTimer.current);
+    noticeTimer.current = window.setTimeout(() => setNotice(null), 6000);
+  }, []);
+  useEffect(() => () => window.clearTimeout(noticeTimer.current), []);
+
+  /**
+   * Delete: the image goes to the Recycle Bin, never past it, without asking, and the next one
+   * is shown (IV/PROJECT.md, safety points 1–4). Where the bin does not work, nothing happens and
+   * the message says why.
+   */
+  const deleteCurrent = useCallback(async () => {
+    if (!image || !inTauri) return;
+    const path = image.path;
+    try {
+      const done = await trashFile(path);
+      setTrashed(done);
+      setSlideshow(false);
+      showNotice(t("delete.done", { name: image.name }), true);
+      const list = entries.filter((e) => e.path !== path);
+      const next = afterRemoval(index, entries.length);
+      setEntries(list);
+      setIndex(Math.max(0, next));
+      if (next < 0 || list.length === 0) {
+        setImage(null);
+        return;
+      }
+      try {
+        setImage(await openImage(list[next].path));
+        preloadAround(list, next, 1);
+      } catch {
+        // The next file vanished meanwhile: read the folder again.
+        void refresh(list[next].path, next);
+      }
+    } catch (e) {
+      setError(errorText(e, path));
+    }
+  }, [entries, errorText, image, index, preloadAround, refresh, showNotice, t]);
+
+  /** Ctrl+Z after Delete: the file comes back from the Recycle Bin and is shown again. */
+  const undoDelete = useCallback(async () => {
+    if (!trashed) return;
+    try {
+      await restoreFile(trashed);
+      setTrashed(null);
+      showNotice(t("delete.restored"));
+      await open(trashed.path);
+    } catch (e) {
+      setError(errorText(e, trashed.path));
+    }
+  }, [errorText, open, showNotice, t, trashed]);
+
+  const copyCurrent = useCallback(async () => {
+    if (!image || !inTauri) return;
+    try {
+      await copyImage(image.path, rotation);
+      showNotice(t("copy.image_done"));
+    } catch (e) {
+      setError(errorText(e, image.path));
+    }
+  }, [errorText, image, rotation, showNotice, t]);
+
+  const copyCurrentPath = useCallback(async () => {
+    if (!image || !inTauri) return;
+    try {
+      await copyPath(image.path);
+      showNotice(t("copy.path_done"));
+    } catch (e) {
+      setError(errorText(e, image.path));
+    }
+  }, [errorText, image, showNotice, t]);
+
+  const runImageAction = useCallback(
+    (action: ImageAction) => {
+      if (!image || !inTauri) return;
+      if (action === "copy_image") void copyCurrent();
+      else if (action === "copy_path") void copyCurrentPath();
+      else if (action === "delete") void deleteCurrent();
+      else if (action === "reveal") revealFile(image.path).catch((e: unknown) => setError(errorText(e, image.path)));
+      else openWith(image.path).catch((e: unknown) => setError(errorText(e, image.path)));
+    },
+    [copyCurrent, copyCurrentPath, deleteCurrent, errorText, image],
+  );
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "F1" || (event.key === "?" && !(event.target instanceof HTMLInputElement))) {
@@ -299,6 +391,13 @@ export function App() {
         return;
       }
       if (event.defaultPrevented) return;
+      if (event.key === "Delete" && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        // Shift+Delete means "past the Recycle Bin" in Windows: Spiegelmond never does that.
+        if (event.shiftKey) showNotice(t("delete.only_to_bin"));
+        else void deleteCurrent();
+        return;
+      }
       if (!event.ctrlKey && !event.altKey && !event.shiftKey) {
         const moves: Record<string, number | "first" | "last"> = { ArrowRight: 1, ArrowLeft: -1, PageDown: 1, PageUp: -1, Home: "first", End: "last" };
         if (event.key in moves) {
@@ -342,7 +441,14 @@ export function App() {
       }
       if (!event.ctrlKey || event.altKey) return;
       const key = event.key.toLowerCase();
-      if (key === "o") {
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        void undoDelete();
+      } else if (key === "c") {
+        if (window.getSelection()?.toString()) return;
+        event.preventDefault();
+        void (event.shiftKey ? copyCurrentPath() : copyCurrent());
+      } else if (key === "o") {
         event.preventDefault();
         void chooseFile();
       } else if (key === "s") {
@@ -355,7 +461,7 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [chooseFile, entries.length, fullscreen, go, previewWrite, slideshow, toggleFullscreen, update]);
+  }, [chooseFile, copyCurrent, copyCurrentPath, deleteCurrent, entries.length, fullscreen, go, previewWrite, showNotice, slideshow, t, toggleFullscreen, undoDelete, update]);
 
   // Slideshow: the next image every slideSeconds; it stops on the last one.
   useEffect(() => {
@@ -415,7 +521,13 @@ export function App() {
         onLanguage={changeLanguage}
         onHover={setOverBar}
       />
-      <main className="viewer">
+      <main
+        className="viewer"
+        onContextMenu={(event) => {
+          event.preventDefault();
+          if (image && inTauri) setMenu({ x: event.clientX, y: event.clientY });
+        }}
+      >
         {image && (
           <ImageView
             key={image.path}
@@ -479,6 +591,20 @@ export function App() {
       {dialog === "help" && <HelpDialog onClose={() => setDialog(null)} />}
       {dialog === "write" && plan && image && (
         <WriteRotationDialog plan={plan} name={image.name} onApply={() => void applyWrite()} onClose={() => setDialog(null)} />
+      )}
+      {menu && <ImageMenu x={menu.x} y={menu.y} onChoose={runImageAction} onClose={() => setMenu(null)} />}
+      {notice && !written && (
+        <div className="toast" role="status">
+          <span>{notice.text}</span>
+          {notice.undo && trashed && (
+            <button type="button" className="link-button" onClick={() => void undoDelete()}>
+              {t("delete.undo")}
+            </button>
+          )}
+          <button type="button" className="icon-button" onClick={() => setNotice(null)} aria-label={t("common.close")} title={t("common.close")}>
+            ×
+          </button>
+        </div>
       )}
       {written && (
         <div className="toast" role="status">

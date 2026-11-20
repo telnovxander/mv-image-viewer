@@ -25,7 +25,15 @@
     "changed_meanwhile": "The file changed after the preview, nothing was written: {{path}}",
     "verify_failed": "The check after writing failed; the original file was kept: {{path}}",
     "broken": "This file is damaged or not what its name says: {{path}}",
-    "no_codec": "HEIC photos need the libheif decoder, which is missing next to Spiegelmond. Reinstall the program: {{name}}"
+    "no_codec": "HEIC photos need the libheif decoder, which is missing next to Spiegelmond. Reinstall the program: {{name}}",
+    "trash_removable": "Not deleted: removable drives have no Recycle Bin, and Spiegelmond never deletes for good. {{path}}",
+    "trash_network": "Not deleted: network folders have no Recycle Bin, and Spiegelmond never deletes for good. {{path}}",
+    "trash_unavailable": "Not deleted: the Recycle Bin is off or full for this drive, and Spiegelmond never deletes for good. {{path}}",
+    "trash_failed": "Windows could not move the file to the Recycle Bin; it was not deleted: {{path}}",
+    "restore_failed": "The file could not be brought back from the Recycle Bin; restore it there: {{path}}",
+    "restore_occupied": "Another file now has this name, nothing was overwritten; the deleted one stays in the Recycle Bin: {{path}}",
+    "copy_failed": "This image cannot be copied: {{path}}",
+    "open_with_failed": "The “Open with” window of Windows could not be shown: {{path}}"
   },
   "settings": {
     "title": "Settings",
@@ -162,5 +170,22 @@
     "6": "turned 90° right",
     "7": "turned 90° right, mirrored",
     "8": "turned 90° left"
+  },
+  "menu": {
+    "copy_image": "Copy the image",
+    "copy_path": "Copy the path",
+    "reveal": "Show in Explorer",
+    "open_with": "Open with…",
+    "delete": "Delete to the Recycle Bin"
+  },
+  "delete": {
+    "done": "{{name}} is in the Recycle Bin",
+    "undo": "Undo (Ctrl+Z)",
+    "restored": "The file is back from the Recycle Bin",
+    "only_to_bin": "Spiegelmond deletes only to the Recycle Bin"
+  },
+  "copy": {
+    "image_done": "Image copied",
+    "path_done": "Path copied"
   }
 }

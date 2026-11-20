@@ -83,22 +83,22 @@
     {
       "keys": "Delete",
       "action": "delete",
-      "done": false
+      "done": true
     },
     {
       "keys": "Ctrl+Z",
       "action": "undo_delete",
-      "done": false
+      "done": true
     },
     {
       "keys": "Ctrl+C",
       "action": "copy_image",
-      "done": false
+      "done": true
     },
     {
       "keys": "Ctrl+Shift+C",
       "action": "copy_path",
-      "done": false
+      "done": true
     },
     {
       "keys": "Ctrl+O",

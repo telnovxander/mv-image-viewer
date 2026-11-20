@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { relocate, step } from "./browse";
+import { afterRemoval, relocate, step } from "./browse";
 
 describe("step", () => {
   it("moves within the folder", () => {
@@ -31,5 +31,14 @@ describe("relocate", () => {
     expect(relocate(["a", "c"], "b", 1)).toBe(1);
     expect(relocate(["a"], "c", 2)).toBe(0);
     expect(relocate([], "c", 2)).toBe(0);
+  });
+});
+
+describe("afterRemoval (IV-07)", () => {
+  it("shows the next image, the previous one at the end, none when the folder is empty", () => {
+    expect(afterRemoval(0, 3)).toBe(0);
+    expect(afterRemoval(1, 3)).toBe(1);
+    expect(afterRemoval(2, 3)).toBe(1);
+    expect(afterRemoval(0, 1)).toBe(-1);
   });
 });

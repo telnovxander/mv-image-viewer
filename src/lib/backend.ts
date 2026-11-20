@@ -10,7 +10,7 @@ export interface ImageFile {
 }
 
 export interface BackendError {
-  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "other";
+  code: "not_found" | "access_denied" | "not_a_file" | "unsupported" | "no_orientation_tag" | "changed_meanwhile" | "verify_failed" | "broken" | "no_codec" | "trash_removable" | "trash_network" | "trash_unavailable" | "trash_failed" | "restore_failed" | "restore_occupied" | "copy_failed" | "open_with_failed" | "other";
   path: string;
 }
 
@@ -133,4 +133,38 @@ export async function applyRotation(plan: OrientationPlan): Promise<JournalEntry
 
 export async function undoRotation(entry: JournalEntry): Promise<JournalEntry> {
   return invoke<JournalEntry>("undo_rotation", { entry });
+}
+
+/** A file moved to the Recycle Bin (iv-core recycle.rs): what Ctrl+Z needs to bring it back. */
+export interface Trashed {
+  path: string;
+  deleted_at: number;
+}
+
+/** Delete: only to the Recycle Bin; refused where the bin does not work (IV-07). */
+export async function trashFile(path: string): Promise<Trashed> {
+  return invoke<Trashed>("trash_file", { path });
+}
+
+export async function restoreFile(trashed: Trashed): Promise<void> {
+  return invoke("restore_file", { trashed });
+}
+
+/** Ctrl+C: the image as shown, with the view rotation (degrees clockwise). */
+export async function copyImage(path: string, degrees: number): Promise<void> {
+  return invoke("copy_image", { path, degrees });
+}
+
+/** Ctrl+Shift+C: the full path. */
+export async function copyPath(path: string): Promise<void> {
+  return invoke("copy_path", { path });
+}
+
+export async function revealFile(path: string): Promise<void> {
+  return invoke("reveal_file", { path });
+}
+
+/** Windows' "Open with" dialog. */
+export async function openWith(path: string): Promise<void> {
+  return invoke("open_with", { path });
 }

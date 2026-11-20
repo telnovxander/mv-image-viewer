@@ -82,10 +82,10 @@ reads the same table.
 | Ctrl+S | Write the view rotation into the file (with a preview) |
 | I | Information panel |
 | T | Thumbnail strip *(coming)* |
-| Delete | Delete to the Recycle Bin *(coming)* |
-| Ctrl+Z | Undo the deletion *(coming)* |
-| Ctrl+C | Copy the image *(coming)* |
-| Ctrl+Shift+C | Copy the path *(coming)* |
+| Delete | Delete to the Recycle Bin |
+| Ctrl+Z | Undo the deletion |
+| Ctrl+C | Copy the image |
+| Ctrl+Shift+C | Copy the path |
 | Ctrl+O | Open an image |
 | Ctrl+M | Switch between Sichel and Vollmond |
 | ? · F1 | These keyboard shortcuts |

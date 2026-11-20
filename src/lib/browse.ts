@@ -26,3 +26,14 @@ export function relocate(newPaths: readonly string[], currentPath: string, oldIn
   if (found >= 0) return found;
   return Math.max(0, Math.min(oldIndex, newPaths.length - 1));
 }
+
+/**
+ * After the image at `index` left a list of `count` images (deleted, IV-07): the index of the
+ * image shown next in the shorter list — the following one, or the previous one at the end;
+ * -1 when none is left.
+ */
+export function afterRemoval(index: number, count: number): number {
+  const left = count - 1;
+  if (left <= 0) return -1;
+  return Math.min(index, left - 1);
+}

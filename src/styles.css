@@ -551,3 +551,44 @@ body {
 .number-input {
   width: 5em;
 }
+
+/* IV-07: the right-click menu of the image. */
+.image-menu {
+  position: fixed;
+  z-index: 30;
+  min-width: 240px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.image-menu__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  padding: 4px 10px;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.image-menu__item:hover,
+.image-menu__item:focus-visible {
+  background: var(--selection);
+  outline: none;
+}
+
+.image-menu__key {
+  color: var(--text-muted);
+}
+
+.image-menu__item:hover .image-menu__key,
+.image-menu__item:focus-visible .image-menu__key {
+  color: var(--text);
+}

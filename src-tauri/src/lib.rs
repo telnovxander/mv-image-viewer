@@ -5,6 +5,7 @@ use std::sync::Mutex;
 
 use iv_core::folder::{folder_of, list_images, FolderEntry, SortOrder};
 use iv_core::orientation::{self, JournalEntry, OrientationPlan};
+use iv_core::recycle::{self, Trashed};
 use iv_core::{
     describe, path_from_args, read_exif, settings, ErrorCode, ExifInfo, ImageFile, IvError,
 };
@@ -141,6 +142,83 @@ fn undo_rotation(entry: JournalEntry) -> Result<JournalEntry, IvError> {
     orientation::undo(&entry, &journal_dir()?)
 }
 
+/// Delete: the file goes to the Recycle Bin, never past it (IV/PROJECT.md, safety points 1–3).
+#[tauri::command]
+async fn trash_file(path: String) -> Result<Trashed, IvError> {
+    let file = PathBuf::from(&path);
+    tauri::async_runtime::spawn_blocking(move || recycle::move_to_trash(&file))
+        .await
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&path)))?
+}
+
+/// Ctrl+Z after Delete: the file comes back from the Recycle Bin (safety point 4).
+#[tauri::command]
+async fn restore_file(trashed: Trashed) -> Result<(), IvError> {
+    let path = trashed.path.clone();
+    tauri::async_runtime::spawn_blocking(move || recycle::restore(&trashed))
+        .await
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&path)))?
+}
+
+/// Ctrl+C: the image as shown (EXIF orientation and view rotation) into the clipboard.
+#[tauri::command]
+async fn copy_image(path: String, degrees: u16) -> Result<(), IvError> {
+    let file = PathBuf::from(&path);
+    tauri::async_runtime::spawn_blocking(move || {
+        let failed = || IvError::new(ErrorCode::CopyFailed, &file);
+        let pixels = iv_core::copy::pixels(&file, degrees)?;
+        let (Ok(width), Ok(height)) = (
+            usize::try_from(pixels.width),
+            usize::try_from(pixels.height),
+        ) else {
+            return Err(failed());
+        };
+        let mut clipboard = arboard::Clipboard::new().map_err(|_| failed())?;
+        clipboard
+            .set_image(arboard::ImageData {
+                width,
+                height,
+                bytes: pixels.rgba.into(),
+            })
+            .map_err(|_| failed())
+    })
+    .await
+    .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&path)))?
+}
+
+/// Ctrl+Shift+C: the full path of the file as text.
+#[tauri::command]
+fn copy_path(path: String) -> Result<(), IvError> {
+    let failed = || IvError::new(ErrorCode::CopyFailed, std::path::Path::new(&path));
+    arboard::Clipboard::new()
+        .and_then(|mut clipboard| clipboard.set_text(path.clone()))
+        .map_err(|_| failed())
+}
+
+/// "Show in Explorer": the folder opens with the file selected.
+#[tauri::command]
+fn reveal_file(app: tauri::AppHandle, path: String) -> Result<(), IvError> {
+    app.opener()
+        .reveal_item_in_dir(&path)
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&path)))
+}
+
+/// "Open with": Windows' dialog to choose a program, owned by Spiegelmond's window.
+#[tauri::command]
+async fn open_with(window: tauri::WebviewWindow, path: String) -> Result<(), IvError> {
+    #[cfg(windows)]
+    let owner = window.hwnd().map(|h| h.0 as isize).unwrap_or(0);
+    #[cfg(not(windows))]
+    let owner = {
+        let _ = &window;
+        0
+    };
+    let file = PathBuf::from(&path);
+    tauri::async_runtime::spawn_blocking(move || iv_core::open_with::choose_program(&file, owner))
+        .await
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&path)))?
+}
+
 #[tauri::command]
 fn load_settings() -> Result<Option<String>, IvError> {
     match settings::data_dir() {
@@ -192,6 +270,12 @@ pub fn run() {
             plan_rotation,
             apply_rotation,
             undo_rotation,
+            trash_file,
+            restore_file,
+            copy_image,
+            copy_path,
+            reveal_file,
+            open_with,
             load_settings,
             save_settings
         ])

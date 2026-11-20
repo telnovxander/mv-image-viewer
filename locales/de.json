@@ -25,7 +25,15 @@
     "changed_meanwhile": "Die Datei wurde nach der Vorschau geändert, nichts wurde geschrieben: {{path}}",
     "verify_failed": "Die Prüfung nach dem Schreiben ist fehlgeschlagen, die Originaldatei bleibt erhalten: {{path}}",
     "broken": "Die Datei ist beschädigt oder nicht das, was ihr Name sagt: {{path}}",
-    "no_codec": "Für HEIC-Fotos wird der Decoder libheif benötigt, er fehlt neben Spiegelmond. Installieren Sie das Programm neu: {{name}}"
+    "no_codec": "Für HEIC-Fotos wird der Decoder libheif benötigt, er fehlt neben Spiegelmond. Installieren Sie das Programm neu: {{name}}",
+    "trash_removable": "Nicht gelöscht: Wechseldatenträger haben keinen Papierkorb, und Spiegelmond löscht nie endgültig. {{path}}",
+    "trash_network": "Nicht gelöscht: Netzwerkordner haben keinen Papierkorb, und Spiegelmond löscht nie endgültig. {{path}}",
+    "trash_unavailable": "Nicht gelöscht: Der Papierkorb ist für dieses Laufwerk aus oder voll, und Spiegelmond löscht nie endgültig. {{path}}",
+    "trash_failed": "Windows konnte die Datei nicht in den Papierkorb verschieben; sie wurde nicht gelöscht: {{path}}",
+    "restore_failed": "Die Datei konnte nicht aus dem Papierkorb zurückgeholt werden; dort wiederherstellen: {{path}}",
+    "restore_occupied": "Eine andere Datei hat jetzt diesen Namen, nichts wurde überschrieben; die gelöschte bleibt im Papierkorb: {{path}}",
+    "copy_failed": "Dieses Bild kann nicht kopiert werden: {{path}}",
+    "open_with_failed": "Das Windows-Fenster „Öffnen mit“ konnte nicht angezeigt werden: {{path}}"
   },
   "settings": {
     "title": "Einstellungen",
@@ -162,5 +170,22 @@
     "6": "um 90° nach rechts gedreht",
     "7": "um 90° nach rechts gedreht, gespiegelt",
     "8": "um 90° nach links gedreht"
+  },
+  "menu": {
+    "copy_image": "Bild kopieren",
+    "copy_path": "Pfad kopieren",
+    "reveal": "Im Explorer anzeigen",
+    "open_with": "Öffnen mit…",
+    "delete": "In den Papierkorb löschen"
+  },
+  "delete": {
+    "done": "{{name}} ist im Papierkorb",
+    "undo": "Rückgängig (Strg+Z)",
+    "restored": "Die Datei ist aus dem Papierkorb zurück",
+    "only_to_bin": "Spiegelmond löscht nur in den Papierkorb"
+  },
+  "copy": {
+    "image_done": "Bild kopiert",
+    "path_done": "Pfad kopiert"
   }
 }

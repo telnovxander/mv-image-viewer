@@ -38,6 +38,10 @@ pub enum ErrorCode {
     RestoreFailed,
     /// IV-07: another file now has the name of the deleted one; nothing was overwritten.
     RestoreOccupied,
+    /// IV-07: the image could not be put into the clipboard (format not decodable here).
+    CopyFailed,
+    /// IV-07: Windows' "Open with" dialog could not be shown.
+    OpenWithFailed,
     Other,
 }
 
