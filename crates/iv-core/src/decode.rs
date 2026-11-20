@@ -365,7 +365,7 @@ mod tests {
             );
         }
         if !heif::available() {
-            eprintln!("libheif not found: HEIC decoding tests skipped");
+            eprintln!("libheif with an HEVC decoder not found: HEIC decoding tests skipped");
         }
         heif::available()
     }

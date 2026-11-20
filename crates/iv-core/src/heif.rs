@@ -29,6 +29,7 @@ const COLORSPACE_RGB: c_int = 1;
 const CHROMA_INTERLEAVED_RGB: c_int = 10;
 const CHROMA_INTERLEAVED_RGBA: c_int = 11;
 const CHANNEL_INTERLEAVED: c_int = 10;
+const COMPRESSION_HEVC: c_int = 1;
 
 type ReadFromMemory =
     unsafe extern "C" fn(*mut Ctx, *const c_void, usize, *const c_void) -> HeifError;
@@ -181,6 +182,19 @@ fn load() -> Option<Api> {
         };
         // SAFETY: see above.
         let _ = unsafe { init(std::ptr::null()) };
+    }
+    // A libheif without an HEVC decoder (Linux packages without the libde265 plugin) cannot show
+    // HEIC photos: as good as no library ("no codec", not "damaged file").
+    let have_decoder = platform::symbol(library, b"heif_have_decoder_for_format\0");
+    if !have_decoder.is_null() {
+        // SAFETY: `int heif_have_decoder_for_format(enum heif_compression_format)`.
+        let have_decoder = unsafe {
+            std::mem::transmute::<*mut c_void, unsafe extern "C" fn(c_int) -> c_int>(have_decoder)
+        };
+        // SAFETY: see above; heif_compression_HEVC = 1.
+        if unsafe { have_decoder(COMPRESSION_HEVC) } == 0 {
+            return None;
+        }
     }
     Some(Api {
         context_alloc: get!("heif_context_alloc", unsafe extern "C" fn() -> *mut Ctx),
