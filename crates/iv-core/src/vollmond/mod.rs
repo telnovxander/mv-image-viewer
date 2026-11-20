@@ -2,6 +2,7 @@
 //! IV/PROJECT.md, "Безопасность (ОБЯЗАТЕЛЬНО)": preview before any change, journal with undo,
 //! atomic writes, deleting only to the Recycle Bin (`crate::recycle`), tests only on `testdata/`.
 
+pub mod batch;
 pub mod dates;
 pub mod dates_tool;
 pub mod duplicates;

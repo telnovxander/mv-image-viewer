@@ -54,6 +54,10 @@ pub enum ErrorCode {
     WholeGroup,
     /// IV-17, point 19: the file is in a folder marked "never delete from here".
     ProtectedFolder,
+    /// IV-19: the copy cannot be made small enough for the size limit.
+    TooLargeForLimit,
+    /// IV-19: the results must go to a new folder, not next to the originals.
+    SameFolder,
     Other,
 }
 
