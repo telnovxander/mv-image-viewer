@@ -364,6 +364,44 @@ impl Index {
         Ok(())
     }
 
+    /// The stored perceptual hash of `image` (IV-18), valid while its size and date are the same.
+    pub fn picture_print(&self, image: &Indexed) -> Option<u64> {
+        self.db
+            .execute_batch(
+                "CREATE TABLE IF NOT EXISTS prints (path TEXT PRIMARY KEY, size INTEGER, modified INTEGER, print INTEGER)",
+            )
+            .ok()?;
+        self.db
+            .query_row(
+                "SELECT print FROM prints WHERE path = ?1 AND size = ?2 AND modified = ?3",
+                params![
+                    image.path,
+                    i64::try_from(image.size).unwrap_or(i64::MAX),
+                    image.modified
+                ],
+                |row| row.get::<_, i64>(0),
+            )
+            .ok()
+            .map(|v| v as u64)
+    }
+
+    /// Store the perceptual hash of `image`.
+    pub fn store_picture_print(&self, image: &Indexed, print: u64) -> Result<(), IvError> {
+        let failed = sql_error(Path::new(&image.path));
+        self.db
+            .execute_batch(
+                "CREATE TABLE IF NOT EXISTS prints (path TEXT PRIMARY KEY, size INTEGER, modified INTEGER, print INTEGER)",
+            )
+            .map_err(&failed)?;
+        self.db
+            .execute(
+                "INSERT OR REPLACE INTO prints (path, size, modified, print) VALUES (?1, ?2, ?3, ?4)",
+                params![image.path, i64::try_from(image.size).unwrap_or(i64::MAX), image.modified, print as i64],
+            )
+            .map(|_| ())
+            .map_err(&failed)
+    }
+
     /// The images of `folder` (and below when `recursive`) in the index, by path.
     pub fn images(&self, folder: &Path, recursive: bool) -> Result<Vec<Indexed>, IvError> {
         let failed = sql_error(folder);

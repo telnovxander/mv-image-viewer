@@ -10,4 +10,5 @@ pub mod index;
 pub mod manual_dates;
 pub mod plan;
 pub mod safety;
+pub mod similar;
 pub mod video;
