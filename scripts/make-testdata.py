@@ -19,6 +19,8 @@ sample.cr3: a Canon CR3 stand-in (ISO BMFF: ftyp "crx ", moov → Canon uuid →
 a uuid box with the PRVW preview from source/f-1.jpg); broken.cr3 ends inside the preview box.
 anim.webp (two frames, 0.5 s, looping) and sample.avif are testdata/source/anim.webp and f-1.avif (made
 once with Pillow); broken.webp and broken.avif are cut short, the window shows its placeholder.
+sample.mp4 and sample.mov (IV-16): QuickTime boxes with creation times 2023-05-12T14:30:00 UTC around a
+little media data; broken.mp4 is cut inside moov.
 sample.heic is testdata/source/f-1.heic (made once with libheif: heif-enc -q 40 f-1.jpg), broken.heic
 its first 120 bytes (the header boxes without the image data).
 """
@@ -188,6 +190,23 @@ def cr3_stand_in(jpeg, orientation):
     return box(b"ftyp", b"crx " + struct.pack(">I", 1) + b"crx isom") + moov + preview
 
 
+def quicktime(brand, wide_media_time):
+    """A minimal MP4/MOV (IV-16): ftyp, moov with mvhd, one trak (tkhd, mdia/mdhd), and mdat.
+    Every creation time is 2023-05-12T14:30:00 UTC (seconds since 1904); mdhd uses the 64-bit
+    form when `wide_media_time`. Not playable, and not meant to be: only the dates are read."""
+    when = 1_683_901_800 + 2_082_844_800
+    mvhd = bytes(4) + struct.pack(">IIII", when, when, 600, 600) + bytes(80)
+    tkhd = b"\x00\x00\x00\x03" + struct.pack(">IIII", when, when, 1, 0) + bytes(64)
+    if wide_media_time:
+        mdhd = b"\x01\x00\x00\x00" + struct.pack(">QQIQ", when, when, 600, 600) + bytes(4)
+    else:
+        mdhd = bytes(4) + struct.pack(">IIII", when, when, 600, 600) + bytes(4)
+    trak = box(b"trak", box(b"tkhd", tkhd) + box(b"mdia", box(b"mdhd", mdhd)))
+    moov = box(b"moov", box(b"mvhd", mvhd) + trak)
+    media = bytes((i * 31) % 251 for i in range(2048))
+    return box(b"ftyp", brand + struct.pack(">I", 0) + brand) + moov + box(b"mdat", media)
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     files = {
@@ -216,6 +235,9 @@ def main():
     files["broken.webp"] = files["anim.webp"][:40]
     files["sample.avif"] = (OUT / "source" / "f-1.avif").read_bytes()
     files["broken.avif"] = files["sample.avif"][:60]
+    files["sample.mp4"] = quicktime(b"isom", True)
+    files["sample.mov"] = quicktime(b"qt  ", False)
+    files["broken.mp4"] = files["sample.mp4"][:40]
     files["sample.heic"] = (OUT / "source" / "f-1.heic").read_bytes()
     files["broken.heic"] = files["sample.heic"][:120]
     for name, data in files.items():

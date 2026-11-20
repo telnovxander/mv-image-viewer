@@ -21,6 +21,18 @@ pub fn can_write_date_taken(path: &str) -> bool {
     [".jpg", ".jpeg", ".jfif"]
         .iter()
         .any(|e| lower.ends_with(e))
+        || super::video::is_video(Path::new(path))
+}
+
+/// The date taken of a photo (EXIF) or a video (QuickTime, as local time), `YYYY-MM-DDTHH:MM:SS`.
+fn taken_of(path: &Path) -> Option<String> {
+    if super::video::is_video(path) {
+        super::video::file_creation_time(path)
+            .and_then(utc_to_local)
+            .map(|s| s.iso())
+    } else {
+        read_exif(path).and_then(|e| e.taken)
+    }
 }
 
 /// Seconds since 1970 (UTC) of a local wall-clock time, with the zone rules of the system
@@ -86,10 +98,7 @@ pub fn current(path: &Path) -> Result<super::manual_dates::Chosen, IvError> {
         .map_or(0, |d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX));
     Ok(super::manual_dates::Chosen {
         path: path.display().to_string(),
-        taken: read_exif(path)
-            .and_then(|e| e.taken)
-            .as_deref()
-            .and_then(Stamp::parse),
+        taken: taken_of(path).as_deref().and_then(Stamp::parse),
         modified: utc_to_local(seconds),
     })
 }
@@ -106,6 +115,17 @@ pub fn apply_change(change: &Change) -> Result<(), IvError> {
         "taken" => {
             if !can_write_date_taken(&change.path) {
                 return Err(IvError::new(ErrorCode::Unsupported, path));
+            }
+            if super::video::is_video(path) {
+                if taken_of(path) != change.before {
+                    return Err(IvError::new(ErrorCode::ChangedMeanwhile, path));
+                }
+                let seconds = change
+                    .after
+                    .as_deref()
+                    .and_then(Stamp::parse)
+                    .map(local_to_utc);
+                return super::video::set_file_creation_time(path, seconds);
             }
             let kept_time = file_time(path)?;
             let bytes = fs::read(path).map_err(|e| IvError::from_io(&e, path))?;
@@ -267,6 +287,12 @@ mod tests {
             photos.join("Screenshot_20210304_050607.png"),
         )
         .expect("copy");
+        // A video (IV-16): the QuickTime date, copied to the phone: file time is today.
+        fs::copy(
+            testdata("sample.mov"),
+            photos.join("VID_20230512_143000.mov"),
+        )
+        .expect("copy");
         // No date anywhere.
         fs::copy(testdata("blue.bmp"), photos.join("holiday.bmp")).expect("copy");
         (temp, photos)
@@ -367,13 +393,31 @@ mod tests {
             Some("2021-03-04T05:06:07")
         );
         // The pictures are the same (point 9), the orientation of the camera file is kept (point 11).
+        // For the video, its media data (point 9 for videos).
         for (path, bytes, _) in &before_bytes {
             let now = fs::read(path).expect("read");
+            if crate::vollmond::video::is_video(path) {
+                let hash = crate::vollmond::video::media_hash;
+                assert_eq!(hash(&now), hash(bytes));
+                continue;
+            }
             assert_eq!(
                 picture_hash(&now, path).expect("a"),
                 picture_hash(bytes, path).expect("b")
             );
         }
+        let video = photos.join("VID_20230512_143000.mov");
+        assert_eq!(
+            utc_to_local(
+                file_time(&video)
+                    .expect("t")
+                    .duration_since(UNIX_EPOCH)
+                    .expect("d")
+                    .as_secs() as i64
+            ),
+            crate::vollmond::video::file_creation_time(&video).and_then(utc_to_local),
+            "the file date of the video follows its QuickTime date"
+        );
         assert_eq!(
             read_exif(&photos.join("IMG_20220101_101010.jpg")).and_then(|e| e.orientation),
             Some(6)

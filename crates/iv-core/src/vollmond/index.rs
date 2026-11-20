@@ -191,7 +191,8 @@ impl Index {
                         }
                         continue;
                     }
-                    if !kind.is_file() || format_of(&path).is_none() {
+                    let video = super::video::is_video(&path);
+                    if !kind.is_file() || (format_of(&path).is_none() && !video) {
                         continue;
                     }
                     let Ok(metadata) = item.metadata() else {
@@ -209,7 +210,16 @@ impl Index {
                     if same {
                         summary.unchanged += 1;
                     } else {
-                        let exif = read_exif(&path);
+                        let mut exif = read_exif(&path);
+                        if video {
+                            // Videos (IV-16): the QuickTime creation time, shown as local time.
+                            exif = Some(crate::exif::ExifInfo {
+                                taken: super::video::file_creation_time(&path)
+                                    .and_then(super::dates_tool::utc_to_local)
+                                    .map(|s| s.iso()),
+                                ..Default::default()
+                            });
+                        }
                         let exif = exif.as_ref();
                         upsert
                             .execute(params![
