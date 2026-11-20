@@ -187,5 +187,8 @@
   "copy": {
     "image_done": "Bild kopiert",
     "path_done": "Pfad kopiert"
+  },
+  "strip": {
+    "label": "Miniaturen des Ordners"
   }
 }

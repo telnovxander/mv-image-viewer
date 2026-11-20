@@ -187,5 +187,8 @@
   "copy": {
     "image_done": "Image copied",
     "path_done": "Path copied"
+  },
+  "strip": {
+    "label": "Thumbnails of the folder"
   }
 }

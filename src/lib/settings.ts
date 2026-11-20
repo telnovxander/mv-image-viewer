@@ -25,6 +25,8 @@ export interface Settings {
   cacheMb: number;
   /** Seconds per image in the slideshow (IV-06). */
   slideSeconds: number;
+  /** The film strip is shown (T, IV-08). */
+  thumbnails: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -35,6 +37,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sort: "name",
   cacheMb: DEFAULT_CACHE_MB,
   slideSeconds: 4,
+  thumbnails: false,
 };
 
 export const BACKGROUNDS: readonly Background[] = ["theme", "black", "checker"];
@@ -63,6 +66,7 @@ export function parseSettings(raw: string | null): Settings {
         typeof value.slideSeconds === "number" && value.slideSeconds >= 1 && value.slideSeconds <= 60
           ? Math.round(value.slideSeconds)
           : DEFAULT_SETTINGS.slideSeconds,
+      thumbnails: value.thumbnails === true,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

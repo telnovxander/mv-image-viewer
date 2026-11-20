@@ -81,7 +81,7 @@ reads the same table.
 | R · Shift+R | Rotate right · left (view only) |
 | Ctrl+S | Write the view rotation into the file (with a preview) |
 | I | Information panel |
-| T | Thumbnail strip *(coming)* |
+| T | Thumbnail strip |
 | Delete | Delete to the Recycle Bin |
 | Ctrl+Z | Undo the deletion |
 | Ctrl+C | Copy the image |

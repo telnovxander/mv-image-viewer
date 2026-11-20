@@ -67,6 +67,99 @@ fn heif_available() -> bool {
     iv_core::heif::available()
 }
 
+/// A thumbnail request waiting for a worker.
+type ThumbJob = (PathBuf, tauri::UriSchemeResponder);
+
+/// Thumbnails of the film strip (IV-08) are built by a few workers, the **latest** request first:
+/// the strip asks for what is on screen last, so visible thumbnails come before ones scrolled
+/// past. The disk cache lives with the settings (`<data>/cache/thumbs`, shared with Vollmond).
+struct ThumbQueue {
+    jobs: Mutex<Vec<ThumbJob>>,
+    ready: std::sync::Condvar,
+    cache: Option<iv_core::thumbs::ThumbCache>,
+}
+
+const THUMB_WORKERS: usize = 3;
+const THUMB_BACKLOG: usize = 300;
+
+fn thumb_queue() -> &'static ThumbQueue {
+    static QUEUE: std::sync::OnceLock<&'static ThumbQueue> = std::sync::OnceLock::new();
+    QUEUE.get_or_init(|| {
+        let cache = settings::data_dir().map(|dir| {
+            iv_core::thumbs::ThumbCache::new(
+                &dir.join("cache").join("thumbs"),
+                iv_core::thumbs::CACHE_LIMIT,
+            )
+        });
+        let queue: &'static ThumbQueue = Box::leak(Box::new(ThumbQueue {
+            jobs: Mutex::new(Vec::new()),
+            ready: std::sync::Condvar::new(),
+            cache,
+        }));
+        if let Some(cache) = queue.cache.clone() {
+            // Keep the disk cache under its limit (once per start, in the background).
+            std::thread::spawn(move || cache.trim());
+        }
+        for _ in 0..THUMB_WORKERS {
+            std::thread::spawn(move || thumb_worker(queue));
+        }
+        queue
+    })
+}
+
+fn thumb_worker(queue: &'static ThumbQueue) {
+    loop {
+        let job = {
+            let Ok(mut jobs) = queue.jobs.lock() else {
+                return;
+            };
+            loop {
+                if let Some(job) = jobs.pop() {
+                    break job;
+                }
+                jobs = match queue.ready.wait(jobs) {
+                    Ok(jobs) => jobs,
+                    Err(_) => return,
+                };
+            }
+        };
+        let (path, responder) = job;
+        let thumb = match &queue.cache {
+            Some(cache) => cache.get(&path),
+            None => iv_core::thumbs::make(&path),
+        };
+        let response = match thumb {
+            Ok(jpeg) => tauri::http::Response::builder()
+                .header("Content-Type", "image/jpeg")
+                .header("Cache-Control", "max-age=3600")
+                .body(jpeg),
+            Err(_) => tauri::http::Response::builder()
+                .status(422)
+                .body(Vec::new()),
+        };
+        responder.respond(response.unwrap_or_else(|_| tauri::http::Response::new(Vec::new())));
+    }
+}
+
+/// `ivthumb://localhost/<path>` (Windows: `http://ivthumb.localhost/<path>`): a thumbnail.
+fn serve_thumb(request: tauri::http::Request<Vec<u8>>, responder: tauri::UriSchemeResponder) {
+    let path = PathBuf::from(percent_decode(request.uri().path().trim_start_matches('/')));
+    let queue = thumb_queue();
+    if let Ok(mut jobs) = queue.jobs.lock() {
+        // Fast scrolling through 10 000 photos: the oldest requests (long off screen) are given
+        // up; the strip asks again when they come back into view.
+        if jobs.len() >= THUMB_BACKLOG {
+            let (_, old) = jobs.remove(0);
+            let busy = tauri::http::Response::builder()
+                .status(503)
+                .body(Vec::new());
+            old.respond(busy.unwrap_or_else(|_| tauri::http::Response::new(Vec::new())));
+        }
+        jobs.push((path, responder));
+        queue.ready.notify_one();
+    }
+}
+
 /// Event with the path of a file opened by a second start (`iv path`, a double-click).
 const OPEN_PATH_EVENT: &str = "open-path";
 
@@ -256,6 +349,9 @@ pub fn run() {
         }))
         .register_asynchronous_uri_scheme_protocol("ivimg", |_context, request, responder| {
             serve_decoded(request, responder)
+        })
+        .register_asynchronous_uri_scheme_protocol("ivthumb", |_context, request, responder| {
+            serve_thumb(request, responder)
         })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

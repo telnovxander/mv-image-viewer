@@ -28,7 +28,10 @@ describe("parseSettings", () => {
       sort: "name",
       cacheMb: 512,
       slideSeconds: 4,
+      thumbnails: false,
     });
+    expect(parseSettings('{"thumbnails":true}').thumbnails).toBe(true);
+    expect(parseSettings('{"thumbnails":"yes"}').thumbnails).toBe(false);
     expect(parseSettings('{"slideSeconds":10}').slideSeconds).toBe(10);
     expect(parseSettings('{"slideSeconds":0}').slideSeconds).toBe(4);
     expect(parseSettings('{"sort":"modified","cacheMb":1024}')).toMatchObject({ sort: "modified", cacheMb: 1024 });

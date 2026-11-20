@@ -49,6 +49,11 @@ export function pathUrl(path: string): string {
   return isDecoded(path) ? convertFileSrc(path, "ivimg") : convertFileSrc(path);
 }
 
+/** The thumbnail of an image for the film strip (IV-08, `ivthumb` protocol of iv-core). */
+export function thumbUrl(path: string): string {
+  return inTauri ? convertFileSrc(path, "ivthumb") : path;
+}
+
 export function imageUrl(file: ImageFile): string {
   return pathUrl(file.path);
 }

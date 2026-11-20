@@ -8,6 +8,7 @@ import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
 import { HelpDialog } from "./components/HelpDialog";
 import { ImageView } from "./components/ImageView";
+import { Filmstrip } from "./components/Filmstrip";
 import { ImageMenu, type ImageAction } from "./components/ImageMenu";
 import { InfoPanel } from "./components/InfoPanel";
 import { WriteRotationDialog } from "./components/WriteRotationDialog";
@@ -36,6 +37,16 @@ const DEMO: ImageFile | null =
   !inTauri && new URLSearchParams(window.location.search).has("demo")
     ? { path: demoImage, name: "spiegelmond-demo.jpg", size: 412_345, format: "web" }
     : null;
+/** Preview only (`?demo&folder=10000`): a folder of that many copies of the demo picture, to try
+ * the film strip with a big folder (IV-08). */
+const DEMO_FOLDER: FolderEntry[] = DEMO
+  ? Array.from({ length: Number(new URLSearchParams(window.location.search).get("folder") ?? 0) }, (_, i) => ({
+      path: `${demoImage}#${i}`,
+      name: `IMG_${String(i + 1).padStart(5, "0")}.jpg`,
+      size: 412_345,
+      modified: 0,
+    }))
+  : [];
 /** Preview only: EXIF to look at the information panel without Tauri. */
 const DEMO_EXIF: ExifInfo | null = DEMO
   ? {
@@ -63,7 +74,7 @@ export function App() {
   const [recentlyMoved, setRecentlyMoved] = useState(false);
   const [overBar, setOverBar] = useState(false);
   const hideTimer = useRef<number | undefined>(undefined);
-  const [entries, setEntries] = useState<FolderEntry[]>([]);
+  const [entries, setEntries] = useState<FolderEntry[]>(DEMO_FOLDER);
   const [rotation, setRotation] = useState<Rotation>(0);
   const [shownSize, setShownSize] = useState<Size | null>(null);
   const [exif, setExif] = useState<ExifInfo | null>(DEMO_EXIF);
@@ -428,6 +439,11 @@ export function App() {
           update((s) => ({ background: BACKGROUNDS[(BACKGROUNDS.indexOf(s.background) + 1) % BACKGROUNDS.length] }));
           return;
         }
+        if (event.key === "t" || event.key === "T") {
+          event.preventDefault();
+          update((s) => ({ thumbnails: !s.thumbnails }));
+          return;
+        }
         if (event.key === "i" || event.key === "I") {
           event.preventDefault();
           setInfoOpen((open) => !open);
@@ -559,6 +575,9 @@ export function App() {
             <p className="viewer__empty-title">{t("empty.title")}</p>
             <p className="viewer__empty-hint">{t("empty.hint")}</p>
           </div>
+        )}
+        {settings.thumbnails && entries.length > 0 && (
+          <Filmstrip entries={entries} index={index} onChoose={(at) => at !== index && void browseTo(at, at > index ? 1 : -1)} />
         )}
         {edge && (
           <p className="edge-hint" role="status">

@@ -78,7 +78,7 @@
     {
       "keys": "T",
       "action": "thumbnails",
-      "done": false
+      "done": true
     },
     {
       "keys": "Delete",
