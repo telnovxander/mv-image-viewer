@@ -25,3 +25,14 @@ describe("DECODED_EXTENSIONS", () => {
     expect(isHeif("scan.tif")).toBe(false);
   });
 });
+
+describe("the installer (IV-10)", () => {
+  it("registers Open with for exactly the formats Spiegelmond shows", async () => {
+    const hooks = (await import("../../src-tauri/nsis/hooks.nsh?raw")).default;
+    const block = hooks.match(/!macro IvAssociateAll([\s\S]*?)!macroend/)?.[1] ?? "";
+    const registered = [...block.matchAll(/IvAssociateExt "(\w+)"/g)].map((m) => m[1]);
+    expect(registered).toEqual([...WEB_EXTENSIONS, ...DECODED_EXTENSIONS]);
+    const removed = [...(hooks.match(/!macro IvUnassociateAll([\s\S]*?)!macroend/)?.[1] ?? "").matchAll(/IvUnassociateExt "(\w+)"/g)].map((m) => m[1]);
+    expect(removed).toEqual(registered);
+  });
+});

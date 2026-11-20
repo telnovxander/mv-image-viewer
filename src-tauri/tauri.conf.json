@@ -26,13 +26,17 @@
       "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' asset: http://asset.localhost ivimg: http://ivimg.localhost ivthumb: http://ivthumb.localhost data: blob:",
       "assetProtocol": {
         "enable": true,
-        "scope": ["**"]
+        "scope": [
+          "**"
+        ]
       }
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [
+      "nsis"
+    ],
     "publisher": "Moonshine Vibecoder",
     "copyright": "Moonshine Vibecoder",
     "shortDescription": "Spiegelmond, an image viewer",
@@ -45,11 +49,26 @@
       "icons/icon.ico"
     ],
     "windows": {
-      "webviewInstallMode": { "type": "embedBootstrapper" },
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
       "nsis": {
         "installMode": "currentUser",
-        "languages": ["English", "Russian", "German"],
-        "displayLanguageSelector": false
+        "languages": [
+          "English",
+          "Russian",
+          "German"
+        ],
+        "displayLanguageSelector": false,
+        "template": "nsis/installer.nsi",
+        "installerHooks": "nsis/hooks.nsh",
+        "customLanguageFiles": {
+          "English": "nsis/languages/English.nsh",
+          "Russian": "nsis/languages/Russian.nsh",
+          "German": "nsis/languages/German.nsh"
+        },
+        "startMenuFolder": "Spiegelmond",
+        "installerIcon": "icons/icon.ico"
       }
     }
   }

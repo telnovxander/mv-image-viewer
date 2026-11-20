@@ -10,8 +10,34 @@ see it at once. Only the basics, the picture comes first.
 ## Installation
 
 Download `Spiegelmond-Setup-<version>.exe` (the artifact `Spiegelmond-windows` of a CI run) and run
-it. It installs for the current user, without administrator rights. The polished installer comes
-with IV-10. `Spiegelmond-<version>-portable.exe` runs without installing.
+it: **Install → Finish**. It installs for the current user into `%LOCALAPPDATA%\Programs\Spiegelmond`,
+without administrator rights and without UAC, in the language of Windows (Russian, English or
+German; English otherwise). It adds Spiegelmond to Start and the desktop and to "Open with" of
+every format it shows. The finish page has a box (not ticked) to add `iv` to your PATH; a silent
+install does that with `Spiegelmond-Setup-<version>.exe /S /PATH`.
+
+`Spiegelmond-<version>-portable.exe` runs without installing: put it in any folder, start it, or
+drop a photo on it, or `Spiegelmond-<version>-portable.exe photo.jpg`.
+
+**Spiegelmond as the default program for photos.** Windows does not let a program make itself the
+default silently. After installing: Settings → Apps → Default apps → Spiegelmond → for each format
+(`.jpg`, `.png`, `.heic`…) choose Spiegelmond. Or right-click a photo → Open with → Choose another
+app → Spiegelmond → "Always".
+
+**From the command line.** With the PATH box ticked, a new terminal opens images with
+`iv photo.jpg` or `iv "D:\Fotos\2026\IMG_0001.HEIC"` (a running Spiegelmond shows it in its window).
+
+### Uninstalling
+
+Settings → Apps → Installed apps → Spiegelmond → Uninstall (or Start → Spiegelmond → "Uninstall
+Spiegelmond", or Control Panel → Programs). Two clicks, no UAC, in the language of Windows; a
+running Spiegelmond is closed first. Removed: the program, its shortcuts, "Open with" and Default
+apps entries, the PATH entry and the thumbnail cache (`%LOCALAPPDATA%\Spiegelmond\cache`). Kept:
+your settings (the box "Also delete my settings" removes them too), the journal of metadata changes
+(`%LOCALAPPDATA%\Spiegelmond\journal`, your way back) and, of course, your photos. If Spiegelmond
+was the default program, Windows asks which program to use the next time you open such a photo.
+A Spiegelmond button pinned to the taskbar stops working; Windows removes it or it can be unpinned
+with a right click. Installing again afterwards starts from scratch.
 
 ### If Windows blocks the installation
 
@@ -54,7 +80,8 @@ to turn anything off by itself, and it does not try to get around these checks.
 ## Where the data is
 
 Settings: `%LOCALAPPDATA%\Spiegelmond\settings.json` (theme, mode, background behind the image,
-language); the portable build keeps them in `Spiegelmond-data` next to its exe if that folder can
+language, sort order, slideshow interval, film strip); thumbnails: `%LOCALAPPDATA%\Spiegelmond\cache`;
+journal of metadata changes: `%LOCALAPPDATA%\Spiegelmond\journal`; the portable build keeps them in `Spiegelmond-data` next to its exe if that folder can
 be written. Spiegelmond never changes your files without an explicit command; deleting goes only to
 the Recycle Bin (see `CLAUDE.md`, "Safety").
 

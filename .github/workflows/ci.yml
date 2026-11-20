@@ -54,6 +54,9 @@ jobs:
           Copy-Item $setup.FullName "out/Spiegelmond-Setup-$version.exe"
           Copy-Item target/release/iv.exe "out/Spiegelmond-$version-portable.exe"
           Get-ChildItem out
+      - name: Installer test (silent install, Open with, PATH, portable, update, uninstall)
+        shell: pwsh
+        run: scripts/test-installer.ps1 -Setup (Get-ChildItem out/Spiegelmond-Setup-*.exe).FullName -Portable (Get-ChildItem out/Spiegelmond-*-portable.exe).FullName
       - uses: actions/upload-artifact@v4
         with:
           name: Spiegelmond-windows
