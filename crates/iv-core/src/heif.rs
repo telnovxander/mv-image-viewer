@@ -73,6 +73,7 @@ mod platform {
     extern "system" {
         fn LoadLibraryExW(name: *const u16, file: *mut c_void, flags: u32) -> *mut c_void;
         fn GetProcAddress(module: *mut c_void, name: *const u8) -> *mut c_void;
+        fn GetLastError() -> u32;
     }
 
     /// Search the DLL's own folder for its dependencies (libde265.dll lies next to heif.dll).
@@ -93,22 +94,26 @@ mod platform {
         list
     }
 
-    pub fn open() -> Option<*mut c_void> {
-        candidates()
-            .into_iter()
-            .filter(|p| p.is_file())
-            .find_map(|path| {
-                let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
-                // SAFETY: a NUL-terminated wide path; a null result means "not loaded".
-                let module = unsafe {
-                    LoadLibraryExW(
-                        wide.as_ptr(),
-                        std::ptr::null_mut(),
-                        LOAD_WITH_ALTERED_SEARCH_PATH,
-                    )
-                };
-                (!module.is_null()).then_some(module)
-            })
+    pub fn open() -> Result<*mut c_void, String> {
+        let mut problem = String::from("heif.dll not found next to the program");
+        for path in candidates().into_iter().filter(|p| p.is_file()) {
+            let wide: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
+            // SAFETY: a NUL-terminated wide path; a null result means "not loaded".
+            let module = unsafe {
+                LoadLibraryExW(
+                    wide.as_ptr(),
+                    std::ptr::null_mut(),
+                    LOAD_WITH_ALTERED_SEARCH_PATH,
+                )
+            };
+            if !module.is_null() {
+                return Ok(module);
+            }
+            // SAFETY: reads the calling thread's last error code, set by LoadLibraryExW.
+            let code = unsafe { GetLastError() };
+            problem = format!("{} did not load, Windows error {code}", path.display());
+        }
+        Err(problem)
     }
 
     pub fn symbol(library: *mut c_void, name: &[u8]) -> *mut c_void {
@@ -128,18 +133,21 @@ mod platform {
 
     const RTLD_NOW: c_int = 2;
 
-    pub fn open() -> Option<*mut c_void> {
+    pub fn open() -> Result<*mut c_void, String> {
         let names: &[&[u8]] = &[
             b"libheif.so.1\0",
             b"libheif.so\0",
             b"libheif.1.dylib\0",
             b"libheif.dylib\0",
         ];
-        names.iter().find_map(|name| {
-            // SAFETY: a NUL-terminated name; a null result means "not loaded".
-            let library = unsafe { dlopen(name.as_ptr().cast(), RTLD_NOW) };
-            (!library.is_null()).then_some(library)
-        })
+        names
+            .iter()
+            .find_map(|name| {
+                // SAFETY: a NUL-terminated name; a null result means "not loaded".
+                let library = unsafe { dlopen(name.as_ptr().cast(), RTLD_NOW) };
+                (!library.is_null()).then_some(library)
+            })
+            .ok_or_else(|| String::from("libheif not found"))
     }
 
     pub fn symbol(library: *mut c_void, name: &[u8]) -> *mut c_void {
@@ -151,21 +159,22 @@ mod platform {
 #[cfg(not(any(windows, unix)))]
 mod platform {
     use std::ffi::c_void;
-    pub fn open() -> Option<*mut c_void> {
-        None
+    pub fn open() -> Result<*mut c_void, String> {
+        Err(String::from("no libheif on this system"))
     }
     pub fn symbol(_: *mut c_void, _: &[u8]) -> *mut c_void {
         std::ptr::null_mut()
     }
 }
 
-fn load() -> Option<Api> {
+/// The API, or why it is not there (shown by the tests and in the log).
+fn load() -> Result<Api, String> {
     let library = platform::open()?;
     macro_rules! get {
         ($name:literal, $kind:ty) => {{
             let pointer = platform::symbol(library, concat!($name, "\0").as_bytes());
             if pointer.is_null() {
-                return None;
+                return Err(format!("libheif has no {}", $name));
             }
             // SAFETY: the symbol of libheif's documented C API with this signature.
             unsafe { std::mem::transmute::<*mut c_void, $kind>(pointer) }
@@ -193,10 +202,10 @@ fn load() -> Option<Api> {
         };
         // SAFETY: see above; heif_compression_HEVC = 1.
         if unsafe { have_decoder(COMPRESSION_HEVC) } == 0 {
-            return None;
+            return Err(String::from("libheif loaded, but it has no HEVC decoder"));
         }
     }
-    Some(Api {
+    Ok(Api {
         context_alloc: get!("heif_context_alloc", unsafe extern "C" fn() -> *mut Ctx),
         context_free: get!("heif_context_free", unsafe extern "C" fn(*mut Ctx)),
         read_from_memory: get!("heif_context_read_from_memory_without_copy", ReadFromMemory),
@@ -229,14 +238,23 @@ fn load() -> Option<Api> {
     })
 }
 
+fn loaded() -> &'static Result<Api, String> {
+    static API: OnceLock<Result<Api, String>> = OnceLock::new();
+    API.get_or_init(load)
+}
+
 fn api() -> Option<&'static Api> {
-    static API: OnceLock<Option<Api>> = OnceLock::new();
-    API.get_or_init(load).as_ref()
+    loaded().as_ref().ok()
 }
 
 /// Whether libheif could be loaded (on Windows: the DLLs are in place).
 pub fn available() -> bool {
     api().is_some()
+}
+
+/// Why libheif is not available, if it is not (a missing DLL, a Windows error code, no decoder).
+pub fn problem() -> Option<&'static str> {
+    loaded().as_ref().err().map(String::as_str)
 }
 
 /// What went wrong while rendering a HEIF file.

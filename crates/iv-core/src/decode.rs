@@ -361,7 +361,8 @@ mod tests {
         if cfg!(windows) && vendored {
             assert!(
                 heif::available(),
-                "vendor/heif/heif.dll is there but did not load"
+                "vendor/heif/heif.dll is there but did not load: {}",
+                heif::problem().unwrap_or("?")
             );
         }
         if !heif::available() {
