@@ -23,9 +23,17 @@ jobs:
         shell: pwsh
         run: |
           $vcpkg = "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe"
-          & $vcpkg install "libheif[core,libde265]:x64-windows" --clean-after-build
+          # DLLs with the MSVC runtime linked in: they load on a Windows without the Visual C++
+          # Redistributable (MSVCP140.dll / VCRUNTIME140.dll), as HEIC must work out of the box.
+          New-Item -ItemType Directory -Force triplets | Out-Null
+          Set-Content triplets/x64-windows-static-crt.cmake @(
+            "set(VCPKG_TARGET_ARCHITECTURE x64)",
+            "set(VCPKG_CRT_LINKAGE static)",
+            "set(VCPKG_LIBRARY_LINKAGE dynamic)"
+          )
+          & $vcpkg install "libheif[core,libde265]:x64-windows-static-crt" --overlay-triplets=triplets --clean-after-build
           if ($LASTEXITCODE -ne 0) { exit 1 }
-          $root = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows"
+          $root = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static-crt"
           New-Item -ItemType Directory -Force out/licenses | Out-Null
           Copy-Item "$root\bin\*.dll" out/
           foreach ($pkg in Get-ChildItem "$root\share" -Directory) {
@@ -35,6 +43,16 @@ jobs:
           & $vcpkg list --x-full-desc | Out-File -Encoding utf8 out/VERSIONS.txt
           git -C $env:VCPKG_INSTALLATION_ROOT rev-parse HEAD | Out-File -Encoding utf8 -Append out/VERSIONS.txt
           Get-ChildItem -Recurse out
+          # Show what the DLLs import: no MSVCP140 / VCRUNTIME140 may be left.
+          $dumpbin = Get-ChildItem "${env:ProgramFiles}\Microsoft Visual Studio" -Recurse -Filter dumpbin.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($dumpbin) {
+            foreach ($dll in Get-ChildItem out/*.dll) {
+              $imports = & $dumpbin.FullName /dependents $dll.FullName | Select-String "\.dll"
+              Write-Output "$($dll.Name) imports: $($imports -join ', ')"
+              if ($imports -match "MSVCP140|VCRUNTIME140") { throw "$($dll.Name) still needs the Visual C++ runtime" }
+            }
+          }
+          Remove-Item -Recurse -Force triplets
       - uses: actions/upload-artifact@v4
         with:
           name: heif-dlls
