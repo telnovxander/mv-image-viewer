@@ -240,9 +240,16 @@ GPU**, so drawing is done in software — a Windows PC with a graphics card is a
 | Opening a 50 / 100 / 200 MP JPEG until it is on screen | ~0.2 s each |
 | Zooming (Ctrl+wheel, to 32×) and panning a 50 MP photo | 60 frames/s; one 83 ms pause at the first zoom step |
 | The same, 100 MP | 60 frames/s; one 133 ms pause at the first zoom step |
-| The same, 200 MP | 60 frames/s between pauses of 1–1.5 s (software drawing; to be checked on Windows) |
+| The same, 200 MP | 60 frames/s between pauses of 1–1.5 s (software drawing; a PC with a graphics card is expected to pause less) |
 | Film strip of 10 000 files, fast scrolling | 60 frames/s (median frame 16.7 ms, slowest 17.7 ms) |
 | Memory over 1 000 images in a row (12 MP each, ±2 decoded ahead, 512 MB budget) | the cache stays at 504 MB; the whole browser grows to ~1.3 GB by image 700 and stays there — no leak |
+
+**No tiling (decision 2026-11-21).** The photo is drawn as one image scaled by the WebView; there is
+no pyramid of levels and no drawing in tiles. Up to 100 MP this is smooth. At 200 MP zooming and
+panning work but can pause for a moment, and one decoded 200 MP photo takes about 800 MB of memory
+(more than the whole 512 MB cache budget, so neighbours of such a photo are not kept decoded ahead).
+Tiling (a pyramid from `iv-core`, drawing in pieces) is a separate task, to be done only if photos
+of this size really stutter on the PC in daily use.
 
 ## Writing a rotation into a file
 
