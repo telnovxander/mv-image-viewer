@@ -1,21 +1,24 @@
 name: HEIF DLLs
 
 # IV-05: builds libheif + libde265 (LGPL, decoding only) once with vcpkg on Windows. Started by hand
-# (Actions → HEIF DLLs → Run workflow), never on push. The artifact goes into vendor/heif/ of the
-# repository; the program loads the DLLs at run time (dynamic linking, LGPL allows it).
+# (Actions → HEIF DLLs → Run workflow), never on push. It commits the DLLs, their licences and
+# VERSIONS.txt into vendor/heif/ of main itself (Alex's decision 2026-11-21: write access only for
+# this manual workflow; the commit carries [skip ci]). The program loads the DLLs at run time
+# (dynamic linking, LGPL allows it); the installer ships them next to iv.exe.
 # Only the "libde265" feature: the default "hevc" feature pulls the x265 encoder (GPL) — not wanted.
 
 on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # only to commit vendor/heif/ — this workflow never runs on push
 
 jobs:
   build:
     name: Build heif.dll and libde265.dll
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Build with vcpkg
         shell: pwsh
         run: |
@@ -37,3 +40,27 @@ jobs:
           name: heif-dlls
           path: out/
           if-no-files-found: error
+      - name: Commit the DLLs into vendor/heif/
+        shell: pwsh
+        run: |
+          $target = "vendor/heif"
+          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+          New-Item -ItemType Directory -Force $target | Out-Null
+          Copy-Item -Recurse out/* $target
+          Set-Content (Join-Path $target "SOURCES.md") @(
+            "# libheif and libde265",
+            "",
+            "Built by the manual workflow .github/workflows/heif-dlls.yml (vcpkg, x64-windows,",
+            "decoding only). Licences: licenses/ (libheif and libde265 are under the GNU LGPL 3.0).",
+            "Versions and the vcpkg commit: VERSIONS.txt.",
+            "",
+            "Sources: https://github.com/strukturag/libheif and https://github.com/strukturag/libde265",
+            "(the exact versions are the vcpkg ports listed in VERSIONS.txt)."
+          )
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $target
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { Write-Output "vendor/heif is up to date"; exit 0 }
+          git commit -m "IV-05: vendor libheif and libde265 DLLs [skip ci]"
+          git push
