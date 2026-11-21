@@ -1,6 +1,6 @@
-libde265:x64-windows                              1.1.3               Open h.265 video codec implementation.
-libheif:x64-windows                               1.23.7              libheif is an HEIF and AVIF file format decoder and encoder.
-libheif[libde265]:x64-windows                                         libde265 HEVC decoder
+libde265:x64-windows-static-crt                   1.1.3               Open h.265 video codec implementation.
+libheif:x64-windows-static-crt                    1.23.7              libheif is an HEIF and AVIF file format decoder and encoder.
+libheif[libde265]:x64-windows-static-crt                              libde265 HEVC decoder
 vcpkg-cmake-config:x64-windows                    2026-07-21          
 vcpkg-cmake:x64-windows                           2025-08-07          
 0df93a05b9de080129e653ec4776d7e14a1b2e4f
