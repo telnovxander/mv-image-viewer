@@ -86,8 +86,9 @@ mod platform {
             .and_then(|e| e.parent().map(Path::to_path_buf))
         {
             list.push(dir.join("heif.dll"));
-            // Tests and `tauri dev` run from target/<profile>[/deps]: the vendored copy.
-            for up in dir.ancestors().take(5) {
+            // Tests and `tauri dev` run from inside target/: target/<profile>[/deps], or with newer
+            // Cargo target/<profile>/build/<crate>/<hash>/out — up to eight levels to the repository.
+            for up in dir.ancestors().take(8) {
                 list.push(up.join("vendor").join("heif").join("heif.dll"));
             }
         }
