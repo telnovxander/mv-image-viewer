@@ -85,6 +85,13 @@ journal of metadata changes: `%LOCALAPPDATA%\Spiegelmond\journal`; the portable 
 be written. Spiegelmond never changes your files without an explicit command; deleting goes only to
 the Recycle Bin (see `CLAUDE.md`, "Safety").
 
+## Licences
+
+Spiegelmond itself: see the repository. HEIC decoding uses **libheif** and **libde265**, both under
+the GNU LGPL 3.0, as separate DLLs loaded at run time (unchanged, dynamically linked). Their licence
+texts, versions and where their sources are ship with the program in `licenses\heif\` of the
+program folder (in the repository: `vendor/heif/`, made by the manual workflow `heif-dlls`).
+
 ## Keyboard shortcuts
 
 Generated from `src/lib/hotkeys.json` (`node scripts/hotkeys-markdown.mjs --write`); the "?" / F1 help
@@ -135,7 +142,10 @@ Formats: shown by WebView2 itself — JPG, PNG, GIF (animated), WebP (animated),
 by `iv-core` and served through the `ivimg` protocol — TIFF (the first page, its orientation
 applied) and camera RAW built on TIFF (DNG, CR2, NEF, NRW, ARW, SRW, ORF, RW2, PEF, ERF, 3FR: the
 largest embedded JPEG preview, turned like the RAW says). A damaged file shows a placeholder with
-its name; browsing goes on. HEIC / HEIF follow (libheif, IV-05).
+its name; browsing goes on. HEIC / HEIF (iPhone photos) are decoded by libheif with libde265, which
+the installer puts next to `iv.exe` (`heif.dll`, `libde265.dll`); no codec from the Microsoft Store
+is needed. The portable build shows HEIC when those two DLLs lie next to it (copy them from the
+program folder); without them a HEIC file shows "no decoder" and browsing goes on.
 
 ## Browsing a folder
 

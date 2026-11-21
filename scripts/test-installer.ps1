@@ -59,6 +59,8 @@ $pathBefore = UserPath
 Install "silent install with /PATH" "/PATH"
 Check (Test-Path $exe) "iv.exe in $dir"
 Check (Test-Path $uninstaller) "uninstall.exe next to it"
+foreach ($dll in "heif.dll", "libde265.dll") { Check (Test-Path (Join-Path $dir $dll)) "$dll next to iv.exe (HEIC, IV-05)" }
+Check (Test-Path (Join-Path $dir "licenses\heif\SOURCES.md")) "the HEIC libraries' licences and sources ship with the program"
 Check (Test-Path $startShortcut) "Start shortcut $startShortcut"
 Check (@(Get-ChildItem $startFolder -Filter *.lnk).Count -eq 2) "Start folder holds Spiegelmond and its uninstall shortcut"
 Check (Test-Path $desktopShortcut) "desktop shortcut"

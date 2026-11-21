@@ -37,6 +37,12 @@
     "targets": [
       "nsis"
     ],
+    "resources": {
+      "../vendor/heif/*.dll": "./",
+      "../vendor/heif/licenses/*": "licenses/heif/",
+      "../vendor/heif/SOURCES.md": "licenses/heif/SOURCES.md",
+      "../vendor/heif/VERSIONS.txt": "licenses/heif/VERSIONS.txt"
+    },
     "publisher": "Moonshine Vibecoder",
     "copyright": "Moonshine Vibecoder",
     "shortDescription": "Spiegelmond, an image viewer",
