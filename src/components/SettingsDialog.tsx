@@ -15,7 +15,6 @@ interface SettingsDialogProps {
   onThemeChange: (theme: ThemePreference) => void;
   onBackgroundChange: (background: Background) => void;
   onLanguage: (code: string) => void;
-  onAbout: () => void;
   onClose: () => void;
 }
 
@@ -32,7 +31,7 @@ function Segmented<T extends string>({ name, values, value, label, onChange }: {
   );
 }
 
-export function SettingsDialog({ theme, background, sort, onSortChange, slideSeconds, onSlideSecondsChange, onThemeChange, onBackgroundChange, onLanguage, onAbout, onClose }: SettingsDialogProps) {
+export function SettingsDialog({ theme, background, sort, onSortChange, slideSeconds, onSlideSecondsChange, onThemeChange, onBackgroundChange, onLanguage, onClose }: SettingsDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog title={t("settings.title")} onClose={onClose}>
@@ -68,9 +67,6 @@ export function SettingsDialog({ theme, background, sort, onSortChange, slideSec
         <LanguageSelect onChange={onLanguage} />
       </label>
       <div className="dialog__actions">
-        <button type="button" className="button" onClick={onAbout}>
-          {t("about.title")}
-        </button>
         <button type="button" className="button button--primary" onClick={onClose}>
           {t("common.close")}
         </button>

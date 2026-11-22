@@ -709,6 +709,12 @@ fn vollmond_operations() -> Result<Vec<iv_core::vollmond::plan::Operation>, IvEr
     Ok(iv_core::vollmond::plan::Journal::new(&journal).operations())
 }
 
+/// The folder with the settings, the journal and the cache, shown in "About" (IV-20).
+#[tauri::command]
+fn data_folder() -> Option<String> {
+    settings::data_dir().map(|dir| dir.to_string_lossy().into_owned())
+}
+
 #[tauri::command]
 fn load_settings() -> Result<Option<String>, IvError> {
     match settings::data_dir() {
@@ -755,6 +761,7 @@ pub fn run() {
         .manage(InitialPath(Mutex::new(first)))
         .manage(Jobs::default())
         .invoke_handler(tauri::generate_handler![
+            data_folder,
             initial_path,
             open_image,
             list_folder,

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   ARROW_STEP,
   canPan,
+  CLICK_SLOP,
+  clickZoom,
   imageTransform,
   KEY_STEP,
   PIXELATED_FROM,
@@ -36,7 +38,8 @@ const INDICATOR_MS = 1000;
 /**
  * The image with zoom and pan (IV-02): fit by default, 100 % (1), width (W), Ctrl+0 fit,
  * Ctrl+wheel or a touchpad pinch to the cursor, Ctrl+plus / minus to the centre, drag or arrows to
- * move an enlarged image, double click fit ↔ 100 % at the click.
+ * move an enlarged image, double click fit ↔ 100 % at the click, Ctrl+click one step in and
+ * Ctrl+Alt+click one step out at the click (IV-20).
  */
 export function ImageView({ src, onWheelPage, alt, rotation, onError, onLoad }: ImageViewProps) {
   const { i18n } = useTranslation();
@@ -49,6 +52,8 @@ export function ImageView({ src, onWheelPage, alt, rotation, onError, onLoad }: 
   const [indicator, setIndicator] = useState(false);
   const indicatorTimer = useRef<number | undefined>(undefined);
   const drag = useRef<{ x: number; y: number; id: number } | null>(null);
+  /** Where the last press started: a click that moved further was a drag, not a Ctrl+click. */
+  const press = useRef<{ x: number; y: number } | null>(null);
 
   const showIndicator = useCallback(() => {
     setIndicator(true);
@@ -156,11 +161,23 @@ export function ImageView({ src, onWheelPage, alt, rotation, onError, onLoad }: 
     <div
       ref={stage}
       className={draggable ? "image-view image-view--draggable" : "image-view"}
+      onClick={(event) => {
+        // IV-20: Ctrl+click one step in, Ctrl+Alt+click one step out, towards the click.
+        const start = press.current;
+        press.current = null;
+        if (!event.ctrlKey || event.button !== 0) return;
+        if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > CLICK_SLOP) return;
+        const at = point(event);
+        change((v, img) => clickZoom(v, at, event.altKey, img, viewport));
+      }}
       onDoubleClick={(event) => {
+        // Two quick Ctrl+clicks are two zoom steps, not fit ↔ 100 %.
+        if (event.ctrlKey) return;
         const at = point(event);
         change((v, img) => toggleAt(v, at, img, viewport));
       }}
       onPointerDown={(event) => {
+        if (event.button === 0) press.current = { x: event.clientX, y: event.clientY };
         if (event.button !== 0 || !draggable) return;
         drag.current = { x: event.clientX, y: event.clientY, id: event.pointerId };
         event.currentTarget.setPointerCapture(event.pointerId);

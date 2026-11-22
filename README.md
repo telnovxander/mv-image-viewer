@@ -108,6 +108,7 @@ reads the same table.
 | 1 | Actual size (100 %) |
 | W | Fit to the width |
 | double-click | Fit ↔ 100 % at the click |
+| Ctrl+click · Ctrl+Alt+click | Zoom in one step · out one step at the clicked point |
 | drag · ← → ↑ ↓ | Move an enlarged image |
 | F · F11 | Full screen (Esc — leave) |
 | Space | Slideshow: start · pause |

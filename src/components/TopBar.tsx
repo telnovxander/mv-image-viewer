@@ -1,6 +1,7 @@
-import { CircleHelp, FolderOpen, Settings as SettingsIcon, Wrench } from "lucide-react";
+import { FolderOpen, Pause, Play, Settings as SettingsIcon, Wrench } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Mode } from "../lib/settings";
+import { HelpMenu, type HelpItem } from "./HelpMenu";
 import { LanguageSelect } from "./LanguageSelect";
 import { ModeIcon } from "./ModeIcon";
 
@@ -11,22 +12,33 @@ interface TopBarProps {
   onToggleMode: () => void;
   onTools: () => void;
   onSettings: () => void;
-  onHelp: () => void;
+  /** An item of the "?" menu (IV-20). */
+  onHelp: (item: HelpItem) => void;
+  onHelpMenu: (open: boolean) => void;
+  /** The slideshow button (IV-20): start · stop, as Space. */
+  slideshow: boolean;
+  canSlideshow: boolean;
+  onSlideshow: () => void;
   onLanguage: (code: string) => void;
+  /** The mouse is over the bar. */
   onHover: (inside: boolean) => void;
+  /** A button of the bar has the keyboard focus (focus left by a mouse click does not count). */
+  onKeyboardFocus: (focused: boolean) => void;
 }
 
 /** The bar over the image: it appears when the mouse moves and hides again after a moment. */
-export function TopBar({ mode, visible, onOpen, onToggleMode, onTools, onSettings, onHelp, onLanguage, onHover }: TopBarProps) {
+export function TopBar(props: TopBarProps) {
+  const { mode, visible, onOpen, onToggleMode, onTools, onSettings, onHelp, onHelpMenu, slideshow, canSlideshow, onSlideshow, onLanguage, onHover, onKeyboardFocus } = props;
   const { t } = useTranslation();
   const modeName = mode === "sichel" ? "Sichel" : "Vollmond";
+  const slideLabel = t(slideshow ? "slideshow.stop" : "slideshow.start", { shortcut: t("keys.Space") });
   return (
     <header
       className={visible ? "topbar topbar--visible" : "topbar"}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
+      onFocus={(event) => onKeyboardFocus(event.target.matches(":focus-visible"))}
+      onBlur={() => onKeyboardFocus(false)}
     >
       <button type="button" className="icon-button" onClick={onOpen} title={t("open.button", { shortcut: "Ctrl+O" })} aria-label={t("open.button", { shortcut: "Ctrl+O" })}>
         <FolderOpen size={16} aria-hidden="true" />
@@ -46,11 +58,12 @@ export function TopBar({ mode, visible, onOpen, onToggleMode, onTools, onSetting
           <Wrench size={16} aria-hidden="true" />
         </button>
       )}
+      <button type="button" className="icon-button" onClick={onSlideshow} disabled={!canSlideshow} aria-pressed={slideshow} title={slideLabel} aria-label={slideLabel}>
+        {slideshow ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
+      </button>
       <div className="topbar__spacer" />
       <LanguageSelect onChange={onLanguage} />
-      <button type="button" className="icon-button" onClick={onHelp} title={t("help.button", { shortcut: "F1" })} aria-label={t("help.button", { shortcut: "F1" })}>
-        <CircleHelp size={16} aria-hidden="true" />
-      </button>
+      <HelpMenu onChoose={onHelp} onOpenChange={onHelpMenu} />
       <button type="button" className="icon-button" onClick={onSettings} title={t("settings.title")} aria-label={t("settings.title")}>
         <SettingsIcon size={16} aria-hidden="true" />
       </button>

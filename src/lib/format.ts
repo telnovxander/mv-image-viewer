@@ -44,3 +44,10 @@ export function formatTaken(iso: string, language: string): string {
   const date = new Date(Date.UTC(year, month - 1, day, hour, minute));
   return new Intl.DateTimeFormat(language, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(date);
 }
+
+/** A calendar date "YYYY-MM-DD" (the version date, IV-20): ru/de "22.11.2026", en "11/22/2026". */
+export function formatDay(day: string, language: string): string {
+  const [year, month, date] = day.split("-").map(Number);
+  if (!year || !month || !date) return day;
+  return new Intl.DateTimeFormat(language, { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(year, month - 1, date)));
+}

@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
@@ -6,7 +7,9 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import demoImage from "../assets/brand/splash-dark.jpg";
 import { AboutDialog } from "./components/AboutDialog";
+import { GuideDialog } from "./components/GuideDialog";
 import { HelpDialog } from "./components/HelpDialog";
+import type { HelpItem } from "./components/HelpMenu";
 import { ImageView } from "./components/ImageView";
 import { DateEditDialog } from "./components/DateEditDialog";
 import { Filmstrip } from "./components/Filmstrip";
@@ -20,13 +23,13 @@ import { applyBatch, undoPlan, applyRotation, copyImage, copyPath, exifOf, heifA
 import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { afterRemoval, relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
-import { CHROME_HIDE_MS, chromeVisible } from "./lib/chrome";
+import { CHROME_HIDE_MS, chromeVisible, movedFrom, type Point } from "./lib/chrome";
 import { DECODED_EXTENSIONS, isHeif, WEB_EXTENSIONS } from "./lib/formats";
 import { BACKGROUNDS, loadSettings, saveSettings, type Settings, type SortOrder } from "./lib/settings";
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
 import { windowTitle } from "./lib/title";
 
-type DialogName = "settings" | "about" | "tools" | "help" | "write" | null | "date";
+type DialogName = "settings" | "about" | "tools" | "help" | "write" | null | "date" | "guide";
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 /** The folder is read again on browsing at most this often, to pick up added or removed files. */
@@ -75,8 +78,15 @@ export function App() {
   const [systemDark, setSystemDark] = useState(() => window.matchMedia(DARK_QUERY).matches);
   const [dialog, setDialog] = useState<DialogName>(null);
   const [recentlyMoved, setRecentlyMoved] = useState(false);
-  const [overBar, setOverBar] = useState(false);
+  /** The mouse is over the top bar or a side arrow (IV-20: one rule for both). */
+  const [mouseOnBar, setMouseOnBar] = useState(false);
+  /** A button of the bar has the keyboard focus (a mouse click leaves no visible focus). */
+  const [keyOnBar, setKeyOnBar] = useState(false);
+  const [helpMenuOpen, setHelpMenuOpen] = useState(false);
+  /** The help article shown in the "guide" dialog. */
+  const [article, setArticle] = useState<string>("viewing");
   const hideTimer = useRef<number | undefined>(undefined);
+  const lastPointer = useRef<Point | null>(null);
   const [entries, setEntries] = useState<FolderEntry[]>(DEMO_FOLDER);
   const [rotation, setRotation] = useState<Rotation>(0);
   const [shownSize, setShownSize] = useState<Size | null>(null);
@@ -215,15 +225,22 @@ export function App() {
     [entries, preloadAround, refresh, t],
   );
 
+  /** Browsing and slideshow steps hide the bars at once (IV-20, lib/chrome.ts). */
+  const hideChrome = useCallback(() => {
+    window.clearTimeout(hideTimer.current);
+    setRecentlyMoved(false);
+  }, []);
+
   const go = useCallback(
     (delta: number | "first" | "last") => {
       if (entries.length === 0) return;
+      hideChrome();
       const result =
         delta === "first" ? step(index, entries.length, -entries.length) : delta === "last" ? step(index, entries.length, entries.length) : step(index, entries.length, delta);
       if (result.edge) showEdge(result.edge);
       if (result.index !== index) void browseTo(result.index, result.index > index ? 1 : -1);
     },
-    [browseTo, entries.length, index, showEdge],
+    [browseTo, entries.length, hideChrome, index, showEdge],
   );
 
   const changeSort = useCallback(
@@ -267,6 +284,16 @@ export function App() {
     else if (next) await document.documentElement.requestFullscreen?.().catch(() => undefined);
     else if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
   }, [fullscreen]);
+
+  /** Space, the slideshow button and its menu item (IV-20): start or stop; starting hides the bars. */
+  const toggleSlideshow = useCallback(() => {
+    if (entries.length < 2) return;
+    if (!slideshow) {
+      window.clearTimeout(hideTimer.current);
+      setRecentlyMoved(false);
+    }
+    setSlideshow(!slideshow);
+  }, [entries.length, slideshow]);
 
   const errorText = useCallback(
     (e: unknown, path: string) => (isBackendError(e) ? t(`error.${e.code}`, { path: e.path }) : t("error.other", { path })),
@@ -389,6 +416,10 @@ export function App() {
 
   const runImageAction = useCallback(
     (action: ImageAction) => {
+      if (action === "slideshow") {
+        toggleSlideshow();
+        return;
+      }
       if (!image || !inTauri) return;
       if (action === "copy_image") void copyCurrent();
       else if (action === "copy_path") void copyCurrentPath();
@@ -396,7 +427,7 @@ export function App() {
       else if (action === "reveal") revealFile(image.path).catch((e: unknown) => setError(errorText(e, image.path)));
       else openWith(image.path).catch((e: unknown) => setError(errorText(e, image.path)));
     },
-    [copyCurrent, copyCurrentPath, deleteCurrent, errorText, image],
+    [copyCurrent, copyCurrentPath, deleteCurrent, errorText, image, toggleSlideshow],
   );
 
   /** Undo the last date set by hand: the old values back through the same safe write. */
@@ -451,7 +482,7 @@ export function App() {
         }
         if (event.key === " ") {
           event.preventDefault();
-          if (entries.length > 1) setSlideshow((on) => !on);
+          toggleSlideshow();
           return;
         }
         if (event.key === "b" || event.key === "B") {
@@ -503,7 +534,7 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [chooseFile, copyCurrent, copyCurrentPath, deleteCurrent, entries.length, image, fullscreen, go, previewWrite, showNotice, slideshow, t, toggleFullscreen, undoDelete, update]);
+  }, [chooseFile, copyCurrent, copyCurrentPath, deleteCurrent, image, fullscreen, go, previewWrite, showNotice, slideshow, t, toggleFullscreen, toggleSlideshow, undoDelete, update]);
 
   // Slideshow: the next image every slideSeconds; it stops on the last one.
   useEffect(() => {
@@ -516,8 +547,10 @@ export function App() {
     return () => window.clearTimeout(timer);
   }, [entries.length, go, index, settings.slideSeconds, slideshow]);
 
-  // The bars appear on a mouse move and hide again after a pause.
-  const onMouseMove = useCallback(() => {
+  // The bars appear on a real mouse move and hide again after a pause (lib/chrome.ts).
+  const onMouseMove = useCallback((event: React.MouseEvent) => {
+    if (!movedFrom(lastPointer.current, event.clientX, event.clientY)) return;
+    lastPointer.current = { x: event.clientX, y: event.clientY };
     setRecentlyMoved(true);
     window.clearTimeout(hideTimer.current);
     hideTimer.current = window.setTimeout(() => setRecentlyMoved(false), CHROME_HIDE_MS);
@@ -547,7 +580,21 @@ export function App() {
     };
   }, [image]);
 
-  const visible = chromeVisible({ recentlyMoved, overBar, dialogOpen: dialog !== null, empty: image === null });
+  const visible = chromeVisible({
+    recentlyMoved,
+    overBar: mouseOnBar || keyOnBar,
+    dialogOpen: dialog !== null,
+    menuOpen: menu !== null || helpMenuOpen,
+    empty: image === null,
+  });
+  const onHelp = (item: HelpItem) => {
+    if (item === "about" || item === "hotkeys") setDialog(item === "about" ? "about" : "help");
+    else {
+      setArticle(item);
+      setDialog("guide");
+    }
+  };
+  const arrows = image !== null && entries.length > 1;
   const toggle = () => update((s) => ({ mode: toggleMode(s.mode) }));
 
   return (
@@ -559,15 +606,20 @@ export function App() {
         onToggleMode={toggle}
         onTools={() => setDialog("tools")}
         onSettings={() => setDialog("settings")}
-        onHelp={() => setDialog("help")}
+        onHelp={onHelp}
+        onHelpMenu={setHelpMenuOpen}
+        slideshow={slideshow}
+        canSlideshow={entries.length > 1}
+        onSlideshow={toggleSlideshow}
         onLanguage={changeLanguage}
-        onHover={setOverBar}
+        onHover={setMouseOnBar}
+        onKeyboardFocus={setKeyOnBar}
       />
       <main
         className="viewer"
         onContextMenu={(event) => {
           event.preventDefault();
-          if (image && inTauri) setMenu({ x: event.clientX, y: event.clientY });
+          if (image) setMenu({ x: event.clientX, y: event.clientY });
         }}
       >
         {image && (
@@ -605,6 +657,26 @@ export function App() {
         {settings.thumbnails && entries.length > 0 && (
           <Filmstrip entries={entries} index={index} onChoose={(at) => at !== index && void browseTo(at, at > index ? 1 : -1)} />
         )}
+        {arrows &&
+          ([-1, 1] as const).map((direction) => (
+            <button
+              key={direction}
+              type="button"
+              className={`nav-arrow nav-arrow--${direction < 0 ? "prev" : "next"}${visible ? " nav-arrow--visible" : ""}`}
+              disabled={direction < 0 ? index === 0 : index === entries.length - 1}
+              tabIndex={visible ? 0 : -1}
+              title={t(direction < 0 ? "browse.previous" : "browse.next")}
+              aria-label={t(direction < 0 ? "browse.previous" : "browse.next")}
+              onClick={() => go(direction)}
+              onDoubleClick={(event) => event.stopPropagation()}
+              onMouseEnter={() => setMouseOnBar(true)}
+              onMouseLeave={() => setMouseOnBar(false)}
+              onFocus={(event) => setKeyOnBar(event.currentTarget.matches(":focus-visible"))}
+              onBlur={() => setKeyOnBar(false)}
+            >
+              {direction < 0 ? <ChevronLeft size={28} aria-hidden="true" /> : <ChevronRight size={28} aria-hidden="true" />}
+            </button>
+          ))}
         {edge && (
           <p className="edge-hint" role="status">
             {t(edge === "first" ? "browse.first" : "browse.last")}
@@ -627,7 +699,6 @@ export function App() {
           onThemeChange={(theme) => update(() => ({ theme }))}
           onBackgroundChange={(background) => update(() => ({ background }))}
           onLanguage={changeLanguage}
-          onAbout={() => setDialog("about")}
           onClose={() => setDialog(null)}
         />
       )}
@@ -642,6 +713,7 @@ export function App() {
         />
       )}
       {dialog === "help" && <HelpDialog onClose={() => setDialog(null)} />}
+      {dialog === "guide" && <GuideDialog article={article} onClose={() => setDialog(null)} />}
       {dialog === "date" && image && (
         <DateEditDialog
           path={image.path}
@@ -659,7 +731,7 @@ export function App() {
       {dialog === "write" && plan && image && (
         <WriteRotationDialog plan={plan} name={image.name} onApply={() => void applyWrite()} onClose={() => setDialog(null)} />
       )}
-      {menu && <ImageMenu x={menu.x} y={menu.y} onChoose={runImageAction} onClose={() => setMenu(null)} />}
+      {menu && <ImageMenu x={menu.x} y={menu.y} slideshow={slideshow} canSlideshow={entries.length > 1} onChoose={runImageAction} onClose={() => setMenu(null)} />}
       {notice && !written && (
         <div className="toast" role="status">
           <span>{notice.text}</span>

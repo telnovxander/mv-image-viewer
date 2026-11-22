@@ -35,8 +35,14 @@
 }
 
 :root {
+  /* IV-20: the same font tokens as Halbmond (FM-21): system fonts only (MV/BRAND.md), a little
+     denser than the default weight. Segoe UI Variable takes any weight; on Windows 10 (plain
+     Segoe UI) 500 renders as 400 and 650 as Semibold or Bold. No generic "monospace" at the end:
+     Consolas is on every Windows. */
   --font-ui: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+  --font-mono: "Cascadia Mono", Consolas, "Lucida Console", ui-monospace, Menlo, "DejaVu Sans Mono";
+  --font-weight: 500;
+  --font-weight-strong: 650;
   --font-size: 13px;
   --row-height: 22px;
   --radius: 4px;

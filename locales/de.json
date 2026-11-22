@@ -63,11 +63,18 @@
   },
   "about": {
     "title": "Über",
-    "version": "Version {{version}}"
+    "version_date": "Version {{version}} vom {{date}}",
+    "author": "Autor: {{name}}",
+    "description": "Ein schneller Bildbetrachter für Fotos im Alltag (Sichel) mit Werkzeugen für ein Fotoarchiv (Vollmond).",
+    "data": "Datenordner (Einstellungen, Protokoll der Änderungen, Cache)",
+    "open_folder": "Im Explorer anzeigen",
+    "licenses": "Lizenzen",
+    "licenses_text": "Spiegelmond besteht aus freien Open-Source-Komponenten. HEIC-Fotos dekodieren libheif und libde265 (LGPL); ihre Lizenzen und Quellen liegen im Ordner licenses\\heif neben dem Programm."
   },
   "common": {
     "close": "Schließen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "close_window": "Fenster schließen (Esc)"
   },
   "language": {
     "select": "Sprache der Oberfläche"
@@ -127,12 +134,12 @@
     "Esc": "Esc",
     "wheel": "Mausrad",
     "double-click": "Doppelklick",
-    "drag": "Ziehen"
+    "drag": "Ziehen",
+    "click": "Klick"
   },
   "help": {
     "title": "Tastenkürzel",
-    "coming": "folgt",
-    "button": "Tastenkürzel ({{shortcut}})"
+    "coming": "folgt"
   },
   "hotkeys": {
     "previous_next": "Vorheriges · nächstes Bild im Ordner",
@@ -159,11 +166,14 @@
     "pan": "Vergrößertes Bild verschieben",
     "write_rotation": "Ansichtsdrehung in die Datei schreiben (mit Vorschau)",
     "background": "Hintergrund hinter dem Bild: Design · Schwarz · Schachbrett",
-    "edit_date": "Aufnahmedatum von Hand setzen (Vorschau, rückgängig)"
+    "edit_date": "Aufnahmedatum von Hand setzen (Vorschau, rückgängig)",
+    "click_zoom": "Einen Schritt vergrößern · verkleinern am Klickpunkt"
   },
   "browse": {
     "first": "Das ist das erste Bild im Ordner",
-    "last": "Das ist das letzte Bild im Ordner"
+    "last": "Das ist das letzte Bild im Ordner",
+    "previous": "Vorheriges Bild (←)",
+    "next": "Nächstes Bild (→)"
   },
   "info": {
     "title": "Informationen",
@@ -212,7 +222,9 @@
     "copy_path": "Pfad kopieren",
     "reveal": "Im Explorer anzeigen",
     "open_with": "Öffnen mit…",
-    "delete": "In den Papierkorb löschen"
+    "delete": "In den Papierkorb löschen",
+    "slideshow": "Diashow starten",
+    "slideshow_stop": "Diashow beenden"
   },
   "delete": {
     "done": "{{name}} ist im Papierkorb",
@@ -389,5 +401,113 @@
     "all_done": "Fertig. Jeder Teil steht im Protokoll; Rückgängig verschiebt seine Kopien in den Papierkorb.",
     "convert_jpeg": "JPEG",
     "convert_png": "PNG"
+  },
+  "slideshow": {
+    "start": "Diashow starten ({{shortcut}})",
+    "stop": "Diashow beenden ({{shortcut}})"
+  },
+  "guide": {
+    "button": "Hilfe",
+    "menu_about": "Über",
+    "menu_viewing": "Fotos ansehen",
+    "menu_modes": "Sichel und Vollmond: der Unterschied",
+    "menu_vollmond": "Vollmond Schritt für Schritt",
+    "menu_hotkeys": "Tastenkürzel",
+    "viewing": {
+      "title": "Fotos ansehen",
+      "lines": [
+        "## Öffnen",
+        "- Doppelklick auf ein Foto im Explorer, „Öffnen mit → Spiegelmond“, eine Datei auf das Fenster ziehen oder Strg+O (die Ordnertaste oben links).",
+        "- Die anderen Bilder desselben Ordners werden im Hintergrund gelesen; die Reihenfolge (Name, Änderungsdatum, Aufnahmedatum) steht in den Einstellungen.",
+        "## Blättern",
+        "- ← → oder Bild↑ Bild↓ — vorheriges und nächstes, Pos1 und Ende — erstes und letztes Bild. An den Enden erscheint ein kurzer Hinweis, es geht nicht im Kreis.",
+        "- Das Mausrad blättert, solange das Foto ganz im Fenster ist.",
+        "- Die Pfeile am linken und rechten Fensterrand tun dasselbe mit der Maus.",
+        "- T zeigt den Filmstreifen mit Miniaturen unten; ein Klick geht zu diesem Foto.",
+        "## Zoom und Verschieben",
+        "- Strg+Mausrad (oder Zusammenziehen auf dem Touchpad) zoomt zum Mauszeiger, Strg+Plus und Strg+Minus zur Mitte.",
+        "- Strg+Klick vergrößert einen Schritt am Klickpunkt, Strg+Alt+Klick verkleinert einen Schritt.",
+        "- Doppelklick wechselt zwischen „ganzes Foto“ und 100 % am Klickpunkt. 1 — 100 %, W — fensterbreit, Strg+0 — ganzes Foto.",
+        "- Ein vergrößertes Foto wird mit der Maus gezogen oder mit den Pfeiltasten verschoben.",
+        "## Die obere Leiste und die Pfeile",
+        "Eine Regel: Sie erscheinen, wenn sich die Maus bewegt, und verschwinden zwei Sekunden, nachdem sie stillsteht. Blättern (Tasten, Mausrad, Pfeile) und jeder Schritt der Diashow blenden sie sofort aus. Sie bleiben, solange die Maus darüber ist, solange ein Menü oder ein Fenster offen ist, und auf dem leeren Bildschirm.",
+        "## Drehen",
+        "- R und Umschalt+R drehen das Foto nur zum Ansehen nach rechts und links; die Datei bleibt, wie sie ist.",
+        "- Strg+S schreibt die Drehung in die Datei, nach einer Vorschau „jetzt → danach“. Nur die Ausrichtungsangabe ändert sich, das Bild selbst bleibt genau gleich; rückgängig machbar.",
+        "## Informationen zum Foto",
+        "- I öffnet die Informationsleiste: Größe, Auflösung, Aufnahmedatum, Kamera, Objektiv, Belichtung, Aufnahmeort mit Link zur Karte.",
+        "- D ändert das Aufnahmedatum des aktuellen Fotos (mit Vorschau, rückgängig machbar).",
+        "## Diashow",
+        "- Leertaste, die ▶-Taste in der oberen Leiste oder „Diashow starten“ im Menü der rechten Maustaste. Das Intervall steht in den Einstellungen; beim letzten Foto hält sie an, früher mit Leertaste oder Esc.",
+        "- F oder F11 — Vollbild, Esc verlässt es. B wechselt den Hintergrund hinter dem Foto (Design, schwarz, Schachbrett).",
+        "## Papierkorb und Rückgängig",
+        "- Entf legt das Foto in den Papierkorb und zeigt das nächste; Strg+Z gleich danach holt es zurück.",
+        "- Spiegelmond löscht nur in den Papierkorb. Umschalt+Entf löscht nicht; wo es keinen Papierkorb gibt (USB-Sticks, Netzwerkordner), ist Löschen nicht möglich.",
+        "## Kopieren und andere Programme",
+        "- Strg+C kopiert das Bild, Strg+Umschalt+C seinen Pfad. Im Menü der rechten Maustaste gibt es auch „Im Explorer anzeigen“ und „Öffnen mit…“.",
+        "## Formate",
+        "- JPEG, PNG, GIF (auch animiert), WebP, AVIF, BMP, TIFF, HEIC/HEIF (iPhone-Fotos) und Kamera-RAW (DNG, CR2, CR3, NEF, ARW, ORF, RW2 und andere — die eingebettete Vorschau wird gezeigt).",
+        "- Welche Formate Spiegelmond öffnet, fragt das Installationsprogramm; das Standardprogramm lässt sich später in den Windows-Einstellungen → Apps → Standard-Apps ändern."
+      ]
+    },
+    "modes": {
+      "title": "Sichel und Vollmond: der Unterschied",
+      "lines": [
+        "Spiegelmond hat zwei Modi. Die Taste mit dem Mond oben links (oder Strg+M) wechselt zwischen ihnen; die Wahl bleibt gespeichert.",
+        "## Sichel — der leichte Betrachter",
+        "- Zum Ansehen von Fotos: öffnet sofort, Blättern, Zoom, Drehen, Diashow, Informationen, Papierkorb.",
+        "- Sichel ändert Ihre Dateien nie von selbst. Änderungen gibt es nur auf Ihren Wunsch: Entf (in den Papierkorb), Strg+S (Drehung in die Datei), D (Aufnahmedatum).",
+        "## Vollmond — Werkzeuge für ein Fotoarchiv",
+        "- Alles, was Sichel kann, und dazu die Taste „Werkzeuge“ (der Schraubenschlüssel, bernsteinfarben) neben dem Moduswechsel.",
+        "- Das Fenster „Werkzeuge“ arbeitet mit einem ganzen Ordner: Index, Daten, Fotos für das Handy vorbereiten, exakte Duplikate, ähnliche Fotos, Stapelverarbeitung, Protokoll der Änderungen.",
+        "- Die Werkzeuge werden erst geladen, wenn sich das Fenster öffnet; der Betrachter bleibt so schnell wie in Sichel.",
+        "## Was sich beim Wechsel ändert",
+        "- Die Akzentfarbe: blau in Sichel, bernstein in Vollmond; die Taste „Werkzeuge“ erscheint oder verschwindet.",
+        "- Sonst nichts: das offene Foto, der Ordner, die Einstellungen und die Tasten bleiben gleich.",
+        "Wie die Werkzeuge funktionieren — siehe „Vollmond Schritt für Schritt“."
+      ]
+    },
+    "vollmond": {
+      "title": "Vollmond Schritt für Schritt",
+      "lines": [
+        "## Zuerst die Sicherheit",
+        "- Nichts ändert sich ohne eine Vorschau „vorher → nachher“ und eine eigene Taste; die Rückfrage nennt die Zahl der Dateien.",
+        "- Höchstens 500 Dateien auf einmal; ab 100 Dateien zuerst ein Probestapel von 10.",
+        "- Gelöscht wird nur in den Papierkorb. Die Stapelverarbeitung überschreibt nie Originale: Ergebnisse kommen in einen neuen Ordner.",
+        "- Bevor eine Datei sich ändert, kommen ihre alten Werte ins Protokoll der Änderungen; dort lässt sich jeder Vorgang rückgängig machen.",
+        "- Eine geänderte Datei wird neben dem Original geschrieben, geprüft (das Bild bleibt genau gleich) und erst dann an ihren Platz gestellt. Bei einem Ordner in einer Cloud oder im Netzwerk kommt zuerst eine Warnung.",
+        "## 1. Fotoarchiv und Index — immer der erste Schritt",
+        "- Strg+M → Vollmond, dann die Taste „Werkzeuge“ (Schraubenschlüssel).",
+        "- „Ordner wählen“ — der Ordner Ihres Archivs. „Mit Unterordnern“ nimmt auch alles darin.",
+        "- „Indizieren“: Spiegelmond liest, welche Fotos es gibt, ihre Daten und Kameradaten, einen Fingerabdruck jeder Datei und die Miniaturen. Mit Fortschritt und „Anhalten“; an den Fotos ändert sich nichts.",
+        "- Beim zweiten Mal geht es schnell: nur neue und geänderte Dateien werden gelesen. Die anderen Werkzeuge erscheinen nach dem Indizieren.",
+        "## 2. Daten: prüfen und korrigieren",
+        "- Wozu: Handy-Galerien und viele Programme sortieren nach dem Aufnahmedatum in der Datei; Fotos aus WhatsApp, Telegram oder alten Handys haben es oft nicht, und Kopieren setzt das Dateidatum zurück.",
+        "- „Daten anzeigen“: eine Tabelle mit dem Aufnahmedatum (EXIF), dem Datum im Dateinamen (IMG_20230512_143000, PXL_…, WhatsApp, Telegram, Screenshots) und dem Dateidatum. Filter: alle, Abweichungen, ohne Aufnahmedatum.",
+        "- „Vorschau der Korrekturen“: ein fehlendes Aufnahmedatum kommt aus dem Namen, das Dateidatum wird auf das Aufnahmedatum gesetzt. Ein vorhandenes Aufnahmedatum ändert sich nie; Daten in der Zukunft oder vor 1990 bleiben weg, außer Sie haken sie an.",
+        "- Stapel für Stapel mit „Ja, ändern“ anwenden. Rückgängig: im Protokoll der Änderungen.",
+        "## 3. Daten von Hand",
+        "- In der Datentabelle die Fotos anhaken (oder „Alle angezeigten wählen“) und wählen, wie: ein Datum für alle, ein Startdatum mit Schritt (die Reihenfolge bleibt), eine Verschiebung aller Daten (Kamera in einer anderen Zeitzone) oder ein ungefähres Datum — Jahr, Monat oder Jahreszeit.",
+        "- Vorschau, dann schreiben. Für ein Foto im Betrachter: D.",
+        "## 4. Videos und „Für das Handy vorbereiten“",
+        "- Die Datumswerkzeuge können auch Videos (MP4, MOV, M4V, 3GP): nur ihre Erstellungszeit in der Datei wird geschrieben, die Videodaten bleiben gleich.",
+        "- „Für das Handy vorbereiten“ vor dem Kopieren eines Ordners aufs Handy: der Bericht zeigt, was am falschen Tag landen würde, und korrigiert, was geht (Aufnahmedatum aus dem Namen, Dateidaten). Dateien ganz ohne Datum brauchen eines von Hand.",
+        "- Stimmt die Reihenfolge auf dem Handy trotzdem nicht: den Ordner als ZIP kopieren und auf dem Handy entpacken.",
+        "## 5. Exakte Duplikate",
+        "- „Duplikate suchen“: Gruppen von Byte für Byte gleichen Dateien (dasselbe Foto mehrmals kopiert).",
+        "- In jeder Gruppe bleibt immer eine Datei; Sie wählen, welche Kopien in den Papierkorb gehen. „Ordner schützen…“ markiert Ordner, aus denen nichts gelöscht werden darf.",
+        "- „Vorschau des Löschens“, dann die Stapel. Rückgängig im Protokoll holt die Dateien aus dem Papierkorb zurück.",
+        "## 6. Ähnliche Fotos und Vergleich",
+        "- „Ähnliche suchen“: Serienbilder, andere Größen, bearbeitete Kopien. „Wie ähnlich“ bestimmt, wie streng die Suche ist.",
+        "- ★ markiert das beste Bild (Schärfe und Belichtung) — nur ein Hinweis, nichts wird automatisch zum Löschen gewählt.",
+        "- Zwei Fotos anhaken und „Vergleichen“: beide nebeneinander, + / − zoomt beide, Pfeile verschieben beide.",
+        "## 7. Stapelverarbeitung",
+        "- Kopien aller Fotos des Ordners: lange Seite höchstens N Pixel, Datei höchstens N MB, Format JPEG oder PNG, Metadaten behalten, ohne GPS oder ohne alle, Namen nach dem Aufnahmedatum.",
+        "- „Ordner für die Ergebnisse…“ — immer ein neuer Ordner; die Originale ändern sich nie. Vorlagen „Für einen Messenger“ und „Zum Veröffentlichen“ oder eine eigene.",
+        "- Vorschau, dann die Stapel. Rückgängig legt die erstellten Kopien in den Papierkorb.",
+        "## 8. Protokoll der Änderungen und Rückgängig",
+        "- Unten im Fenster „Werkzeuge“: jeder Vorgang mit Zeit, Werkzeug und Zahl der Dateien. „Rückgängig“ setzt die alten Werte auf dieselbe sichere Weise zurück. Das Protokoll übersteht einen Neustart."
+      ]
+    }
   }
 }

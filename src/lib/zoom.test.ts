@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   canPan,
   clampPan,
+  clickZoom,
+  KEY_STEP,
   fitScale,
   imageMatrix,
   imageTransform,
@@ -158,5 +160,32 @@ describe("view-only rotation", () => {
       expect(Math.max(...corners.map((p) => p.x))).toBeCloseTo(10 + box.width * 0.5);
       expect(Math.max(...corners.map((p) => p.y))).toBeCloseTo(20 + box.height * 0.5);
     }
+  });
+});
+
+describe("Ctrl+click zoom (IV-20)", () => {
+  const fit = viewFor("fit", photo, window);
+
+  it("goes one Ctrl+plus step in towards the click and keeps the clicked point under the mouse", () => {
+    const at = { x: 700, y: 200 };
+    const half = zoomAt(fit, 0.5, { x: 500, y: 300 }, photo, window);
+    const before = imagePoint(half, at.x, at.y);
+    const next = clickZoom(half, at, false, photo, window);
+    expect(next.scale).toBeCloseTo(0.5 * KEY_STEP);
+    expect(next.mode).toBe("custom");
+    const after = imagePoint(next, at.x, at.y);
+    expect(after.x).toBeCloseTo(before.x, 0);
+    expect(after.y).toBeCloseTo(before.y, 0);
+  });
+
+  it("goes one step out with Ctrl+Alt, never past the limits", () => {
+    const zoomed = clickZoom(clickZoom(fit, { x: 500, y: 300 }, false, photo, window), { x: 500, y: 300 }, false, photo, window);
+    expect(clickZoom(zoomed, { x: 500, y: 300 }, true, photo, window).scale).toBeCloseTo(fit.scale * KEY_STEP);
+    expect(clickZoom({ ...fit, scale: MAX_SCALE }, { x: 1, y: 1 }, false, photo, window).scale).toBe(MAX_SCALE);
+    expect(clickZoom({ ...fit, scale: MIN_SCALE }, { x: 1, y: 1 }, true, photo, window).scale).toBe(MIN_SCALE);
+  });
+
+  it("is a reasonable step, not the maximum", () => {
+    expect(clickZoom(fit, { x: 0, y: 0 }, false, photo, window).scale).toBeLessThan(1);
   });
 });

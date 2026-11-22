@@ -3,7 +3,7 @@ import tokensCss from "../tokens.css?raw";
 import { contrastRatio } from "./contrast";
 
 // Every source file of the interface as text, except tests (Vite reads them, no Node API needed).
-const SOURCES = import.meta.glob(["../**/*.{css,ts,tsx}", "!../**/*.test.ts"], {
+const SOURCES = import.meta.glob(["../**/*.{css,ts,tsx}", "!../**/*.test.ts", "!../**/*.test.tsx"], {
   query: "?raw",
   import: "default",
   eager: true,
@@ -50,5 +50,32 @@ describe("colours", () => {
       .map(([path]) => path);
     expect(Object.keys(SOURCES).length).toBeGreaterThan(5);
     expect(offenders).toEqual([]);
+  });
+});
+
+describe("fonts (IV-20: the same tokens as Halbmond)", () => {
+  it("never use Courier or a generic monospace that falls back to it", () => {
+    for (const [path, text] of Object.entries(SOURCES)) expect(text, path).not.toMatch(/courier/i);
+    expect(/--font-mono:([^;]*);/.exec(tokensCss)?.[1]).not.toMatch(/(^|,)\s*monospace\s*$/);
+  });
+
+  it("are the font tokens of Halbmond (FM-21)", async () => {
+    const halbmond = {
+      ui: '"Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif',
+      mono: '"Cascadia Mono", Consolas, "Lucida Console", ui-monospace, Menlo, "DejaVu Sans Mono"',
+      weight: "500",
+      strong: "650",
+    };
+    expect(/--font-ui:\s*([^;]*);/.exec(tokensCss)?.[1]).toBe(halbmond.ui);
+    expect(/--font-mono:\s*([^;]*);/.exec(tokensCss)?.[1]).toBe(halbmond.mono);
+    expect(/--font-weight:\s*(\d+)/.exec(tokensCss)?.[1]).toBe(halbmond.weight);
+    expect(/--font-weight-strong:\s*(\d+)/.exec(tokensCss)?.[1]).toBe(halbmond.strong);
+  });
+});
+
+describe("checkboxes (IV-20)", () => {
+  it("keep their label next to the box in every row", () => {
+    const styles = Object.entries(SOURCES).find(([path]) => path.endsWith("/styles.css"))?.[1] ?? "";
+    expect(styles).toMatch(/\.field--row:has\(> input\[type="checkbox"\]:first-child\) \{\s*justify-content: flex-start;/);
   });
 });

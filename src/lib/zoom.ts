@@ -101,6 +101,17 @@ export function toggleAt(view: View, at: Point, image: Size, viewport: Size): Vi
   return viewFor("fit", image, viewport);
 }
 
+/**
+ * Ctrl+click zooms in by one Ctrl+plus step towards the clicked point, Ctrl+Alt+click out
+ * (IV-20). The point under the mouse stays where it is.
+ */
+export function clickZoom(view: View, at: Point, zoomOut: boolean, image: Size, viewport: Size): View {
+  return zoomAt(view, zoomOut ? view.scale / KEY_STEP : view.scale * KEY_STEP, at, image, viewport);
+}
+
+/** A press that moved less than this (screen pixels) is a click, not a drag. */
+export const CLICK_SLOP = 4;
+
 /** View-only rotation (R / Shift+R, IV-04): clockwise degrees. The file is not changed. */
 export type Rotation = 0 | 90 | 180 | 270;
 

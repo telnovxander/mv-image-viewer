@@ -165,6 +165,12 @@ export async function copyPath(path: string): Promise<void> {
   return invoke("copy_path", { path });
 }
 
+/** The folder with the settings, the journal and the cache (IV-20, "About"). */
+export async function dataFolder(): Promise<string | null> {
+  if (!inTauri) return "C:\\Users\\Alex\\AppData\\Local\\Spiegelmond";
+  return invoke<string | null>("data_folder");
+}
+
 export async function revealFile(path: string): Promise<void> {
   return invoke("reveal_file", { path });
 }

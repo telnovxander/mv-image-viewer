@@ -63,11 +63,18 @@
   },
   "about": {
     "title": "About",
-    "version": "Version {{version}}"
+    "version_date": "Version {{version}} of {{date}}",
+    "author": "Author: {{name}}",
+    "description": "A fast image viewer for everyday photos (Sichel) with tools for a photo archive (Vollmond).",
+    "data": "Data folder (settings, journal of changes, cache)",
+    "open_folder": "Show in Explorer",
+    "licenses": "Licences",
+    "licenses_text": "Spiegelmond is built from free open-source components. HEIC photos are decoded by libheif and libde265 (LGPL); their licences and sources are in the licenses\\heif folder next to the program."
   },
   "common": {
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close_window": "Close the window (Esc)"
   },
   "language": {
     "select": "Interface language"
@@ -127,12 +134,12 @@
     "Esc": "Esc",
     "wheel": "wheel",
     "double-click": "double-click",
-    "drag": "drag"
+    "drag": "drag",
+    "click": "click"
   },
   "help": {
     "title": "Keyboard shortcuts",
-    "coming": "coming",
-    "button": "Keyboard shortcuts ({{shortcut}})"
+    "coming": "coming"
   },
   "hotkeys": {
     "previous_next": "Previous · next image in the folder",
@@ -159,11 +166,14 @@
     "pan": "Move an enlarged image",
     "write_rotation": "Write the view rotation into the file (with a preview)",
     "background": "Background behind the image: theme · black · checkerboard",
-    "edit_date": "Set the date taken by hand (preview, undo)"
+    "edit_date": "Set the date taken by hand (preview, undo)",
+    "click_zoom": "Zoom in one step · out one step at the clicked point"
   },
   "browse": {
     "first": "This is the first image of the folder",
-    "last": "This is the last image of the folder"
+    "last": "This is the last image of the folder",
+    "previous": "Previous image (←)",
+    "next": "Next image (→)"
   },
   "info": {
     "title": "Information",
@@ -212,7 +222,9 @@
     "copy_path": "Copy the path",
     "reveal": "Show in Explorer",
     "open_with": "Open with…",
-    "delete": "Delete to the Recycle Bin"
+    "delete": "Delete to the Recycle Bin",
+    "slideshow": "Start the slideshow",
+    "slideshow_stop": "Stop the slideshow"
   },
   "delete": {
     "done": "{{name}} is in the Recycle Bin",
@@ -389,5 +401,113 @@
     "all_done": "Done. Every batch is in the journal; undo moves its copies to the Recycle Bin.",
     "convert_jpeg": "JPEG",
     "convert_png": "PNG"
+  },
+  "slideshow": {
+    "start": "Start the slideshow ({{shortcut}})",
+    "stop": "Stop the slideshow ({{shortcut}})"
+  },
+  "guide": {
+    "button": "Help",
+    "menu_about": "About",
+    "menu_viewing": "Viewing photos",
+    "menu_modes": "Sichel and Vollmond: the difference",
+    "menu_vollmond": "Vollmond step by step",
+    "menu_hotkeys": "Keyboard shortcuts",
+    "viewing": {
+      "title": "Viewing photos",
+      "lines": [
+        "## Opening",
+        "- Double-click a photo in Explorer, use \"Open with → Spiegelmond\", drag a file onto the window, or press Ctrl+O (the folder button at the top left).",
+        "- The other images of the same folder are listed in the background; the order (name, date modified, date taken) is in the settings.",
+        "## Browsing",
+        "- ← → or PgUp PgDn — previous and next, Home and End — first and last image. At the ends a short hint appears, there is no wrap-around.",
+        "- The mouse wheel browses while the photo fits the window.",
+        "- The arrows at the left and right edges of the window do the same with the mouse.",
+        "- T shows the film strip of thumbnails at the bottom; a click goes to that photo.",
+        "## Zoom and moving",
+        "- Ctrl+wheel (or a touchpad pinch) zooms to the mouse pointer, Ctrl+plus and Ctrl+minus to the centre.",
+        "- Ctrl+click zooms one step in at the clicked point, Ctrl+Alt+click one step out.",
+        "- Double-click switches between \"whole photo\" and 100 % at the clicked point. 1 — 100 %, W — as wide as the window, Ctrl+0 — whole photo.",
+        "- An enlarged photo is moved by dragging with the mouse or with the arrow keys.",
+        "## The top bar and the arrows",
+        "One rule: they appear when you move the mouse and hide two seconds after it stops. Browsing (keys, wheel, arrows) and every slideshow step hide them at once. They stay while the mouse is over them, while a menu or a window is open, and on the empty screen.",
+        "## Rotating",
+        "- R and Shift+R turn the photo right and left for viewing only; the file stays as it is.",
+        "- Ctrl+S writes the rotation into the file, after a preview \"now → after\". Only the orientation tag changes; the picture stays exactly the same, and it can be undone.",
+        "## Information about the photo",
+        "- I opens the information panel: size, resolution, date taken, camera, lens, exposure, location with a link to the map.",
+        "- D changes the date taken of the current photo (with a preview; it can be undone).",
+        "## Slideshow",
+        "- Space, the ▶ button in the top bar or \"Start the slideshow\" in the right-click menu. The interval is in the settings; it stops on the last photo, Space or Esc stops it earlier.",
+        "- F or F11 — full screen, Esc leaves it. B changes the background behind the photo (theme, black, checkerboard).",
+        "## Recycle Bin and undo",
+        "- Delete moves the photo to the Recycle Bin and shows the next one; Ctrl+Z right after brings it back.",
+        "- Spiegelmond deletes only to the Recycle Bin. Shift+Delete does not delete; where there is no Recycle Bin (USB sticks, network folders) deleting is not possible.",
+        "## Copying and other programs",
+        "- Ctrl+C copies the picture, Ctrl+Shift+C its path. The right-click menu also has \"Show in Explorer\" and \"Open with…\".",
+        "## Formats",
+        "- JPEG, PNG, GIF (animated too), WebP, AVIF, BMP, TIFF, HEIC/HEIF (iPhone photos) and camera RAW (DNG, CR2, CR3, NEF, ARW, ORF, RW2 and others — their built-in preview is shown).",
+        "- The installer asks which formats Spiegelmond opens; you can change the default program later in Windows Settings → Apps → Default apps."
+      ]
+    },
+    "modes": {
+      "title": "Sichel and Vollmond: the difference",
+      "lines": [
+        "Spiegelmond has two modes. The button with the moon at the top left (or Ctrl+M) switches between them; the choice is remembered.",
+        "## Sichel — the light viewer",
+        "- For looking at photos: opens at once, browsing, zoom, rotation, slideshow, information, Recycle Bin.",
+        "- Sichel never changes your files on its own. The only changes are the ones you ask for: Delete (to the Recycle Bin), Ctrl+S (rotation into the file), D (date taken).",
+        "## Vollmond — tools for a photo archive",
+        "- Everything Sichel can do, plus the Tools button (the wrench, amber) next to the mode switch.",
+        "- The Tools window works with a whole folder: index, dates, preparing photos for the phone, exact duplicates, similar photos, batch processing, the journal of changes.",
+        "- The tools are loaded only when the window opens, so the viewer stays as fast as in Sichel.",
+        "## What changes when you switch",
+        "- The accent colour: blue in Sichel, amber in Vollmond; the Tools button appears or disappears.",
+        "- Nothing else: the open photo, the folder, the settings and the keys stay the same.",
+        "How to use the tools — see \"Vollmond step by step\"."
+      ]
+    },
+    "vollmond": {
+      "title": "Vollmond step by step",
+      "lines": [
+        "## Safety first",
+        "- Nothing is changed without a preview \"before → after\" and a separate button; the confirmation says how many files.",
+        "- At most 500 files at once; with 100 files or more a trial batch of 10 comes first.",
+        "- Deleting goes only to the Recycle Bin. Batch processing never overwrites originals: results go to a new folder.",
+        "- Before a file is changed, its old values go to the journal of changes; every operation can be undone there.",
+        "- A changed file is written next to the original, checked (the picture stays exactly the same) and only then put in place. A folder synced to a cloud or on the network gets a warning first.",
+        "## 1. Photo archive and index — always the first step",
+        "- Ctrl+M → Vollmond, then the Tools button (wrench).",
+        "- \"Choose folder\" — the folder of your archive. \"With subfolders\" also takes everything inside it.",
+        "- \"Index\": Spiegelmond reads which photos are there, their dates and camera data, a fingerprint of each file and the thumbnails. With progress and Stop; nothing in the photos changes.",
+        "- The second time it is quick: only new and changed files are read. The other tools appear after indexing.",
+        "## 2. Dates: check and fix",
+        "- Why: phone galleries and many programs sort by the date taken inside the file; photos from WhatsApp, Telegram or old phones often lack it, and copying resets the file date.",
+        "- \"Show the dates\": a table with the date taken (EXIF), the date in the file name (IMG_20230512_143000, PXL_…, WhatsApp, Telegram, screenshots) and the file date. Filters: all, mismatches, no date taken.",
+        "- \"Preview the fixes\": a missing date taken is added from the name, the file date is set to the date taken. An existing date taken is never changed; dates in the future or before 1990 are left out unless you tick them.",
+        "- Apply batch by batch with \"Yes, change\". Undo: in the journal of changes.",
+        "## 3. Dates by hand",
+        "- In the dates table tick the photos (or \"Choose all shown\") and choose how: one date for all, a start date with a step (keeps the order), a shift of every date (a camera in another time zone) or an approximate date — a year, a month or a season.",
+        "- Preview, then write. For one photo in the viewer: D.",
+        "## 4. Videos and \"Prepare for the phone\"",
+        "- The dates tools also handle videos (MP4, MOV, M4V, 3GP): only their creation time inside the file is written, the video data stays the same.",
+        "- \"Prepare for the phone\" before copying a folder to the phone: the report says what would land on the wrong day and fixes what it can (date taken from the name, file dates). Files with no date at all need one by hand.",
+        "- If the order on the phone is still wrong: copy the folder as a ZIP and unpack it on the phone.",
+        "## 5. Exact duplicates",
+        "- \"Find duplicates\": groups of byte-for-byte identical files (the same photo copied several times).",
+        "- In each group one file always stays; you choose which copies go to the Recycle Bin. \"Protect a folder…\" marks folders nothing may be deleted from.",
+        "- \"Preview the deletion\", then the batches. Undo in the journal brings the files back from the Recycle Bin.",
+        "## 6. Similar photos and comparing",
+        "- \"Find similar\": bursts, other sizes, edited copies. \"How similar\" sets how strict the search is.",
+        "- ★ marks the best frame (sharpness and exposure) — only a hint, nothing is chosen for deletion automatically.",
+        "- Tick two photos and \"Compare\": both side by side, + / − zoom both, arrows move both.",
+        "## 7. Batch processing",
+        "- Copies of all photos of the folder: long side at most N pixels, file at most N MB, format JPEG or PNG, metadata kept or without GPS or without all, names by the date taken.",
+        "- \"Folder for the results…\" — always a new folder; the originals are never changed. Presets \"For a messenger\" and \"For publishing\", or save your own.",
+        "- Preview, then the batches. Undo moves the made copies to the Recycle Bin.",
+        "## 8. Journal of changes and undo",
+        "- At the bottom of the Tools window: every operation with its time, tool and number of files. \"Undo\" puts the old values back the same safe way. The journal survives a restart."
+      ]
+    }
   }
 }

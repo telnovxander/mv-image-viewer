@@ -86,7 +86,7 @@ describe("availableLanguages", () => {
 });
 
 // No text in components: JSX text and user-facing attributes must come from t().
-const COMPONENTS = import.meta.glob(["../**/*.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const COMPONENTS = import.meta.glob(["../**/*.tsx", "!../**/*.test.tsx"], { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 // Brand names are never translated (MV/I18N.md).
 const ALLOWED = /^(Spiegelmond|Sichel|Vollmond|Moonshine Vibecoder)$/;
 

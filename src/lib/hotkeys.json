@@ -41,6 +41,11 @@
       "done": true
     },
     {
+      "keys": "Ctrl+click · Ctrl+Alt+click",
+      "action": "click_zoom",
+      "done": true
+    },
+    {
       "keys": "drag · ← → ↑ ↓",
       "action": "pan",
       "done": true

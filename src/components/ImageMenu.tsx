@@ -2,9 +2,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { localizeKeys } from "../lib/hotkeys";
 
-export type ImageAction = "copy_image" | "copy_path" | "reveal" | "open_with" | "delete";
+export type ImageAction = "slideshow" | "copy_image" | "copy_path" | "reveal" | "open_with" | "delete";
 
 const ITEMS: readonly { action: ImageAction; keys: string }[] = [
+  { action: "slideshow", keys: "Space" },
   { action: "copy_image", keys: "Ctrl+C" },
   { action: "copy_path", keys: "Ctrl+Shift+C" },
   { action: "reveal", keys: "" },
@@ -15,13 +16,17 @@ const ITEMS: readonly { action: ImageAction; keys: string }[] = [
 interface ImageMenuProps {
   x: number;
   y: number;
+  /** IV-20: the slideshow item says "Stop slideshow" while it runs; hidden with one image. */
+  slideshow: boolean;
+  canSlideshow: boolean;
   onChoose: (action: ImageAction) => void;
   onClose: () => void;
 }
 
 /** The right-click menu of the image (IV-07): the same actions as the keys. */
-export function ImageMenu({ x, y, onChoose, onClose }: ImageMenuProps) {
+export function ImageMenu({ x, y, slideshow, canSlideshow, onChoose, onClose }: ImageMenuProps) {
   const { t } = useTranslation();
+  const items = ITEMS.filter((item) => item.action !== "slideshow" || canSlideshow);
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x, y });
   const [focused, setFocused] = useState(0);
@@ -64,15 +69,15 @@ export function ImageMenu({ x, y, onChoose, onClose }: ImageMenuProps) {
         event.stopPropagation();
         event.preventDefault();
         if (event.key === "Escape") onClose();
-        else if (event.key === "ArrowDown") setFocused((i) => (i + 1) % ITEMS.length);
-        else if (event.key === "ArrowUp") setFocused((i) => (i - 1 + ITEMS.length) % ITEMS.length);
-        else if (event.key === "Enter") choose(ITEMS[focused].action);
+        else if (event.key === "ArrowDown") setFocused((i) => (i + 1) % items.length);
+        else if (event.key === "ArrowUp") setFocused((i) => (i - 1 + items.length) % items.length);
+        else if (event.key === "Enter") choose(items[focused].action);
       }}
       onContextMenu={(event) => event.preventDefault()}
     >
-      {ITEMS.map(({ action, keys }) => (
+      {items.map(({ action, keys }) => (
         <button key={action} type="button" role="menuitem" className="image-menu__item" onClick={() => choose(action)}>
-          <span>{t(`menu.${action}`)}</span>
+          <span>{t(action === "slideshow" ? (slideshow ? "menu.slideshow_stop" : "menu.slideshow") : `menu.${action}`)}</span>
           <span className="image-menu__key">{localizeKeys(keys, (name) => t(`keys.${name}`))}</span>
         </button>
       ))}
