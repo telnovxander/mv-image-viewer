@@ -1,7 +1,7 @@
 {
   "name": "spiegelmond",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.5.0",
   "releaseDate": "2026-11-22",
   "type": "module",
   "scripts": {
