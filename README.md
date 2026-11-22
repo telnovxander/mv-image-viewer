@@ -10,10 +10,13 @@ see it at once. Only the basics, the picture comes first.
 ## Installation
 
 Download `Spiegelmond-Setup-<version>.exe` (the artifact `Spiegelmond-windows` of a CI run) and run
-it: **Install → Finish**. It installs for the current user into `%LOCALAPPDATA%\Programs\Spiegelmond`,
+it: **Next → Install → Finish**. It installs for the current user into `%LOCALAPPDATA%\Programs\Spiegelmond`,
 without administrator rights and without UAC, in the language of Windows (Russian, English or
 German; English otherwise). It adds Spiegelmond to Start and the desktop and to "Open with" of
-every format it shows. The finish page has a box (not ticked) to add `iv` to your PATH; a silent
+the file types ticked on the **File types** page (IV-20: JPEG, PNG, GIF, WebP, BMP, AVIF, TIFF,
+HEIC, RAW — all ticked at first; a silent install takes all of them, `/FORMATS=jpeg,png` only
+those groups). Unticking a type on an update removes only Spiegelmond's own entries for it; the
+uninstaller removes them all. The finish page has a box (not ticked) to add `iv` to your PATH; a silent
 install does that with `Spiegelmond-Setup-<version>.exe /S /PATH`.
 
 `Spiegelmond-<version>-portable.exe` runs without installing: put it in any folder, start it, or

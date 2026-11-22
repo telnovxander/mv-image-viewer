@@ -1,5 +1,5 @@
 # Installer test of the Windows CI job (IV-10, as FM-11): silent install with /PATH, Open with
-# registration, start, the portable build with a file, silent update, silent uninstall; on the CI
+# registration (all file types, then only the chosen ones, IV-20), start, the portable build with a file, silent update, silent uninstall; on the CI
 # machine only. Fails with a clear message at the first thing that is wrong.
 param(
   [Parameter(Mandatory = $true)][string]$Setup,
@@ -103,6 +103,16 @@ Check (Test-Path $exe) "iv.exe after the update"
 Check ((Get-Content $settings) -eq '{"test":"kept"}') "settings survive the update"
 Check (Test-Path $cache) "the thumbnail cache survives the update"
 Check (OpenWith "jpg") "Open with survives the update"
+
+# 3b. IV-20: only the chosen file types (the "File types" page; /FORMATS= on a silent install)
+$caps = "HKCU:\Software\Moonshine Vibecoder\Spiegelmond\Capabilities\FileAssociations"
+Install "silent update with only JPEG and PNG" "/FORMATS=jpeg,png"
+foreach ($ext in "jpg", "jpeg", "jfif", "png") { Check (OpenWith $ext) "Open with offers Spiegelmond for .$ext (chosen)" }
+foreach ($ext in "heic", "tif", "cr3", "nef", "webp") { Check (-not (OpenWith $ext)) "Open with no longer offers Spiegelmond for .$ext (not chosen)" }
+Check ($null -eq (Get-ItemProperty $caps -ErrorAction SilentlyContinue).".heic") "Default apps no longer lists .heic"
+Check ((Get-ItemProperty $caps).".jpg" -eq "Spiegelmond.Image") "Default apps still lists .jpg"
+Install "silent update without /FORMATS (all types again)" ""
+foreach ($ext in "jpg", "png", "heic", "tif", "cr3", "nef", "webp") { Check (OpenWith $ext) "Open with offers Spiegelmond for .$ext again" }
 
 # 4. Uninstall
 Uninstall

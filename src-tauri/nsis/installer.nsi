@@ -181,15 +181,9 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 ; Installer pages, must be ordered as they appear
 ; 1. Welcome Page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
-; Spiegelmond: the next page is the progress page, so the button says "Install" and the text says so
+; Spiegelmond: the next page is "File types" (IV-20), its button says "Install"
 !define MUI_WELCOMEPAGE_TEXT "$(ivWelcomeText)"
-!define MUI_PAGE_CUSTOMFUNCTION_SHOW WelcomeInstallButton
 !insertmacro MUI_PAGE_WELCOME
-
-Function WelcomeInstallButton
-  GetDlgItem $0 $HWNDPARENT 1
-  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)"
-FunctionEnd
 
 ; 2. License Page (if defined)
 !if "${LICENSE}" != ""
@@ -454,6 +448,82 @@ Function PageLeaveReinstallChoice
       RMDir "$4"
     ${EndIf}
   reinst_done:
+FunctionEnd
+
+; Spiegelmond (IV-20): which file types it opens; the registry part is IvAssociateAll in hooks.nsh
+Page custom IvFormatsPage IvFormatsLeave
+
+Function IvFormatsPage
+  ${IfThen} $PassiveMode = 1 ${|} Abort ${|}
+  !insertmacro MUI_HEADER_TEXT "$(ivFormatsTitle)" "$(ivFormatsSubtitle)"
+  nsDialogs::Create 1018
+  Pop $0
+  ${If} $0 == error
+    Abort
+  ${EndIf}
+  ${NSD_CreateLabel} 0 0 100% 30u "$(ivFormatsText)"
+  Pop $0
+  ${NSD_CreateCheckbox} 0% 34u 48% 12u "JPEG (.jpg, .jpeg, .jfif)"
+  Pop $IvBoxJpeg
+  ${If} $IvFmtJpeg != 0
+    ${NSD_Check} $IvBoxJpeg
+  ${EndIf}
+  ${NSD_CreateCheckbox} 0% 48u 48% 12u "PNG"
+  Pop $IvBoxPng
+  ${If} $IvFmtPng != 0
+    ${NSD_Check} $IvBoxPng
+  ${EndIf}
+  ${NSD_CreateCheckbox} 0% 62u 48% 12u "GIF"
+  Pop $IvBoxGif
+  ${If} $IvFmtGif != 0
+    ${NSD_Check} $IvBoxGif
+  ${EndIf}
+  ${NSD_CreateCheckbox} 0% 76u 48% 12u "WebP"
+  Pop $IvBoxWebp
+  ${If} $IvFmtWebp != 0
+    ${NSD_Check} $IvBoxWebp
+  ${EndIf}
+  ${NSD_CreateCheckbox} 0% 90u 48% 12u "BMP"
+  Pop $IvBoxBmp
+  ${If} $IvFmtBmp != 0
+    ${NSD_Check} $IvBoxBmp
+  ${EndIf}
+  ${NSD_CreateCheckbox} 52% 34u 48% 12u "AVIF"
+  Pop $IvBoxAvif
+  ${If} $IvFmtAvif != 0
+    ${NSD_Check} $IvBoxAvif
+  ${EndIf}
+  ${NSD_CreateCheckbox} 52% 48u 48% 12u "TIFF (.tif, .tiff)"
+  Pop $IvBoxTiff
+  ${If} $IvFmtTiff != 0
+    ${NSD_Check} $IvBoxTiff
+  ${EndIf}
+  ${NSD_CreateCheckbox} 52% 62u 48% 12u "HEIC / HEIF (iPhone)"
+  Pop $IvBoxHeic
+  ${If} $IvFmtHeic != 0
+    ${NSD_Check} $IvBoxHeic
+  ${EndIf}
+  ${NSD_CreateCheckbox} 52% 76u 48% 12u "RAW (.dng, .cr2, .cr3, .nef, .arw…)"
+  Pop $IvBoxRaw
+  ${If} $IvFmtRaw != 0
+    ${NSD_Check} $IvBoxRaw
+  ${EndIf}
+  ; The next page is the progress page: the button says "Install".
+  GetDlgItem $0 $HWNDPARENT 1
+  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^InstallBtn)"
+  nsDialogs::Show
+FunctionEnd
+
+Function IvFormatsLeave
+  ${NSD_GetState} $IvBoxJpeg $IvFmtJpeg
+  ${NSD_GetState} $IvBoxPng $IvFmtPng
+  ${NSD_GetState} $IvBoxGif $IvFmtGif
+  ${NSD_GetState} $IvBoxWebp $IvFmtWebp
+  ${NSD_GetState} $IvBoxBmp $IvFmtBmp
+  ${NSD_GetState} $IvBoxAvif $IvFmtAvif
+  ${NSD_GetState} $IvBoxTiff $IvFmtTiff
+  ${NSD_GetState} $IvBoxHeic $IvFmtHeic
+  ${NSD_GetState} $IvBoxRaw $IvFmtRaw
 FunctionEnd
 
 ; 5. Choose install directory page
