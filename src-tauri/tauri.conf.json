@@ -76,7 +76,8 @@
           "German": "nsis/languages/German.nsh"
         },
         "startMenuFolder": "Spiegelmond",
-        "installerIcon": "icons/icon.ico"
+        "installerIcon": "icons/icon.ico",
+        "sidebarImage": "../assets/brand/installer/spiegelmond-installer-sidebar.bmp"
       }
     }
   }

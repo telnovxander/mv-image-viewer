@@ -292,6 +292,8 @@ npm run tauri dev      # run in development mode (npm run tauri dev -- -- path\t
 npm run tauri build    # Windows: target/release/bundle/nsis/*-setup.exe and target/release/iv.exe
 ```
 
+The installer picture (Lumi on the Welcome and Finish pages, MV-15) is `assets/brand/installer/spiegelmond-installer-sidebar.bmp`, an unchanged copy of MV `projects/MV/brand/installer/` (made there from the splash screen by `make-installer-images.py`).
+
 Icons: `scripts/make-icons.sh` rebuilds `src-tauri/icons` from `assets/brand/icon.svg` (32 px and
 up) and `assets/brand/icon-small.svg` (16 and 24 px, without craters and glow). The look of the
 interface: screenshots in `docs/screenshots/iv-11/` (two themes × two modes, dialogs, splash).
