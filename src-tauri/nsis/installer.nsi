@@ -88,6 +88,9 @@ Var UpdateMode
 Var NoShortcutMode
 Var WixMode
 Var OldMainBinaryName
+; MV-14: the installed version for the note on the Welcome page (MvWelcomePre)
+Var MvInstalledVersion
+Var MvWelcomeNote
 
 Name "${PRODUCTNAME}"
 BrandingText "${COPYRIGHT}"
@@ -180,9 +183,9 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 
 ; Installer pages, must be ordered as they appear
 ; 1. Welcome Page
-!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
+!define MUI_PAGE_CUSTOMFUNCTION_PRE MvWelcomePre ; MV-14: says what is installed already
 ; Spiegelmond: the next page is "File types" (IV-20), its button says "Install"
-!define MUI_WELCOMEPAGE_TEXT "$(ivWelcomeText)"
+!define MUI_WELCOMEPAGE_TEXT "$(ivWelcomeText)$MvWelcomeNote"
 !insertmacro MUI_PAGE_WELCOME
 
 ; 2. License Page (if defined)
@@ -243,6 +246,12 @@ Function PageReinstall
   ReadRegStr $R0 SHCTX "${UNINSTKEY}" ""
   ReadRegStr $R1 SHCTX "${UNINSTKEY}" "UninstallString"
   ${IfThen} "$R0$R1" == "" ${|} Abort ${|}
+  ; MV-14: the folder was deleted by hand, only the entry is left: nothing to uninstall or ask,
+  ; the install goes on as a fresh one and writes the entries anew.
+  ReadRegStr $4 SHCTX "${MANUPRODUCTKEY}" ""
+  ${IfNot} ${FileExists} "$4\uninstall.exe"
+    Abort
+  ${EndIf}
 
   ; Compare this installar version with the existing installation
   ; and modify the messages presented to the user accordingly
@@ -725,9 +734,18 @@ Function .onInit
       ReadRegStr $R0 HKLM "$R6" "DisplayVersion"
     ${Else}
       ReadRegStr $R0 SHCTX "${UNINSTKEY}" "DisplayVersion"
+      ; MV-14: an entry without its folder is not an installation (nothing to downgrade)
+      ReadRegStr $4 SHCTX "${MANUPRODUCTKEY}" ""
+      ${IfNot} ${FileExists} "$4\uninstall.exe"
+        StrCpy $R0 ""
+      ${EndIf}
     ${EndIf}
-    nsis_tauri_utils::SemverCompare "${VERSION}" $R0
-    Pop $R0
+    ${If} $R0 == ""
+      StrCpy $R0 1 ; nothing installed: not a downgrade
+    ${Else}
+      nsis_tauri_utils::SemverCompare "${VERSION}" $R0
+      Pop $R0
+    ${EndIf}
     ; If downgrading
     ${If} $R0 = -1
       ${If} ${Silent}
@@ -740,6 +758,7 @@ Function .onInit
       ${Else}
         MessageBox MB_ICONSTOP "$(silentDowngrades)"
       ${EndIf}
+      SetErrorLevel 2 ; MV-14: a refused downgrade is never "success" for a script
       Abort
     ${EndIf}
   ${EndIf}
@@ -1119,6 +1138,26 @@ FunctionEnd
 
 Function SkipIfPassive
   ${IfThen} $PassiveMode = 1  ${|} Abort ${|}
+FunctionEnd
+
+; MV-14 (the same in Halbmond and Spiegelmond): an installed copy is named on the Welcome page,
+; with both versions; the install itself asks nothing more (FM-11: an update is Next, Install).
+; A downgrade keeps its choice page. An entry whose folder is gone counts as not installed.
+Function MvWelcomePre
+  ${IfThen} $PassiveMode = 1 ${|} Abort ${|}
+  StrCpy $MvWelcomeNote ""
+  ReadRegStr $MvInstalledVersion SHCTX "${UNINSTKEY}" "DisplayVersion"
+  ReadRegStr $0 SHCTX "${MANUPRODUCTKEY}" ""
+  ${If} $MvInstalledVersion != ""
+  ${AndIf} ${FileExists} "$0\${MAINBINARYNAME}.exe"
+    nsis_tauri_utils::SemverCompare "${VERSION}" $MvInstalledVersion
+    Pop $1
+    ${If} $1 = 0
+      StrCpy $MvWelcomeNote "$\r$\n$\r$\n$(mvInstalledSame)"
+    ${ElseIf} $1 = 1
+      StrCpy $MvWelcomeNote "$\r$\n$\r$\n$(mvInstalledOlder)"
+    ${EndIf}
+  ${EndIf}
 FunctionEnd
 Function un.SkipIfPassive
   ${IfThen} $PassiveMode = 1  ${|} Abort ${|}

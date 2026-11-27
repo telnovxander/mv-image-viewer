@@ -143,6 +143,36 @@ foreach ($ext in "heic", "tif", "cr3", "nef", "webp") { Check (-not (OwnDefault 
 Install "silent update without /FORMATS (all types again)" ""
 foreach ($ext in "jpg", "png", "heic", "tif", "cr3", "nef", "webp") { Check (OpenWith $ext) "Open with offers Spiegelmond for .$ext again" }
 
+# MV-14 (the same in Halbmond and Spiegelmond): an installed copy in every state; the installer
+# never crashes and a silent one tells the result by its exit code.
+function RunSetup() {
+  $process = Start-Process -FilePath $Setup -ArgumentList "/S" -Wait -PassThru
+  return $process.ExitCode
+}
+# Case 1: the same version once more
+Check ((RunSetup) -eq 0) "the same version installs again (exit 0)"
+Check ((Get-ItemProperty $uninstallKey).DisplayVersion -eq $version) "the entry still says $version"
+# Case 4: the program runs during the update: a silent install closes it and goes on
+$running = Start-Process -FilePath $exe -PassThru
+Start-Sleep -Seconds 6
+Check (-not $running.HasExited) "the program runs before the update"
+Check ((RunSetup) -eq 0) "an update while the program runs exits with 0"
+Check ($running.HasExited) "the running program was closed by the installer"
+Check (Test-Path $exe) "the program is there after the update"
+# Case 3: a newer version is installed (the entry says so): a silent install refuses, nothing changes
+$hash = (Get-FileHash $exe).Hash
+Set-ItemProperty $uninstallKey -Name DisplayVersion -Value "99.0.0"
+$code = RunSetup
+Check ($code -ne 0) "a silent downgrade is refused with a non-zero exit code (got $code)"
+Check ((Get-FileHash $exe).Hash -eq $hash) "the installed program is untouched by the refused downgrade"
+Check ((Get-ItemProperty $uninstallKey).DisplayVersion -eq "99.0.0") "its entry is untouched too"
+Set-ItemProperty $uninstallKey -Name DisplayVersion -Value $version
+# Case 5: the folder was deleted by hand, the entry is left
+Remove-Item -Recurse -Force $dir
+Check ((RunSetup) -eq 0) "an entry without its folder: a fresh install, exit 0"
+Check (Test-Path $exe) "the program is installed again"
+Check ((Get-ItemProperty $uninstallKey).DisplayVersion -eq $version) "the entry is written anew"
+
 # 4. Uninstall
 Uninstall
 Check (-not (Test-Path $dir)) "the program folder is gone"
