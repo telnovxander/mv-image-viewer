@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { BACKGROUNDS, SORT_ORDERS, type Background, type SortOrder, type ThemePreference } from "../lib/settings";
+import { onWindows, openDefaultApps } from "../lib/backend";
 import { Dialog } from "./Dialog";
 import { LanguageSelect } from "./LanguageSelect";
 
@@ -66,6 +67,17 @@ export function SettingsDialog({ theme, background, sort, onSortChange, slideSec
         <span>{t("settings.language")}</span>
         <LanguageSelect onChange={onLanguage} />
       </label>
+      {onWindows && (
+        <>
+          <h3 className="dialog__section">{t("settings.default_program")}</h3>
+          <p className="dialog__text">{t("settings.default_program_text")}</p>
+          <div className="field">
+            <button type="button" className="button" onClick={() => void openDefaultApps().catch(() => undefined)}>
+              {t("settings.default_program_open")}
+            </button>
+          </div>
+        </>
+      )}
       <div className="dialog__actions">
         <button type="button" className="button button--primary" onClick={onClose}>
           {t("common.close")}

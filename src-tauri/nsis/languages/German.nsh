@@ -36,3 +36,4 @@ LangString ivPathTooLong ${LANG_GERMAN} "Der PATH ist zu lang, um ihn sicher zu 
 LangString ivFormatsTitle ${LANG_GERMAN} "Dateitypen"
 LangString ivFormatsSubtitle ${LANG_GERMAN} "Welche Dateien soll Spiegelmond öffnen?"
 LangString ivFormatsText ${LANG_GERMAN} "Für die angehakten Typen erscheint Spiegelmond unter „Öffnen mit“ und lässt sich in den Windows-Einstellungen → Apps → Standard-Apps als Standardprogramm wählen. Entfernen Sie den Haken bei dem, was ein anderes Programm öffnen soll."
+LangString ivMakeDefault ${LANG_GERMAN} "Spiegelmond als Standard für Fotos festlegen (in den Windows-Einstellungen)"

@@ -59,7 +59,10 @@
     "sort_name": "Name",
     "sort_modified": "Date modified",
     "sort_taken": "Date taken",
-    "slide_seconds": "Slideshow interval, seconds"
+    "slide_seconds": "Slideshow interval, seconds",
+    "default_program": "Default program",
+    "default_program_text": "Windows lets only you choose the program that opens photos by double click. The button opens Windows Settings at Spiegelmond: choose \"Set default\" or pick it for each type.",
+    "default_program_open": "Make Spiegelmond the default…"
   },
   "about": {
     "title": "About",
@@ -447,7 +450,7 @@
         "- Ctrl+C copies the picture, Ctrl+Shift+C its path. The right-click menu also has \"Show in Explorer\" and \"Open with…\".",
         "## Formats",
         "- JPEG, PNG, GIF (animated too), WebP, AVIF, BMP, TIFF, HEIC/HEIF (iPhone photos) and camera RAW (DNG, CR2, CR3, NEF, ARW, ORF, RW2 and others — their built-in preview is shown).",
-        "- The installer asks which formats Spiegelmond opens; you can change the default program later in Windows Settings → Apps → Default apps."
+        "- The installer asks which formats Spiegelmond opens; to make Spiegelmond the default program, tick the box on the installer's last page or press \"Make Spiegelmond the default…\" in the settings: Windows Settings open at Spiegelmond, choose \"Set default\" there. Windows does not let a program do this by itself."
       ]
     },
     "modes": {

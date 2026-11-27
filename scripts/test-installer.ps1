@@ -1,5 +1,6 @@
-# Installer test of the Windows CI job (IV-10, as FM-11): silent install with /PATH, Open with
-# registration (all file types, then only the chosen ones, IV-20), start, the portable build with a file, silent update, silent uninstall; on the CI
+# Installer test of the Windows CI job (IV-10, as FM-11): silent install with /PATH, Open with and
+# Default apps registration (all file types, then only the chosen ones, IV-20; the default for types
+# no program owns, IV-21), start, the portable build with a file, silent update, silent uninstall; on the CI
 # machine only. Fails with a clear message at the first thing that is wrong.
 param(
   [Parameter(Mandatory = $true)][string]$Setup,
@@ -42,6 +43,18 @@ function OpenWith([string]$ext) {
   return (Test-Path $key) -and ((Get-Item $key).GetValueNames() -contains "Spiegelmond.Image")
 }
 
+# IV-21: the default Spiegelmond gives itself only to a type no program owns (HKLM has none).
+function OwnDefault([string]$ext) {
+  $value = (Get-ItemProperty "HKCU:\Software\Classes\.$ext" -ErrorAction SilentlyContinue)."(default)"
+  return $value -eq "Spiegelmond.Image"
+}
+
+function MachineDefault([string]$ext) {
+  return (Get-ItemProperty "HKLM:\Software\Classes\.$ext" -ErrorAction SilentlyContinue)."(default)"
+}
+
+$allTypes = "jpg", "jpeg", "jfif", "png", "gif", "webp", "bmp", "avif", "tif", "tiff", "heic", "heif", "hif", "dng", "cr2", "nef", "nrw", "arw", "srw", "orf", "rw2", "pef", "erf", "3fr", "cr3"
+
 function Uninstall() {
   # The NSIS uninstaller copies itself to TEMP and returns at once: wait for it.
   Start-Process -FilePath $uninstaller -ArgumentList "/S" -Wait
@@ -71,6 +84,21 @@ foreach ($ext in "jpg", "png", "heic", "tif", "cr3", "nef") { Check (OpenWith $e
 Check ((Get-ItemProperty "$progId\shell\open\command")."(default)" -like "*iv.exe*%1*") "Spiegelmond.Image opens with iv.exe"
 Check (Test-Path "$application\SupportedTypes") "Applications\iv.exe lists its types"
 Check ((Get-ItemProperty $registered).Spiegelmond -like "*Spiegelmond\Capabilities") "Default apps knows Spiegelmond"
+# IV-21: everything Settings -> Default apps needs to list Spiegelmond with all its types
+$capsRoot = "HKCU:\Software\Moonshine Vibecoder\Spiegelmond\Capabilities"
+Check ((Get-ItemProperty $capsRoot).ApplicationName -eq "Spiegelmond") "Capabilities name Spiegelmond"
+Check ((Get-ItemProperty $capsRoot).ApplicationDescription -ne $null) "Capabilities describe Spiegelmond"
+Check ((Get-ItemProperty "$progId\DefaultIcon")."(default)" -like "*iv.exe*") "Spiegelmond.Image has the program icon"
+foreach ($ext in $allTypes) {
+  Check (OpenWith $ext) "Open with offers Spiegelmond for .$ext"
+  Check ((Get-ItemProperty "$capsRoot\FileAssociations").".$ext" -eq "Spiegelmond.Image") "Default apps lists .$ext"
+  Check ((Get-Item "$application\SupportedTypes").GetValueNames() -contains ".$ext") "Applications\iv.exe supports .$ext"
+  if ([string]::IsNullOrEmpty((MachineDefault $ext))) {
+    Check (OwnDefault $ext) ".$ext was owned by no program: Spiegelmond opens it at once"
+  } else {
+    Check (-not (OwnDefault $ext)) ".$ext keeps its program ($(MachineDefault $ext)): only the user changes it"
+  }
+}
 Check ((UserPath) -split ";" -contains $dir) "the program folder is in the user PATH"
 
 # 2. The installed program starts and keeps running; so does the portable build with a file
@@ -111,6 +139,7 @@ foreach ($ext in "jpg", "jpeg", "jfif", "png") { Check (OpenWith $ext) "Open wit
 foreach ($ext in "heic", "tif", "cr3", "nef", "webp") { Check (-not (OpenWith $ext)) "Open with no longer offers Spiegelmond for .$ext (not chosen)" }
 Check ($null -eq (Get-ItemProperty $caps -ErrorAction SilentlyContinue).".heic") "Default apps no longer lists .heic"
 Check ((Get-ItemProperty $caps).".jpg" -eq "Spiegelmond.Image") "Default apps still lists .jpg"
+foreach ($ext in "heic", "tif", "cr3", "nef", "webp") { Check (-not (OwnDefault $ext)) "Spiegelmond gave back its own default of .$ext (not chosen)" }
 Install "silent update without /FORMATS (all types again)" ""
 foreach ($ext in "jpg", "png", "heic", "tif", "cr3", "nef", "webp") { Check (OpenWith $ext) "Open with offers Spiegelmond for .$ext again" }
 
@@ -121,6 +150,7 @@ Check (-not (Test-Path $uninstallKey)) "the Apps & features entry is gone"
 Check (-not (Test-Path $startFolder)) "the Start folder is gone"
 Check (-not (Test-Path $desktopShortcut)) "the desktop shortcut is gone"
 foreach ($ext in "jpg", "png", "heic", "tif", "cr3", "nef") { Check (-not (OpenWith $ext)) "Open with no longer offers Spiegelmond for .$ext" }
+foreach ($ext in $allTypes) { Check (-not (OwnDefault $ext)) "no default of .$ext points to Spiegelmond any more" }
 Check (-not (Test-Path $progId)) "Spiegelmond.Image is gone"
 Check (-not (Test-Path $application)) "Applications\iv.exe is gone"
 Check ($null -eq (Get-ItemProperty $registered -ErrorAction SilentlyContinue).Spiegelmond) "Default apps no longer lists Spiegelmond"

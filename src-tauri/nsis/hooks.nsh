@@ -5,6 +5,8 @@
 ;   entry in Settings -> Apps -> Default apps. The list is the one of iv-core formats.rs, a test
 ;   keeps them equal. Windows never lets a program make itself the default silently; Alex
 ;   chooses there. A group left unticked on an update loses only Spiegelmond's own entries;
+; - IV-21: a type no program owns yet gets Spiegelmond as its default at once; for the others the
+;   finish page opens Settings -> Default apps at Spiegelmond's page (box ticked, never on /S);
 ; - `iv` in the user PATH when the finish page box is ticked, or with /PATH on a silent install;
 ; - the uninstaller removes all of that, the PATH entry and the thumbnail / Vollmond cache
 ;   (%LOCALAPPDATA%\Spiegelmond\cache), never the settings (unless ticked) or the journal.
@@ -12,16 +14,30 @@
 !define IV_PROGID "Spiegelmond.Image"
 !define IV_CAPS "Software\Moonshine Vibecoder\Spiegelmond\Capabilities"
 !define IV_COMMAND "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%1$\""
+!define IV_DEFAULT_APPS "ms-settings:defaultapps?registeredAppUser=Spiegelmond"
 !define IV_ICON "$\"$INSTDIR\${MAINBINARYNAME}.exe$\",0"
 
 !macro IvAssociateExt EXT
   WriteRegStr HKCU "Software\Classes\.${EXT}\OpenWithProgids" "${IV_PROGID}" ""
+  ; IV-21: a type no program owns yet (often .heic, .cr3, .nef on a fresh Windows) opens in
+  ; Spiegelmond by double click right away. A type that already has a program keeps it: since
+  ; Windows 8 only the user picks the default (UserChoice), in Settings -> Default apps.
+  ReadRegStr $R2 HKCR ".${EXT}" ""
+  ${If} $R2 == ""
+  ${OrIf} $R2 == "${IV_PROGID}"
+    WriteRegStr HKCU "Software\Classes\.${EXT}" "" "${IV_PROGID}"
+  ${EndIf}
   WriteRegStr HKCU "Software\Classes\Applications\${MAINBINARYNAME}.exe\SupportedTypes" ".${EXT}" ""
   WriteRegStr HKCU "${IV_CAPS}\FileAssociations" ".${EXT}" "${IV_PROGID}"
 !macroend
 
 !macro IvUnassociateExt EXT
   DeleteRegValue HKCU "Software\Classes\.${EXT}\OpenWithProgids" "${IV_PROGID}"
+  ; Only the default Spiegelmond set itself (IvAssociateExt); another program's stays.
+  ReadRegStr $R2 HKCU "Software\Classes\.${EXT}" ""
+  ${If} $R2 == "${IV_PROGID}"
+    DeleteRegValue HKCU "Software\Classes\.${EXT}" ""
+  ${EndIf}
   DeleteRegValue HKCU "Software\Classes\Applications\${MAINBINARYNAME}.exe\SupportedTypes" ".${EXT}"
   DeleteRegValue HKCU "${IV_CAPS}\FileAssociations" ".${EXT}"
   DeleteRegKey /ifempty HKCU "Software\Classes\.${EXT}\OpenWithProgids"

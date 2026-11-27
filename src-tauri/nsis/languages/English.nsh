@@ -36,3 +36,4 @@ LangString ivPathTooLong ${LANG_ENGLISH} "The PATH is too long to change safely;
 LangString ivFormatsTitle ${LANG_ENGLISH} "File types"
 LangString ivFormatsSubtitle ${LANG_ENGLISH} "Which files should Spiegelmond open?"
 LangString ivFormatsText ${LANG_ENGLISH} "Spiegelmond will appear in $\"Open with$\" for the ticked types, and you can make it the default program in Windows Settings → Apps → Default apps. Untick what another program should keep."
+LangString ivMakeDefault ${LANG_ENGLISH} "Make Spiegelmond the default for photos (in Windows Settings)"

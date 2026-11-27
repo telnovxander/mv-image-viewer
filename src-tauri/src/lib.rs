@@ -206,6 +206,26 @@ fn open_map(app: tauri::AppHandle, latitude: f64, longitude: f64) -> Result<(), 
         .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(&url)))
 }
 
+/// Windows Settings -> Default apps at Spiegelmond's page (IV-21). Windows never lets a program make
+/// itself the default silently, so Alex picks it there; the installer's finish page opens the same
+/// page (`IV_DEFAULT_APPS` in nsis/hooks.nsh, a test keeps them equal). Spiegelmond registers for the
+/// current user, hence `registeredAppUser`; Windows 10 ignores the part after `?` and shows the
+/// Default apps page itself.
+const DEFAULT_APPS_URI: &str = "ms-settings:defaultapps?registeredAppUser=Spiegelmond";
+
+#[tauri::command]
+fn open_default_apps(app: tauri::AppHandle) -> Result<(), IvError> {
+    if !cfg!(windows) {
+        return Err(IvError::new(
+            ErrorCode::Other,
+            std::path::Path::new(DEFAULT_APPS_URI),
+        ));
+    }
+    app.opener()
+        .open_url(DEFAULT_APPS_URI, None::<&str>)
+        .map_err(|_| IvError::new(ErrorCode::Other, std::path::Path::new(DEFAULT_APPS_URI)))
+}
+
 /// The journal of metadata changes lives with the settings, outside any photo folder.
 fn journal_dir() -> Result<PathBuf, IvError> {
     settings::data_dir()
@@ -768,6 +788,7 @@ pub fn run() {
             exif_of,
             heif_available,
             open_map,
+            open_default_apps,
             plan_rotation,
             apply_rotation,
             undo_rotation,

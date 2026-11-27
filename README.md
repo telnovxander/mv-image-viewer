@@ -23,9 +23,17 @@ install does that with `Spiegelmond-Setup-<version>.exe /S /PATH`.
 drop a photo on it, or `Spiegelmond-<version>-portable.exe photo.jpg`.
 
 **Spiegelmond as the default program for photos.** Windows does not let a program make itself the
-default silently. After installing: Settings → Apps → Default apps → Spiegelmond → for each format
-(`.jpg`, `.png`, `.heic`…) choose Spiegelmond. Or right-click a photo → Open with → Choose another
-app → Spiegelmond → "Always".
+default silently (since Windows 8 the choice is the user's and protected). So (IV-21):
+
+- a ticked type that no program owns yet (often `.heic`, `.cr3`, `.nef` on a fresh Windows) opens
+  in Spiegelmond by double click right away;
+- the finish page has a box, ticked, **Make Spiegelmond the default for photos**: Finish opens
+  Settings → Apps → Default apps at Spiegelmond (`ms-settings:defaultapps?registeredAppUser=Spiegelmond`;
+  Windows 10 opens the Default apps page), choose **Set default** there, or a program for each type;
+- the same page later: Settings of Spiegelmond → **Make Spiegelmond the default…**;
+- or right-click a photo → Open with → Choose another app → Spiegelmond → "Always".
+
+A silent install never opens Settings.
 
 **From the command line.** With the PATH box ticked, a new terminal opens images with
 `iv photo.jpg` or `iv "D:\Fotos\2026\IMG_0001.HEIC"` (a running Spiegelmond shows it in its window).

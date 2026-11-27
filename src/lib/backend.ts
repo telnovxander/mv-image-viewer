@@ -175,6 +175,14 @@ export async function revealFile(path: string): Promise<void> {
   return invoke("reveal_file", { path });
 }
 
+/** Windows only: the default program is chosen in Settings → Default apps (IV-21). */
+export const onWindows = typeof navigator !== "undefined" && navigator.userAgent.includes("Windows");
+
+/** Windows Settings → Default apps at Spiegelmond's page (IV-21). */
+export async function openDefaultApps(): Promise<void> {
+  if (inTauri) await invoke("open_default_apps");
+}
+
 /** Windows' "Open with" dialog. */
 export async function openWith(path: string): Promise<void> {
   return invoke("open_with", { path });

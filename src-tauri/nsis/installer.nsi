@@ -540,7 +540,8 @@ Var AppStartMenuFolder
 ; 8. Finish page
 ;
 ; Spiegelmond: the progress page moves on by itself (one click less) and the desktop shortcut is
-; always created, so the finish page has only "Run Spiegelmond", checked.
+; always created, so the finish page has "Run Spiegelmond", checked, the PATH box (IV-10) and the
+; Default apps box (IV-21).
 ; Show run app after installation.
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_FUNCTION RunMainBinary
@@ -550,7 +551,44 @@ Var AppStartMenuFolder
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION IvAddToPath
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
+; Spiegelmond (IV-21): a third box, ticked: open Settings -> Default apps at Spiegelmond's page
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW IvFinishShow
+!define MUI_PAGE_CUSTOMFUNCTION_LEAVE IvFinishLeave
 !insertmacro MUI_PAGE_FINISH
+
+; Windows never lets a program make itself the default silently (UserChoice is protected), so the
+; installer opens the page where Alex picks Spiegelmond with one click. Only when some type was
+; ticked on the "File types" page; the finish page is never shown on /S or /P.
+Var IvBoxDefault
+Function IvFinishShow
+  StrCpy $IvBoxDefault ""
+  ${If} $IvFmtJpeg$IvFmtPng$IvFmtGif$IvFmtWebp$IvFmtBmp$IvFmtAvif$IvFmtTiff$IvFmtHeic$IvFmtRaw == "000000000"
+    Return
+  ${EndIf}
+  ; Right under the PATH box, whatever size MUI gave it: its place in pixels on the page.
+  System::Call "*(i 0, i 0, i 0, i 0) p .r1"
+  System::Call "user32::GetWindowRect(p $mui.FinishPage.ShowReadme, p r1)"
+  System::Call "user32::MapWindowPoints(p 0, p $mui.FinishPage, p r1, i 2)"
+  System::Call "*$1(i .r2, i .r3, i .r4, i .r5)"
+  System::Free $1
+  IntOp $6 $5 - $3 ; height of one box
+  IntOp $7 $5 + $6 ; one box height of space, as between the other two
+  IntOp $8 $4 - $2
+  IntOp $9 $6 * 2  ; room for two lines
+  ${NSD_CreateCheckbox} $2 $7 $8 $9 "$(ivMakeDefault)"
+  Pop $IvBoxDefault
+  SetCtlColors $IvBoxDefault "${MUI_TEXTCOLOR}" "${MUI_BGCOLOR}"
+  ${NSD_Check} $IvBoxDefault
+FunctionEnd
+
+Function IvFinishLeave
+  ${If} $IvBoxDefault != ""
+    ${NSD_GetState} $IvBoxDefault $0
+    ${If} $0 = ${BST_CHECKED}
+      ExecShell "open" "${IV_DEFAULT_APPS}"
+    ${EndIf}
+  ${EndIf}
+FunctionEnd
 
 Function RunMainBinary
   nsis_tauri_utils::RunAsUser "$INSTDIR\${MAINBINARYNAME}.exe" ""

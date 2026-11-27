@@ -57,7 +57,31 @@ describe("the installer (IV-10)", () => {
   it("has the texts of the page in every installer language", async () => {
     for (const lang of ["English", "Russian", "German"]) {
       const file = (await import(`../../src-tauri/nsis/languages/${lang}.nsh?raw`)).default as string;
-      for (const key of ["ivFormatsTitle", "ivFormatsSubtitle", "ivFormatsText"]) expect(file, `${lang} ${key}`).toMatch(new RegExp(`LangString ${key} `));
+      for (const key of ["ivFormatsTitle", "ivFormatsSubtitle", "ivFormatsText", "ivMakeDefault"]) expect(file, `${lang} ${key}`).toMatch(new RegExp(`LangString ${key} `));
     }
+  });
+
+  it("offers the Default apps page (IV-21): a box on the finish page and a button in the settings, the same page", async () => {
+    const hooks = (await import("../../src-tauri/nsis/hooks.nsh?raw")).default;
+    const template = (await import("../../src-tauri/nsis/installer.nsi?raw")).default;
+    const app = (await import("../../src-tauri/src/lib.rs?raw")).default;
+    const uri = hooks.match(/!define IV_DEFAULT_APPS "([^"]+)"/)?.[1] ?? "";
+    // Spiegelmond registers for the current user (HKCU), so Settings looks it up as registeredAppUser.
+    expect(uri).toBe("ms-settings:defaultapps?registeredAppUser=Spiegelmond");
+    expect(app).toContain(`"${uri}"`);
+    expect(template).toMatch(/MUI_PAGE_CUSTOMFUNCTION_SHOW IvFinishShow\s+!define MUI_PAGE_CUSTOMFUNCTION_LEAVE IvFinishLeave\s+!insertmacro MUI_PAGE_FINISH/);
+    expect(template).toMatch(/ExecShell "open" "\$\{IV_DEFAULT_APPS\}"/);
+    // No box when no type was ticked: every group takes part in the check.
+    const check = template.match(/\$\{If\} ((?:\$IvFmt\w+?)+) == "(0+)"/);
+    expect(check?.[1].split("$").filter(Boolean)).toEqual(["IvFmtJpeg", "IvFmtPng", "IvFmtGif", "IvFmtWebp", "IvFmtBmp", "IvFmtAvif", "IvFmtTiff", "IvFmtHeic", "IvFmtRaw"]);
+    expect(check?.[2]).toHaveLength(9);
+  });
+
+  it("takes an unowned type at once and gives back only its own default (IV-21)", async () => {
+    const hooks = (await import("../../src-tauri/nsis/hooks.nsh?raw")).default;
+    const add = hooks.match(/!macro IvAssociateExt EXT([\s\S]*?)!macroend/)?.[1] ?? "";
+    expect(add).toMatch(/ReadRegStr \$R2 HKCR "\.\$\{EXT\}" ""\s+\$\{If\} \$R2 == ""\s+\$\{OrIf\} \$R2 == "\$\{IV_PROGID\}"\s+WriteRegStr HKCU "Software\\Classes\\\.\$\{EXT\}" "" "\$\{IV_PROGID\}"/);
+    const remove = hooks.match(/!macro IvUnassociateExt EXT([\s\S]*?)!macroend/)?.[1] ?? "";
+    expect(remove).toMatch(/ReadRegStr \$R2 HKCU "Software\\Classes\\\.\$\{EXT\}" ""\s+\$\{If\} \$R2 == "\$\{IV_PROGID\}"\s+DeleteRegValue HKCU "Software\\Classes\\\.\$\{EXT\}" ""/);
   });
 });

@@ -59,7 +59,10 @@
     "sort_name": "Name",
     "sort_modified": "Änderungsdatum",
     "sort_taken": "Aufnahmedatum",
-    "slide_seconds": "Diashow-Intervall in Sekunden"
+    "slide_seconds": "Diashow-Intervall in Sekunden",
+    "default_program": "Standardprogramm",
+    "default_program_text": "Welches Programm Fotos per Doppelklick öffnet, lässt Windows nur Sie selbst wählen. Die Schaltfläche öffnet die Windows-Einstellungen bei Spiegelmond: dort „Als Standard festlegen“ wählen oder es für jeden Typ auswählen.",
+    "default_program_open": "Spiegelmond als Standard festlegen…"
   },
   "about": {
     "title": "Über",
@@ -447,7 +450,7 @@
         "- Strg+C kopiert das Bild, Strg+Umschalt+C seinen Pfad. Im Menü der rechten Maustaste gibt es auch „Im Explorer anzeigen“ und „Öffnen mit…“.",
         "## Formate",
         "- JPEG, PNG, GIF (auch animiert), WebP, AVIF, BMP, TIFF, HEIC/HEIF (iPhone-Fotos) und Kamera-RAW (DNG, CR2, CR3, NEF, ARW, ORF, RW2 und andere — die eingebettete Vorschau wird gezeigt).",
-        "- Welche Formate Spiegelmond öffnet, fragt das Installationsprogramm; das Standardprogramm lässt sich später in den Windows-Einstellungen → Apps → Standard-Apps ändern."
+        "- Welche Formate Spiegelmond öffnet, fragt das Installationsprogramm; damit Spiegelmond das Standardprogramm wird, lassen Sie das Häkchen auf der letzten Seite des Installationsprogramms gesetzt oder klicken Sie in den Einstellungen auf „Spiegelmond als Standard festlegen…“: Die Windows-Einstellungen öffnen sich bei Spiegelmond, dort „Als Standard festlegen“ wählen. Ein Programm darf das unter Windows nicht selbst tun."
       ]
     },
     "modes": {

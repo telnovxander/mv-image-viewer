@@ -36,3 +36,4 @@ LangString ivPathTooLong ${LANG_RUSSIAN} "PATH слишком длинный, ч
 LangString ivFormatsTitle ${LANG_RUSSIAN} "Типы файлов"
 LangString ivFormatsSubtitle ${LANG_RUSSIAN} "Какие файлы открывать в Spiegelmond?"
 LangString ivFormatsText ${LANG_RUSSIAN} "Для отмеченных типов Spiegelmond появится в «Открыть с помощью», и его можно сделать программой по умолчанию в Параметрах Windows → Приложения → Приложения по умолчанию. Снимите галочку с того, что должна открывать другая программа."
+LangString ivMakeDefault ${LANG_RUSSIAN} "Сделать Spiegelmond программой по умолчанию для фото (в Параметрах Windows)"
