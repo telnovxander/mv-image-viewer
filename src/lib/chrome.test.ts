@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chromeVisible, movedFrom } from "./chrome";
+import { chromeVisible, edgeAt, EDGE_ZONE, escapeStep, movedFrom } from "./chrome";
 
 const idle = { recentlyMoved: false, overBar: false, dialogOpen: false, menuOpen: false, empty: false };
 
@@ -28,5 +28,29 @@ describe("movedFrom (IV-20)", () => {
     expect(movedFrom(null, 10, 10)).toBe(true);
     expect(movedFrom({ x: 10, y: 10 }, 10, 10)).toBe(false);
     expect(movedFrom({ x: 10, y: 10 }, 11, 10)).toBe(true);
+  });
+});
+
+describe("the side arrows (IV-23)", () => {
+  it("come up only near the left or right edge, not in the middle of the photo", () => {
+    expect(edgeAt(10, 1000)).toBe(-1);
+    expect(edgeAt(EDGE_ZONE - 1, 1000)).toBe(-1);
+    expect(edgeAt(500, 1000)).toBeNull();
+    expect(edgeAt(1000 - EDGE_ZONE + 1, 1000)).toBe(1);
+    expect(edgeAt(990, 1000)).toBe(1);
+  });
+
+  it("a narrow window keeps a middle without arrows", () => {
+    expect(edgeAt(100, 240)).toBeNull();
+    expect(edgeAt(0, 0)).toBeNull();
+  });
+});
+
+describe("Esc in full screen and the slideshow (IV-23)", () => {
+  it("stops the slideshow first and keeps full screen, then leaves full screen", () => {
+    expect(escapeStep(true, true)).toBe("stop_slideshow");
+    expect(escapeStep(false, true)).toBe("leave_fullscreen");
+    expect(escapeStep(true, false)).toBe("stop_slideshow");
+    expect(escapeStep(false, false)).toBeNull();
   });
 });

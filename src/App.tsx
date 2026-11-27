@@ -24,7 +24,7 @@ import { requestZoom } from "./lib/pagezoom";
 import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { afterRemoval, relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
-import { CHROME_HIDE_MS, chromeVisible, movedFrom, type Point } from "./lib/chrome";
+import { CHROME_HIDE_MS, chromeVisible, edgeAt, escapeStep, FULLSCREEN_HINT_MS, movedFrom, type Point } from "./lib/chrome";
 import { DECODED_EXTENSIONS, isHeif, WEB_EXTENSIONS } from "./lib/formats";
 import { BACKGROUNDS, loadSettings, saveSettings, type Settings, type SortOrder } from "./lib/settings";
 import { applyAppearance, resolveTheme, toggleMode } from "./lib/theme";
@@ -98,6 +98,12 @@ export function App() {
   // A HEIC that cannot be shown: decoder missing (true) or the file is damaged (false).
   const [noCodec, setNoCodec] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  /** IV-23: "Esc or F11 — leave full screen" for a moment after entering it. */
+  const [fullscreenHint, setFullscreenHint] = useState(false);
+  const fullscreenHintTimer = useRef<number | undefined>(undefined);
+  /** IV-23: the side whose arrow the mouse near the edge calls up, and the arrow with the keyboard focus. */
+  const [nearEdge, setNearEdge] = useState<-1 | 1 | null>(null);
+  const [arrowFocus, setArrowFocus] = useState<-1 | 1 | null>(null);
   const [slideshow, setSlideshow] = useState(false);
   const [plan, setPlan] = useState<OrientationPlan | null>(null);
   /** The last write, offered for undo; `undone` once it was undone. */
@@ -230,6 +236,7 @@ export function App() {
   const hideChrome = useCallback(() => {
     window.clearTimeout(hideTimer.current);
     setRecentlyMoved(false);
+    setNearEdge(null);
   }, []);
 
   const go = useCallback(
@@ -281,6 +288,9 @@ export function App() {
   const toggleFullscreen = useCallback(async () => {
     const next = !fullscreen;
     setFullscreen(next);
+    window.clearTimeout(fullscreenHintTimer.current);
+    setFullscreenHint(next);
+    if (next) fullscreenHintTimer.current = window.setTimeout(() => setFullscreenHint(false), FULLSCREEN_HINT_MS);
     if (inTauri) await getCurrentWindow().setFullscreen(next);
     else if (next) await document.documentElement.requestFullscreen?.().catch(() => undefined);
     else if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
@@ -421,6 +431,10 @@ export function App() {
         toggleSlideshow();
         return;
       }
+      if (action === "fullscreen") {
+        void toggleFullscreen();
+        return;
+      }
       if (!image || !inTauri) return;
       if (action === "copy_image") void copyCurrent();
       else if (action === "copy_path") void copyCurrentPath();
@@ -428,7 +442,7 @@ export function App() {
       else if (action === "reveal") revealFile(image.path).catch((e: unknown) => setError(errorText(e, image.path)));
       else openWith(image.path).catch((e: unknown) => setError(errorText(e, image.path)));
     },
-    [copyCurrent, copyCurrentPath, deleteCurrent, errorText, image, toggleSlideshow],
+    [copyCurrent, copyCurrentPath, deleteCurrent, errorText, image, toggleFullscreen, toggleSlideshow],
   );
 
   /** Undo the last date set by hand: the old values back through the same safe write. */
@@ -475,10 +489,12 @@ export function App() {
           void toggleFullscreen();
           return;
         }
-        if (event.key === "Escape" && (fullscreen || slideshow)) {
+        const escape = event.key === "Escape" ? escapeStep(slideshow, fullscreen) : null;
+        if (escape !== null) {
+          // IV-23: the slideshow stops first and full screen stays; the next Esc leaves full screen.
           event.preventDefault();
-          setSlideshow(false);
-          if (fullscreen) void toggleFullscreen();
+          if (escape === "stop_slideshow") setSlideshow(false);
+          else void toggleFullscreen();
           return;
         }
         if (event.key === " ") {
@@ -552,11 +568,13 @@ export function App() {
   const onMouseMove = useCallback((event: React.MouseEvent) => {
     if (!movedFrom(lastPointer.current, event.clientX, event.clientY)) return;
     lastPointer.current = { x: event.clientX, y: event.clientY };
+    setNearEdge(edgeAt(event.clientX, window.innerWidth));
     setRecentlyMoved(true);
     window.clearTimeout(hideTimer.current);
     hideTimer.current = window.setTimeout(() => setRecentlyMoved(false), CHROME_HIDE_MS);
   }, []);
   useEffect(() => () => window.clearTimeout(hideTimer.current), []);
+  useEffect(() => () => window.clearTimeout(fullscreenHintTimer.current), []);
 
   useEffect(() => {
     const count = Math.max(entries.length, image ? 1 : 0);
@@ -599,7 +617,7 @@ export function App() {
   const toggle = () => update((s) => ({ mode: toggleMode(s.mode) }));
 
   return (
-    <div className={`app stage stage--${settings.background}${visible ? "" : " app--idle"}`} onMouseMove={onMouseMove}>
+    <div className={`app stage stage--${settings.background}${visible ? "" : " app--idle"}`} onMouseMove={onMouseMove} onMouseLeave={() => setNearEdge(null)}>
       <TopBar
         mode={settings.mode}
         visible={visible}
@@ -614,6 +632,8 @@ export function App() {
         onSlideshow={toggleSlideshow}
         canZoom={image !== null && !broken}
         onZoom={requestZoom}
+        fullscreen={fullscreen}
+        onFullscreen={() => void toggleFullscreen()}
         onLanguage={changeLanguage}
         onHover={setMouseOnBar}
         onKeyboardFocus={setKeyOnBar}
@@ -665,7 +685,7 @@ export function App() {
             <button
               key={direction}
               type="button"
-              className={`nav-arrow nav-arrow--${direction < 0 ? "prev" : "next"}${visible ? " nav-arrow--visible" : ""}`}
+              className={`nav-arrow nav-arrow--${direction < 0 ? "prev" : "next"}${nearEdge === direction || arrowFocus === direction ? " nav-arrow--visible" : ""}`}
               disabled={direction < 0 ? index === 0 : index === entries.length - 1}
               tabIndex={visible ? 0 : -1}
               title={t(direction < 0 ? "browse.previous" : "browse.next")}
@@ -674,12 +694,24 @@ export function App() {
               onDoubleClick={(event) => event.stopPropagation()}
               onMouseEnter={() => setMouseOnBar(true)}
               onMouseLeave={() => setMouseOnBar(false)}
-              onFocus={(event) => setKeyOnBar(event.currentTarget.matches(":focus-visible"))}
-              onBlur={() => setKeyOnBar(false)}
+              onFocus={(event) => {
+                const keyboard = event.currentTarget.matches(":focus-visible");
+                setKeyOnBar(keyboard);
+                setArrowFocus(keyboard ? direction : null);
+              }}
+              onBlur={() => {
+                setKeyOnBar(false);
+                setArrowFocus(null);
+              }}
             >
               {direction < 0 ? <ChevronLeft size={28} aria-hidden="true" /> : <ChevronRight size={28} aria-hidden="true" />}
             </button>
           ))}
+        {fullscreenHint && (
+          <p className="fullscreen-hint" role="status">
+            {t("fullscreen.hint")}
+          </p>
+        )}
         {edge && (
           <p className="edge-hint" role="status">
             {t(edge === "first" ? "browse.first" : "browse.last")}
@@ -734,7 +766,7 @@ export function App() {
       {dialog === "write" && plan && image && (
         <WriteRotationDialog plan={plan} name={image.name} onApply={() => void applyWrite()} onClose={() => setDialog(null)} />
       )}
-      {menu && <ImageMenu x={menu.x} y={menu.y} slideshow={slideshow} canSlideshow={entries.length > 1} onChoose={runImageAction} onClose={() => setMenu(null)} />}
+      {menu && <ImageMenu x={menu.x} y={menu.y} slideshow={slideshow} canSlideshow={entries.length > 1} fullscreen={fullscreen} onChoose={runImageAction} onClose={() => setMenu(null)} />}
       {notice && !written && (
         <div className="toast" role="status">
           <span>{notice.text}</span>

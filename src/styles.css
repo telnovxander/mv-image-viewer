@@ -1062,3 +1062,19 @@ body {
 .tools__wrap {
   flex-wrap: wrap;
 }
+
+/* IV-23: "Esc or F11 — leave full screen", for a moment after entering it, at the top. */
+.fullscreen-hint {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  z-index: 12;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) var(--overlay-opacity), transparent);
+  color: var(--text);
+  pointer-events: none;
+}

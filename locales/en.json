@@ -227,7 +227,9 @@
     "open_with": "Open with…",
     "delete": "Delete to the Recycle Bin",
     "slideshow": "Start the slideshow",
-    "slideshow_stop": "Stop the slideshow"
+    "slideshow_stop": "Stop the slideshow",
+    "fullscreen": "Full screen",
+    "fullscreen_leave": "Leave full screen"
   },
   "delete": {
     "done": "{{name}} is in the Recycle Bin",
@@ -405,6 +407,11 @@
     "convert_jpeg": "JPEG",
     "convert_png": "PNG"
   },
+  "fullscreen": {
+    "enter": "Full screen ({{shortcut}})",
+    "leave": "Leave full screen ({{shortcut}} or Esc)",
+    "hint": "Esc or F11 — leave full screen"
+  },
   "zoom": {
     "in": "Zoom in ({{shortcut}})",
     "out": "Zoom out ({{shortcut}})"
@@ -437,7 +444,7 @@
         "- Double-click switches between \"whole photo\" and 100 % at the clicked point. 1 — 100 %, W — as wide as the window, Ctrl+0 — whole photo.",
         "- An enlarged photo is moved by dragging with the mouse or with the arrow keys.",
         "## The top bar and the arrows",
-        "One rule: they appear when you move the mouse and hide two seconds after it stops. Browsing (keys, wheel, arrows) and every slideshow step hide them at once. They stay while the mouse is over them, while a menu or a window is open, and on the empty screen.",
+        "The top bar appears when you move the mouse and hides two seconds after it stops; it stays while the mouse is over it, while a menu or a window is open, and on the empty screen. The side arrows ‹ › appear only when the mouse is near the left or right edge of the window. Browsing (keys, wheel, arrows) and every slideshow step hide both at once.",
         "## Rotating",
         "- R and Shift+R turn the photo right and left for viewing only; the file stays as it is.",
         "- Ctrl+S writes the rotation into the file, after a preview \"now → after\". Only the orientation tag changes; the picture stays exactly the same, and it can be undone.",
@@ -446,7 +453,7 @@
         "- D changes the date taken of the current photo (with a preview; it can be undone).",
         "## Slideshow",
         "- Space, the ▶ button in the top bar or \"Start the slideshow\" in the right-click menu. The interval is in the settings; it stops on the last photo, Space or Esc stops it earlier.",
-        "- F or F11 — full screen, Esc leaves it. B changes the background behind the photo (theme, black, checkerboard).",
+        "- Full screen: F11 (or F), the ⤢ button in the top bar or \"Full screen\" in the right-click menu; a hint says how to leave. Esc, F11 or the same button leave it; during a slideshow the first Esc stops the slideshow and full screen stays. Double click stays fit ↔ 100 %. B changes the background behind the photo (theme, black, checkerboard).",
         "## Recycle Bin and undo",
         "- Delete moves the photo to the Recycle Bin and shows the next one; Ctrl+Z right after brings it back.",
         "- Spiegelmond deletes only to the Recycle Bin. Shift+Delete does not delete; where there is no Recycle Bin (USB sticks, network folders) deleting is not possible.",

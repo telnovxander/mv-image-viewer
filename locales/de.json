@@ -227,7 +227,9 @@
     "open_with": "Öffnen mit…",
     "delete": "In den Papierkorb löschen",
     "slideshow": "Diashow starten",
-    "slideshow_stop": "Diashow beenden"
+    "slideshow_stop": "Diashow beenden",
+    "fullscreen": "Vollbild",
+    "fullscreen_leave": "Vollbild verlassen"
   },
   "delete": {
     "done": "{{name}} ist im Papierkorb",
@@ -405,6 +407,11 @@
     "convert_jpeg": "JPEG",
     "convert_png": "PNG"
   },
+  "fullscreen": {
+    "enter": "Vollbild ({{shortcut}})",
+    "leave": "Vollbild verlassen ({{shortcut}} oder Esc)",
+    "hint": "Esc oder F11 — Vollbild verlassen"
+  },
   "zoom": {
     "in": "Vergrößern ({{shortcut}})",
     "out": "Verkleinern ({{shortcut}})"
@@ -437,7 +444,7 @@
         "- Doppelklick wechselt zwischen „ganzes Foto“ und 100 % am Klickpunkt. 1 — 100 %, W — fensterbreit, Strg+0 — ganzes Foto.",
         "- Ein vergrößertes Foto wird mit der Maus gezogen oder mit den Pfeiltasten verschoben.",
         "## Die obere Leiste und die Pfeile",
-        "Eine Regel: Sie erscheinen, wenn sich die Maus bewegt, und verschwinden zwei Sekunden, nachdem sie stillsteht. Blättern (Tasten, Mausrad, Pfeile) und jeder Schritt der Diashow blenden sie sofort aus. Sie bleiben, solange die Maus darüber ist, solange ein Menü oder ein Fenster offen ist, und auf dem leeren Bildschirm.",
+        "Die obere Leiste erscheint, wenn Sie die Maus bewegen, und verschwindet zwei Sekunden nach dem Anhalten; sie bleibt, solange die Maus darüber ist, ein Menü oder Fenster offen ist und auf dem leeren Bildschirm. Die seitlichen Pfeile ‹ › erscheinen nur, wenn die Maus am linken oder rechten Fensterrand ist. Blättern (Tasten, Mausrad, Pfeile) und jeder Schritt der Diashow blenden beides sofort aus.",
         "## Drehen",
         "- R und Umschalt+R drehen das Foto nur zum Ansehen nach rechts und links; die Datei bleibt, wie sie ist.",
         "- Strg+S schreibt die Drehung in die Datei, nach einer Vorschau „jetzt → danach“. Nur die Ausrichtungsangabe ändert sich, das Bild selbst bleibt genau gleich; rückgängig machbar.",
@@ -446,7 +453,7 @@
         "- D ändert das Aufnahmedatum des aktuellen Fotos (mit Vorschau, rückgängig machbar).",
         "## Diashow",
         "- Leertaste, die ▶-Taste in der oberen Leiste oder „Diashow starten“ im Menü der rechten Maustaste. Das Intervall steht in den Einstellungen; beim letzten Foto hält sie an, früher mit Leertaste oder Esc.",
-        "- F oder F11 — Vollbild, Esc verlässt es. B wechselt den Hintergrund hinter dem Foto (Design, schwarz, Schachbrett).",
+        "- Vollbild: F11 (oder F), die Schaltfläche ⤢ oben oder „Vollbild“ im Rechtsklickmenü; ein Hinweis sagt, wie man es verlässt. Esc, F11 oder dieselbe Schaltfläche verlassen es; während einer Diashow hält das erste Esc die Diashow an, das Vollbild bleibt. Doppelklick bleibt Einpassen ↔ 100 %. B wechselt den Hintergrund hinter dem Foto (Design, schwarz, Schachbrett).",
         "## Papierkorb und Rückgängig",
         "- Entf legt das Foto in den Papierkorb und zeigt das nächste; Strg+Z gleich danach holt es zurück.",
         "- Spiegelmond löscht nur in den Papierkorb. Umschalt+Entf löscht nicht; wo es keinen Papierkorb gibt (USB-Sticks, Netzwerkordner), ist Löschen nicht möglich.",

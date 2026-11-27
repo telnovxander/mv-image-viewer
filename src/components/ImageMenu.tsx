@@ -2,10 +2,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { localizeKeys } from "../lib/hotkeys";
 
-export type ImageAction = "slideshow" | "copy_image" | "copy_path" | "reveal" | "open_with" | "delete";
+export type ImageAction = "slideshow" | "fullscreen" | "copy_image" | "copy_path" | "reveal" | "open_with" | "delete";
 
 const ITEMS: readonly { action: ImageAction; keys: string }[] = [
   { action: "slideshow", keys: "Space" },
+  { action: "fullscreen", keys: "F11" },
   { action: "copy_image", keys: "Ctrl+C" },
   { action: "copy_path", keys: "Ctrl+Shift+C" },
   { action: "reveal", keys: "" },
@@ -19,12 +20,14 @@ interface ImageMenuProps {
   /** IV-20: the slideshow item says "Stop slideshow" while it runs; hidden with one image. */
   slideshow: boolean;
   canSlideshow: boolean;
+  /** IV-23: the full screen item says "Leave full screen" while it is on. */
+  fullscreen: boolean;
   onChoose: (action: ImageAction) => void;
   onClose: () => void;
 }
 
 /** The right-click menu of the image (IV-07): the same actions as the keys. */
-export function ImageMenu({ x, y, slideshow, canSlideshow, onChoose, onClose }: ImageMenuProps) {
+export function ImageMenu({ x, y, slideshow, canSlideshow, fullscreen, onChoose, onClose }: ImageMenuProps) {
   const { t } = useTranslation();
   const items = ITEMS.filter((item) => item.action !== "slideshow" || canSlideshow);
   const ref = useRef<HTMLDivElement>(null);
@@ -77,7 +80,7 @@ export function ImageMenu({ x, y, slideshow, canSlideshow, onChoose, onClose }: 
     >
       {items.map(({ action, keys }) => (
         <button key={action} type="button" role="menuitem" className="image-menu__item" onClick={() => choose(action)}>
-          <span>{t(action === "slideshow" ? (slideshow ? "menu.slideshow_stop" : "menu.slideshow") : `menu.${action}`)}</span>
+          <span>{t(action === "slideshow" ? (slideshow ? "menu.slideshow_stop" : "menu.slideshow") : action === "fullscreen" ? (fullscreen ? "menu.fullscreen_leave" : "menu.fullscreen") : `menu.${action}`)}</span>
           <span className="image-menu__key">{localizeKeys(keys, (name) => t(`keys.${name}`))}</span>
         </button>
       ))}
