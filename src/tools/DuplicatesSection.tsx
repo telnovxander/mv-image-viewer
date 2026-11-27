@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { applyBatch, cancelJob, duplicatesPreview, findDuplicates, isBackendError, thumbUrl, type ApplyReport, type DuplicateGroup, type Plan, type PlanSummary } from "../lib/backend";
 import { defaultChoice, isProtected, toggleChoice } from "../lib/duplicates";
 import { formatSize } from "../lib/format";
+import { tip } from "./TipLayer";
 import { stampText } from "../lib/dates";
 
 /** Groups shown at once; more with "Show more" (a page stays light with thousands of groups). */
@@ -115,14 +116,15 @@ export function DuplicatesSection({ folder, recursive, protectedFolders, onProte
         <Copy size={16} aria-hidden="true" />
         {t("duplicates.title")}
       </h3>
+      <p className="dialog__text tools__why">{t("duplicates.why")}</p>
       <div className="tools__row">
-        <button type="button" className="button" disabled={progress !== null} onClick={search}>
+        <button type="button" className="button" disabled={progress !== null} onClick={search} {...tip(t("tips.dup_find"))}>
           {t("duplicates.find")}
         </button>
         {progress && (
           <>
             <progress max={Math.max(1, progress.total)} value={progress.done} />
-            <button type="button" className="button" onClick={() => job.current !== null && void cancelJob(job.current)}>
+            <button type="button" className="button" onClick={() => job.current !== null && void cancelJob(job.current)} {...tip(t("tips.stop"))}>
               {t("tools.stop")}
             </button>
           </>
@@ -134,12 +136,12 @@ export function DuplicatesSection({ folder, recursive, protectedFolders, onProte
         {protectedFolders.map((f) => (
           <span key={f} className="tools__chip mono">
             {f}
-            <button type="button" className="icon-button" aria-label={t("duplicates.unprotect", { path: f })} title={t("duplicates.unprotect", { path: f })} onClick={() => onProtectedChange(protectedFolders.filter((x) => x !== f))}>
+            <button type="button" className="icon-button" aria-label={t("duplicates.unprotect", { path: f })} {...tip(t("tips.unprotect"))} onClick={() => onProtectedChange(protectedFolders.filter((x) => x !== f))}>
               ×
             </button>
           </span>
         ))}
-        <button type="button" className="link-button" onClick={() => void addProtected()}>
+        <button type="button" className="link-button" onClick={() => void addProtected()} {...tip(t("tips.protect"))}>
           {t("duplicates.add_protected")}
         </button>
       </div>
@@ -165,7 +167,7 @@ export function DuplicatesSection({ folder, recursive, protectedFolders, onProte
                 {locked ? (
                   <Lock size={14} aria-label={t("duplicates.locked")} />
                 ) : (
-                  <span className="dup__toggle">
+                  <span className="dup__toggle" {...tip(t("tips.dup_choose"))}>
                     <input
                       type="checkbox"
                       checked={remove}
@@ -183,13 +185,13 @@ export function DuplicatesSection({ folder, recursive, protectedFolders, onProte
         </div>
       ))}
       {groups && groups.length > shown && (
-        <button type="button" className="link-button" onClick={() => setShown((n) => n + PAGE)}>
+        <button type="button" className="link-button" onClick={() => setShown((n) => n + PAGE)} {...tip(t("tips.more"))}>
           {t("duplicates.more", { count: groups.length - shown })}
         </button>
       )}
       {groups && chosenCount > 0 && (
         <div className="tools__row">
-          <button type="button" className="button" disabled={busy} onClick={() => void makePreview()}>
+          <button type="button" className="button" disabled={busy} onClick={() => void makePreview()} {...tip(t("tips.dup_preview"))}>
             {t("duplicates.preview")}
           </button>
         </div>
@@ -199,17 +201,17 @@ export function DuplicatesSection({ folder, recursive, protectedFolders, onProte
           <p className="dialog__text">{t("duplicates.summary", { count: preview.summary.files })}</p>
           {batches.length > 1 && <p className="dialog__text dialog__muted">{t("dates.batches", { count: batches.length })}</p>}
           {batch && !confirming && (
-            <button type="button" className="button button--primary" disabled={busy} onClick={() => setConfirming(true)}>
+            <button type="button" className="button button--primary" disabled={busy} onClick={() => setConfirming(true)} {...tip(t("tips.apply_bin"))}>
               {t("duplicates.apply_batch", { n: nextBatch + 1, of: batches.length, count: batch[1] - batch[0] })}
             </button>
           )}
           {batch && confirming && (
             <div className="tools__row">
               <span>{t("duplicates.confirm", { count: batch[1] - batch[0] })}</span>
-              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()}>
+              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()} {...tip(t("tips.confirm_bin"))}>
                 {t("duplicates.confirm_yes")}
               </button>
-              <button type="button" className="button" onClick={() => setConfirming(false)}>
+              <button type="button" className="button" onClick={() => setConfirming(false)} {...tip(t("tips.cancel"))}>
                 {t("common.cancel")}
               </button>
             </div>

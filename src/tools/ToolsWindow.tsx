@@ -9,6 +9,7 @@ import { BatchSection } from "./BatchSection";
 import type { Preset } from "../lib/batch";
 import { applyBatch, cancelJob, indexFolder, inTauri, isBackendError, undoPlan, vollmondOperations, type IndexProgress, type IndexSummary, type Operation } from "../lib/backend";
 import { formatDateTime } from "../lib/format";
+import { tip, TipLayer } from "./TipLayer";
 
 let nextJob = 1;
 
@@ -35,6 +36,7 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange, prese
   const [operations, setOperations] = useState<Operation[]>([]);
   const job = useRef<number | null>(null);
   const [undoing, setUndoing] = useState<number | null>(null);
+  const root = useRef<HTMLDivElement>(null);
 
   const refreshJournal = () => void vollmondOperations().then(setOperations).catch(() => setOperations([]));
 
@@ -93,13 +95,16 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange, prese
   const percent = progress && progress.phase !== "files" && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : null;
 
   return (
-    <div className="tools">
+    <div className="tools" ref={root}>
+      <TipLayer root={root} />
+      <p className="dialog__text tools__why">{t("tools.intro")}</p>
       <section className="tools__section" aria-labelledby="tools-archive">
         <h3 id="tools-archive" className="tools__heading">
           {t("tools.archive")}
         </h3>
+        <p className="dialog__text tools__why">{t("tools.why_archive")}</p>
         <div className="tools__row">
-          <button type="button" className="button" onClick={() => void chooseFolder()} disabled={running}>
+          <button type="button" className="button" onClick={() => void chooseFolder()} disabled={running} {...tip(t("tips.choose_folder"))}>
             <FolderOpen size={16} aria-hidden="true" />
             {t("tools.choose_folder")}
           </button>
@@ -107,16 +112,16 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange, prese
             {folder ?? t("tools.no_folder")}
           </span>
         </div>
-        <label className="field field--row">
+        <label className="field field--row" {...tip(t("tips.subfolders"))}>
           <input type="checkbox" checked={recursive} disabled={running} onChange={(event) => setRecursive(event.target.checked)} />
           <span>{t("tools.subfolders")}</span>
         </label>
         <div className="tools__row">
-          <button type="button" className="button button--primary" disabled={!folder || running} onClick={start}>
+          <button type="button" className="button button--primary" disabled={!folder || running} onClick={start} {...tip(t("tips.read"))}>
             {t("tools.index")}
           </button>
           {running && (
-            <button type="button" className="button" onClick={stop}>
+            <button type="button" className="button" onClick={stop} {...tip(t("tips.stop"))}>
               {t("tools.stop")}
             </button>
           )}
@@ -146,6 +151,17 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange, prese
             {error}
           </p>
         )}
+        {!folder && <p className="dialog__text tools__next">{t("tools.next_choose")}</p>}
+        {folder && !summary && !running && (
+          <div className="dialog__text tools__next">
+            {t("tools.next_read")}
+            <ul className="tools__locked">
+              {(["dates.title", "duplicates.title", "similar.title", "batch.title"] as const).map((key) => (
+                <li key={key}>{t(key)}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
       {folder && summary && <DatesSection folder={folder} recursive={recursive} onApplied={refreshJournal} />}
       {folder && summary && (
@@ -158,6 +174,7 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange, prese
           <History size={16} aria-hidden="true" />
           {t("tools.journal")}
         </h3>
+        <p className="dialog__text tools__why">{t("tools.why_journal")}</p>
         {operations.length === 0 ? (
           <p className="dialog__text dialog__muted">{t("tools.journal_empty")}</p>
         ) : (
@@ -170,7 +187,7 @@ export default function ToolsWindow({ protectedFolders, onProtectedChange, prese
                 {op.undone && ` · ${t("tools.undone")}`}
                 {op.undoes !== null && ` · ${t("tools.is_undo")}`}
                 {!op.undone && op.undoes === null && op.applied.length > 0 && (
-                  <button type="button" className="link-button tools__undo" disabled={undoing !== null} onClick={() => void undo(op.op)}>
+                  <button type="button" className="link-button tools__undo" disabled={undoing !== null} onClick={() => void undo(op.op)} {...tip(t("tips.undo"))}>
                     {t("tools.undo")}
                   </button>
                 )}

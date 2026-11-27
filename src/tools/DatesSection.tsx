@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { inputToStamp } from "../components/DateEditDialog";
 import { applyBatch, transferReport, type TransferReport, datesPreview, isBackendError, manualDatesPreview, datesRows, type ManualDates, type ApplyReport, type DateRow, type Plan, type PlanSummary } from "../lib/backend";
+import { tip } from "./TipLayer";
 import { filterRows, stampText, visibleRows, type DateFilter } from "../lib/dates";
 
 const ROW = 22;
@@ -136,13 +137,15 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
         <CalendarClock size={16} aria-hidden="true" />
         {t("dates.title")}
       </h3>
+      <p className="dialog__text tools__why">{t("dates.why")}</p>
       <div className="tools__row">
-        <button type="button" className="button" onClick={() => void load()}>
+        <button type="button" className="button" onClick={() => void load()} {...tip(t("tips.dates_show"))}>
           {t(rows ? "dates.reload" : "dates.show")}
         </button>
         <button
           type="button"
           className="button"
+          {...tip(t("tips.transfer"))}
           onClick={() => {
             setError(null);
             void transferReport(folder, recursive)
@@ -153,7 +156,7 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
           {t("transfer.prepare")}
         </button>
         {rows && (
-          <div className="segmented" role="radiogroup" aria-label={t("dates.filter")}>
+          <div className="segmented" role="radiogroup" aria-label={t("dates.filter")} {...tip(t("tips.filter"))}>
             {(["all", "mismatches", "no_date_taken"] as const).map((f) => (
               <label key={f} className={`segmented__item${filter === f ? " segmented__item--on" : ""}`}>
                 <input type="radio" name="dates-filter" checked={filter === f} onChange={() => setFilter(f)} />
@@ -178,6 +181,7 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
             <button
               type="button"
               className="button button--primary"
+              {...tip(t("tips.dates_preview"))}
               onClick={() => {
                 if (!rows) void load();
                 void makePreview();
@@ -193,7 +197,7 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
           <p className="dialog__text dialog__muted">{t("dates.count", { count: shown.length, total: rows.length })}</p>
           <div className="dates__table" role="table" aria-label={t("dates.title")}>
             <div className="dates__row dates__row--head" role="row">
-              <span role="columnheader">
+              <span role="columnheader" {...tip(t("tips.choose_shown"))}>
                 <input
                   type="checkbox"
                   aria-label={t("dates.choose_shown")}
@@ -202,10 +206,10 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
                 />{" "}
                 {t("dates.file")}
               </span>
-              <span role="columnheader">{t("dates.taken")}</span>
-              <span role="columnheader">{t("dates.from_name")}</span>
-              <span role="columnheader">{t("dates.modified")}</span>
-              <span role="columnheader">{t("dates.proposed")}</span>
+              <span role="columnheader" tabIndex={0} {...tip(t("tips.col_taken"))}>{t("dates.taken")}</span>
+              <span role="columnheader" tabIndex={0} {...tip(t("tips.col_from_name"))}>{t("dates.from_name")}</span>
+              <span role="columnheader" tabIndex={0} {...tip(t("tips.col_modified"))}>{t("dates.modified")}</span>
+              <span role="columnheader" tabIndex={0} {...tip(t("tips.col_proposed"))}>{t("dates.proposed")}</span>
             </div>
             <div className="dates__body" style={{ height: VIEW }} onScroll={(event) => setTop(event.currentTarget.scrollTop)}>
               <div style={{ height: shown.length * ROW, position: "relative" }}>
@@ -218,7 +222,7 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
                     title={r.path}
                   >
                     <span>
-                      <input type="checkbox" aria-label={baseName(r.path)} checked={chosen.has(r.path)} onChange={() => toggle(r.path)} /> {baseName(r.path)}
+                      <input type="checkbox" aria-label={baseName(r.path)} {...tip(t("tips.dates_row"))} checked={chosen.has(r.path)} onChange={() => toggle(r.path)} /> {baseName(r.path)}
                     </span>
                     <span className="mono">{stampText(r.taken, language)}</span>
                     <span className="mono">{stampText(r.from_name?.stamp ?? null, language)}</span>
@@ -233,10 +237,10 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
             </div>
           </div>
           <div className="tools__row">
-            <button type="button" className="button" disabled={busy} onClick={() => void makePreview()}>
+            <button type="button" className="button" disabled={busy} onClick={() => void makePreview()} {...tip(t("tips.dates_preview"))}>
               {t("dates.preview")}
             </button>
-            <label className="field field--row tools__inline">
+            <label className="field field--row tools__inline" {...tip(t("tips.with_suspicious"))}>
               <input
                 type="checkbox"
                 checked={withSuspicious}
@@ -254,7 +258,7 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
         <div className="tools__manual">
           <p className="dialog__text">{t("dates.manual_title", { count: chosen.size })}</p>
           <div className="tools__row">
-            <select className="select" aria-label={t("dates.manual_how")} value={manualMode} onChange={(event) => setManualMode(event.target.value as typeof manualMode)}>
+            <select className="select" aria-label={t("dates.manual_how")} {...tip(t("tips.manual_how"))} value={manualMode} onChange={(event) => setManualMode(event.target.value as typeof manualMode)}>
               {(["same", "step", "shift", "approximate"] as const).map((m) => (
                 <option key={m} value={m}>
                   {t(`dates.manual_${m}`)}
@@ -262,30 +266,30 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
               ))}
             </select>
             {(manualMode === "same" || manualMode === "step") && (
-              <input type="datetime-local" step={1} aria-label={t("date_edit.date")} value={manualDate} onChange={(event) => setManualDate(event.target.value)} />
+              <input type="datetime-local" step={1} aria-label={t("date_edit.date")} {...tip(t("tips.manual_date"))} value={manualDate} onChange={(event) => setManualDate(event.target.value)} />
             )}
             {manualMode === "step" && (
               <label className="field field--row tools__inline">
                 <span>{t("dates.manual_step_minutes")}</span>
-                <input className="number-input" type="number" min={1} value={stepMinutes} onChange={(event) => setStepMinutes(Math.max(1, Number(event.target.value)))} />
+                <input className="number-input" type="number" min={1} {...tip(t("tips.manual_step"))} value={stepMinutes} onChange={(event) => setStepMinutes(Math.max(1, Number(event.target.value)))} />
               </label>
             )}
             {manualMode === "shift" && (
               <>
                 <label className="field field--row tools__inline">
                   <span>{t("dates.manual_hours")}</span>
-                  <input className="number-input" type="number" value={shiftHours} onChange={(event) => setShiftHours(Number(event.target.value))} />
+                  <input className="number-input" type="number" {...tip(t("tips.manual_shift"))} value={shiftHours} onChange={(event) => setShiftHours(Number(event.target.value))} />
                 </label>
                 <label className="field field--row tools__inline">
                   <span>{t("dates.manual_minutes")}</span>
-                  <input className="number-input" type="number" value={shiftMinutes} onChange={(event) => setShiftMinutes(Number(event.target.value))} />
+                  <input className="number-input" type="number" {...tip(t("tips.manual_shift"))} value={shiftMinutes} onChange={(event) => setShiftMinutes(Number(event.target.value))} />
                 </label>
               </>
             )}
             {manualMode === "approximate" && (
               <>
-                <input className="number-input" type="number" aria-label={t("date_edit.year")} min={1826} max={2200} value={approxYear} onChange={(event) => setApproxYear(Number(event.target.value))} />
-                <select className="select" aria-label={t("date_edit.month")} value={approxPart} onChange={(event) => setApproxPart(Number(event.target.value))}>
+                <input className="number-input" type="number" aria-label={t("date_edit.year")} {...tip(t("tips.approx_year"))} min={1826} max={2200} value={approxYear} onChange={(event) => setApproxYear(Number(event.target.value))} />
+                <select className="select" aria-label={t("date_edit.month")} {...tip(t("tips.approx_part"))} value={approxPart} onChange={(event) => setApproxPart(Number(event.target.value))}>
                   <option value={0}>{t("date_edit.whole_year")}</option>
                   {[1, 2, 3, 4].map((season) => (
                     <option key={`s${season}`} value={12 + season}>
@@ -300,7 +304,7 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
                 </select>
               </>
             )}
-            <button type="button" className="button" disabled={busy || manualHow() === null} onClick={() => void manualPreview()}>
+            <button type="button" className="button" disabled={busy || manualHow() === null} onClick={() => void manualPreview()} {...tip(t("tips.manual_preview"))}>
               {t("dates.manual_preview")}
             </button>
           </div>
@@ -322,17 +326,17 @@ export function DatesSection({ folder, recursive, onApplied }: DatesSectionProps
           ))}
           {batches.length > 1 && <p className="dialog__text dialog__muted">{t("dates.batches", { count: batches.length })}</p>}
           {batch && !confirming && (
-            <button type="button" className="button button--primary" disabled={busy || preview.summary.changes === 0} onClick={() => setConfirming(true)}>
+            <button type="button" className="button button--primary" disabled={busy || preview.summary.changes === 0} onClick={() => setConfirming(true)} {...tip(t("tips.apply"))}>
               {t("dates.apply_batch", { n: nextBatch + 1, of: batches.length, count: batch[1] - batch[0] })}
             </button>
           )}
           {batch && confirming && (
             <div className="tools__row">
               <span>{t("dates.confirm", { count: batch[1] - batch[0] })}</span>
-              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()}>
+              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()} {...tip(t("tips.confirm"))}>
                 {t("dates.confirm_yes")}
               </button>
-              <button type="button" className="button" onClick={() => setConfirming(false)}>
+              <button type="button" className="button" onClick={() => setConfirming(false)} {...tip(t("tips.cancel"))}>
                 {t("common.cancel")}
               </button>
             </div>

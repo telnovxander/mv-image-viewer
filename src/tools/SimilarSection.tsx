@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { applyBatch, cancelJob, duplicatesPreview, findSimilar, isBackendError, thumbUrl, type ApplyReport, type Plan, type PlanSummary, type SimilarGroup } from "../lib/backend";
 import { isProtected, toggleChoice } from "../lib/duplicates";
 import { formatSize, numberText } from "../lib/format";
+import { tip } from "./TipLayer";
 import { CompareDialog } from "./CompareDialog";
 
 const PAGE = 100;
@@ -109,24 +110,25 @@ export function SimilarSection({ folder, recursive, protectedFolders, onApplied 
         <Images size={16} aria-hidden="true" />
         {t("similar.title")}
       </h3>
+      <p className="dialog__text tools__why">{t("similar.why")}</p>
       <div className="tools__row">
-        <label className="field field--row tools__inline">
+        <label className="field field--row tools__inline" {...tip(t("tips.similar_threshold"))}>
           <span>{t("similar.threshold")}</span>
           <input type="range" min={2} max={20} value={threshold} onChange={(event) => setThreshold(Number(event.target.value))} />
           <span className="mono">{threshold}</span>
         </label>
-        <button type="button" className="button" disabled={progress !== null} onClick={search}>
+        <button type="button" className="button" disabled={progress !== null} onClick={search} {...tip(t("tips.similar_find"))}>
           {t("similar.find")}
         </button>
         {progress && (
           <>
             <progress max={Math.max(1, progress.total)} value={progress.done} />
-            <button type="button" className="button" onClick={() => job.current !== null && void cancelJob(job.current)}>
+            <button type="button" className="button" onClick={() => job.current !== null && void cancelJob(job.current)} {...tip(t("tips.stop"))}>
               {t("tools.stop")}
             </button>
           </>
         )}
-        <button type="button" className="button" disabled={compare.length !== 2} onClick={() => setComparing(true)}>
+        <button type="button" className="button" disabled={compare.length !== 2} onClick={() => setComparing(true)} {...tip(t("tips.compare"))}>
           {t("similar.compare", { count: compare.length })}
         </button>
       </div>
@@ -149,11 +151,11 @@ export function SimilarSection({ folder, recursive, protectedFolders, onApplied 
                   </span>
                 </span>
                 <span className="dup__toggle">
-                  <label>
+                  <label {...tip(t("tips.to_compare"))}>
                     <input type="checkbox" checked={compare.includes(f.path)} onChange={() => toggleCompare(f.path)} /> {t("similar.to_compare")}
                   </label>
                   {!locked && (
-                    <label>
+                    <label {...tip(t("tips.dup_choose"))}>
                       <input
                         type="checkbox"
                         checked={remove}
@@ -172,13 +174,13 @@ export function SimilarSection({ folder, recursive, protectedFolders, onApplied 
         </div>
       ))}
       {groups && groups.length > shown && (
-        <button type="button" className="link-button" onClick={() => setShown((n) => n + PAGE)}>
+        <button type="button" className="link-button" onClick={() => setShown((n) => n + PAGE)} {...tip(t("tips.more"))}>
           {t("duplicates.more", { count: groups.length - shown })}
         </button>
       )}
       {chosenCount > 0 && (
         <div className="tools__row">
-          <button type="button" className="button" disabled={busy} onClick={() => void makePreview()}>
+          <button type="button" className="button" disabled={busy} onClick={() => void makePreview()} {...tip(t("tips.dup_preview"))}>
             {t("duplicates.preview")}
           </button>
         </div>
@@ -187,17 +189,17 @@ export function SimilarSection({ folder, recursive, protectedFolders, onApplied 
         <div className="tools__preview" role="status">
           <p className="dialog__text">{t("duplicates.summary", { count: preview.summary.files })}</p>
           {batch && !confirming && (
-            <button type="button" className="button button--primary" disabled={busy} onClick={() => setConfirming(true)}>
+            <button type="button" className="button button--primary" disabled={busy} onClick={() => setConfirming(true)} {...tip(t("tips.apply_bin"))}>
               {t("duplicates.apply_batch", { n: nextBatch + 1, of: batches.length, count: batch[1] - batch[0] })}
             </button>
           )}
           {batch && confirming && (
             <div className="tools__row">
               <span>{t("duplicates.confirm", { count: batch[1] - batch[0] })}</span>
-              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()}>
+              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()} {...tip(t("tips.confirm_bin"))}>
                 {t("duplicates.confirm_yes")}
               </button>
-              <button type="button" className="button" onClick={() => setConfirming(false)}>
+              <button type="button" className="button" onClick={() => setConfirming(false)} {...tip(t("tips.cancel"))}>
                 {t("common.cancel")}
               </button>
             </div>

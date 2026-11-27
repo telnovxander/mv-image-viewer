@@ -179,11 +179,18 @@ photo gets a new thumbnail).
 
 Ctrl+M switches to Vollmond; the Tools button opens its window (loaded only then, so the viewer
 starts as fast as without it). Choose the folder of the archive (with or without subfolders) and
-**Index**: in the background, with progress and **Stop**, Spiegelmond reads which images are there
+**Read the folder** (called "Index" before 0.6.0): in the background, with progress and **Stop**, Spiegelmond reads which images are there
 and their EXIF, then a fingerprint of each file's content (for duplicates), then the thumbnails
 (the same cache as the film strip). Nothing is changed in the photos. Opening the same folder again
 is instant: only new and changed files are read again (50 000 files: 3.7 s the first time, 0.13 s
 again, measured with tiny synthetic files). The index lives in `%LOCALAPPDATA%\Spiegelmond\cache`.
+
+The window explains itself (IV-24): a line at the top says what the tools are for and that nothing
+changes without a preview; under each tool's title one or two lines say what it is for; until a
+folder is chosen and read, the window says what to press next and lists the tools that will appear;
+every button, box, field and column header has a hint (the mouse rests on it ~0.3 s, or the
+keyboard reaches it with Tab; screen readers read it as its description), one hint layer for the
+whole window (`src/tools/TipLayer.tsx`).
 
 Every tool that will change files (dates, duplicates, batch processing: IV-14…IV-19) works the
 same safe way: a preview "before → after" with totals first; at most 500 files at once, and for
@@ -197,7 +204,7 @@ adds its Undo button there).
 
 ### Dates (IV-14)
 
-After indexing, **Show the dates**: for every photo the date taken (EXIF), the date in its file
+After reading the folder, **Show the dates**: for every photo the date taken (EXIF), the date in its file
 name (Xiaomi and other Android cameras `IMG_20230512_143000`, Pixel `PXL_…`, WhatsApp
 `IMG-20230512-WA0001`, Telegram `photo_2023-05-12_14-30-00`, screenshots, Dropbox
 `2023-05-12 14.30.00`) and the file date that phone galleries sort by. Mismatches are marked; the

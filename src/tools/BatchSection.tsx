@@ -3,6 +3,7 @@ import { Layers } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { applyBatch, batchPreview, isBackendError, type ApplyReport, type Plan, type Planned, type PlanSummary } from "../lib/backend";
+import { tip } from "./TipLayer";
 import { BUILT_IN, EMPTY_CHAIN, stepsOf, type Chain, type Preset } from "../lib/batch";
 
 interface BatchSectionProps {
@@ -84,15 +85,16 @@ export function BatchSection({ folder, recursive, presets, onPresetsChange, onAp
         <Layers size={16} aria-hidden="true" />
         {t("batch.title")}
       </h3>
+      <p className="dialog__text tools__why">{t("batch.why")}</p>
       <div className="tools__row tools__wrap">
         <span>{t("batch.presets")}</span>
         {all.map((p) => (
           <span key={`${p.own}-${p.name}`} className="tools__chip">
-            <button type="button" className="link-button" onClick={() => change(p.chain)}>
+            <button type="button" className="link-button" onClick={() => change(p.chain)} {...tip(t("tips.preset"))}>
               {p.label}
             </button>
             {p.own && (
-              <button type="button" className="icon-button" aria-label={t("batch.delete_preset", { name: p.name })} title={t("batch.delete_preset", { name: p.name })} onClick={() => onPresetsChange(presets.filter((x) => x.name !== p.name))}>
+              <button type="button" className="icon-button" aria-label={t("batch.delete_preset", { name: p.name })} {...tip(t("tips.delete_preset"))} onClick={() => onPresetsChange(presets.filter((x) => x.name !== p.name))}>
                 ×
               </button>
             )}
@@ -100,17 +102,17 @@ export function BatchSection({ folder, recursive, presets, onPresetsChange, onAp
         ))}
       </div>
       <div className="batch__steps">
-        <label className="field field--row tools__inline">
+        <label className="field field--row tools__inline" {...tip(t("tips.resize"))}>
           <input type="checkbox" checked={chain.resize !== null} onChange={(e) => change({ resize: e.target.checked ? 2048 : null })} />
           <span>{t("batch.resize")}</span>
           {chain.resize !== null && <input className="number-input" type="number" min={64} value={chain.resize} onChange={(e) => change({ resize: Math.max(64, Number(e.target.value)) })} />}
         </label>
-        <label className="field field--row tools__inline">
+        <label className="field field--row tools__inline" {...tip(t("tips.fit"))}>
           <input type="checkbox" checked={chain.fitMb !== null} onChange={(e) => change({ fitMb: e.target.checked ? 2 : null })} />
           <span>{t("batch.fit")}</span>
           {chain.fitMb !== null && <input className="number-input" type="number" min={0.1} step={0.1} value={chain.fitMb} onChange={(e) => change({ fitMb: Math.max(0.1, Number(e.target.value)) })} />}
         </label>
-        <label className="field field--row tools__inline">
+        <label className="field field--row tools__inline" {...tip(t("tips.convert"))}>
           <span>{t("batch.convert")}</span>
           <select className="select" value={chain.convert} onChange={(e) => change({ convert: e.target.value as Chain["convert"] })}>
             <option value="keep">{t("batch.convert_keep")}</option>
@@ -118,7 +120,7 @@ export function BatchSection({ folder, recursive, presets, onPresetsChange, onAp
             <option value="png">{t("batch.convert_png")}</option>
           </select>
         </label>
-        <label className="field field--row tools__inline">
+        <label className="field field--row tools__inline" {...tip(t("tips.metadata"))}>
           <span>{t("batch.metadata")}</span>
           <select className="select" value={chain.metadata} onChange={(e) => change({ metadata: e.target.value as Chain["metadata"] })}>
             <option value="keep">{t("batch.metadata_keep")}</option>
@@ -126,17 +128,18 @@ export function BatchSection({ folder, recursive, presets, onPresetsChange, onAp
             <option value="strip_all">{t("batch.metadata_all")}</option>
           </select>
         </label>
-        <label className="field field--row tools__inline">
+        <label className="field field--row tools__inline" {...tip(t("tips.rename"))}>
           <input type="checkbox" checked={chain.rename !== null} onChange={(e) => change({ rename: e.target.checked ? "{YYYY}-{MM}-{DD}_{hh}-{mm}-{ss}" : null })} />
           <span>{t("batch.rename")}</span>
           {chain.rename !== null && <input className="panel-input mono" value={chain.rename} spellCheck={false} onChange={(e) => change({ rename: e.target.value })} />}
         </label>
       </div>
       <div className="tools__row">
-        <input className="mono" placeholder={t("batch.preset_name")} value={presetName} onChange={(e) => setPresetName(e.target.value)} />
+        <input className="mono" placeholder={t("batch.preset_name")} aria-label={t("batch.preset_name")} {...tip(t("tips.preset_name"))} value={presetName} onChange={(e) => setPresetName(e.target.value)} />
         <button
           type="button"
           className="button"
+          {...tip(t("tips.save_preset"))}
           disabled={presetName.trim() === ""}
           onClick={() => {
             const name = presetName.trim();
@@ -148,13 +151,13 @@ export function BatchSection({ folder, recursive, presets, onPresetsChange, onAp
         </button>
       </div>
       <div className="tools__row">
-        <button type="button" className="button" onClick={() => void chooseOut()}>
+        <button type="button" className="button" onClick={() => void chooseOut()} {...tip(t("tips.out_dir"))}>
           {t("batch.out_dir")}
         </button>
         <span className="tools__folder mono">{outDir ?? t("batch.no_out_dir")}</span>
       </div>
       <div className="tools__row">
-        <button type="button" className="button" disabled={!outDir || busy} onClick={() => void makePreview()}>
+        <button type="button" className="button" disabled={!outDir || busy} onClick={() => void makePreview()} {...tip(t("tips.batch_preview"))}>
           {t("batch.preview")}
         </button>
       </div>
@@ -176,17 +179,17 @@ export function BatchSection({ folder, recursive, presets, onPresetsChange, onAp
           ))}
           {batches.length > 1 && <p className="dialog__text dialog__muted">{t("dates.batches", { count: batches.length })}</p>}
           {batch && !confirming && (
-            <button type="button" className="button button--primary" disabled={busy} onClick={() => setConfirming(true)}>
+            <button type="button" className="button button--primary" disabled={busy} onClick={() => setConfirming(true)} {...tip(t("tips.apply_copies"))}>
               {t("batch.apply_batch", { n: nextBatch + 1, of: batches.length, count: batch[1] - batch[0] })}
             </button>
           )}
           {batch && confirming && (
             <div className="tools__row">
               <span>{t("batch.confirm", { count: batch[1] - batch[0] })}</span>
-              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()}>
+              <button type="button" className="button button--primary" disabled={busy} onClick={() => void applyNext()} {...tip(t("tips.confirm_copies"))}>
                 {t("batch.confirm_yes")}
               </button>
-              <button type="button" className="button" onClick={() => setConfirming(false)}>
+              <button type="button" className="button" onClick={() => setConfirming(false)} {...tip(t("tips.cancel"))}>
                 {t("common.cancel")}
               </button>
             </div>

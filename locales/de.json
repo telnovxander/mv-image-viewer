@@ -92,16 +92,16 @@
     "choose_folder": "Ordner wählen",
     "no_folder": "Noch kein Ordner gewählt",
     "subfolders": "Mit Unterordnern",
-    "index": "Indizieren",
+    "index": "Ordner einlesen",
     "stop": "Anhalten",
     "progress_files_one": "Dateien werden gelesen… {{count, number}} Bild",
     "progress_files_other": "Dateien werden gelesen… {{count, number}} Bilder",
     "progress_hashes": "Inhalte werden geprüft… {{done, number}} von {{total, number}}",
     "progress_thumbnails": "Miniaturen werden erstellt… {{done, number}} von {{total, number}}",
-    "summary_one": "{{count, number}} Bild im Index: {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
-    "summary_other": "{{count, number}} Bilder im Index: {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
-    "summary_stopped_one": "Angehalten; bisher {{count, number}} Bild indiziert. Der nächste Lauf macht dort weiter.",
-    "summary_stopped_other": "Angehalten; bisher {{count, number}} Bilder indiziert. Der nächste Lauf macht dort weiter.",
+    "summary_one": "Ordner eingelesen: {{count, number}} Foto; seit dem letzten Mal {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
+    "summary_other": "Ordner eingelesen: {{count, number}} Fotos; seit dem letzten Mal {{added, number}} neu, {{changed, number}} geändert, {{removed, number}} verschwunden.",
+    "summary_stopped_one": "Angehalten; bisher {{count, number}} Foto eingelesen. Erneutes Einlesen macht dort weiter.",
+    "summary_stopped_other": "Angehalten; bisher {{count, number}} Fotos eingelesen. Erneutes Einlesen macht dort weiter.",
     "journal": "Protokoll der Änderungen",
     "journal_empty": "Noch keine Änderungen. Jede Änderung eines Werkzeugs erscheint hier und kann rückgängig gemacht werden.",
     "files_one": "{{count, number}} Datei",
@@ -114,7 +114,12 @@
       "dates": "Daten",
       "duplicates": "Duplikate",
       "batch": "Stapel"
-    }
+    },
+    "intro": "Werkzeuge für ein Fotoarchiv: Daten korrigieren, Duplikate und ähnliche Fotos finden, Kopien für einen Messenger erstellen. In Ihrem Ordner ändert sich nichts ohne Vorschau und Ihre Bestätigung, und jede Änderung lässt sich im Protokoll unten rückgängig machen.",
+    "why_archive": "Schritt 1. Spiegelmond liest den Ordner einmal ein und merkt sich Daten, Größen und Fingerabdrücke der Fotos, damit die Werkzeuge unten schnell arbeiten. Die Dateien werden nicht geändert. Beim nächsten Mal werden nur neue und geänderte Fotos gelesen.",
+    "next_choose": "Wählen Sie zuerst den Ordner mit Ihren Fotos.",
+    "next_read": "Klicken Sie jetzt auf „Ordner einlesen“. Danach erscheinen diese Werkzeuge:",
+    "why_journal": "Jede Änderung der Werkzeuge mit den Werten davor. „Rückgängig“ stellt sie wieder her, auch nach einem Neustart."
   },
   "units": {
     "b": "B",
@@ -294,7 +299,8 @@
     "season_2": "Sommer",
     "season_3": "Herbst",
     "season_4": "Winter",
-    "overwrites": "Einige dieser Fotos haben schon ein Aufnahmedatum; es wird ersetzt (Ihre Wahl, rückgängig machbar)."
+    "overwrites": "Einige dieser Fotos haben schon ein Aufnahmedatum; es wird ersetzt (Ihre Wahl, rückgängig machbar).",
+    "why": "Findet Fotos, deren Aufnahmedatum fehlt oder vom Datum im Dateinamen oder vom Dateidatum abweicht, und korrigiert sie nach einer Vorschau. Galerien und Handys sortieren nach diesen Daten."
   },
   "date_edit": {
     "title": "Aufnahmedatum",
@@ -358,7 +364,8 @@
     "confirm_yes": "Ja, in den Papierkorb",
     "all_done": "Fertig. Jeder Teil steht im Protokoll und kann rückgängig gemacht werden (die Dateien kommen aus dem Papierkorb zurück).",
     "applied_one": "{{count, number}} Datei in den Papierkorb verschoben.",
-    "applied_other": "{{count, number}} Dateien in den Papierkorb verschoben."
+    "applied_other": "{{count, number}} Dateien in den Papierkorb verschoben.",
+    "why": "Findet Dateien, die Byte für Byte gleich sind. Sie wählen, welche Kopien in den Papierkorb gehen; eine Datei jeder Gruppe bleibt immer."
   },
   "similar": {
     "title": "Ähnliche Fotos",
@@ -372,7 +379,8 @@
     "quality": "Schärfe {{sharp}}, Belichtung {{exposure}} %",
     "to_compare": "vergleichen",
     "compare_title": "Zwei Bilder vergleichen",
-    "compare_keys": "+ / − zoomen beide, Pfeile verschieben beide, 0 passt ein, Strg+Rad und Ziehen gehen auch; Esc schließt."
+    "compare_keys": "+ / − zoomen beide, Pfeile verschieben beide, 0 passt ein, Strg+Rad und Ziehen gehen auch; Esc schließt.",
+    "why": "Findet Serien fast gleicher Aufnahmen (Serienbilder, Wiederholungen). ★ schlägt das beste Bild vor; nichts wird für Sie ausgewählt."
   },
   "batch": {
     "title": "Stapelverarbeitung",
@@ -405,7 +413,8 @@
     "confirm_yes": "Ja, erstellen",
     "all_done": "Fertig. Jeder Teil steht im Protokoll; Rückgängig verschiebt seine Kopien in den Papierkorb.",
     "convert_jpeg": "JPEG",
-    "convert_png": "PNG"
+    "convert_png": "PNG",
+    "why": "Erstellt Kopien der Fotos (kleiner, anderes Format, ohne GPS, nach Datum benannt) in einem neuen Ordner. Die Originale werden nie geändert."
   },
   "fullscreen": {
     "enter": "Vollbild ({{shortcut}})",
@@ -473,7 +482,7 @@
         "- Sichel ändert Ihre Dateien nie von selbst. Änderungen gibt es nur auf Ihren Wunsch: Entf (in den Papierkorb), Strg+S (Drehung in die Datei), D (Aufnahmedatum).",
         "## Vollmond — Werkzeuge für ein Fotoarchiv",
         "- Alles, was Sichel kann, und dazu die Taste „Werkzeuge“ (der Schraubenschlüssel, bernsteinfarben) neben dem Moduswechsel.",
-        "- Das Fenster „Werkzeuge“ arbeitet mit einem ganzen Ordner: Index, Daten, Fotos für das Handy vorbereiten, exakte Duplikate, ähnliche Fotos, Stapelverarbeitung, Protokoll der Änderungen.",
+        "- Das Fenster „Werkzeuge“ arbeitet mit einem ganzen Ordner: Ordner einlesen, Daten, Fotos für das Handy vorbereiten, exakte Duplikate, ähnliche Fotos, Stapelverarbeitung, Protokoll der Änderungen. Unter jedem Werkzeug steht, wozu es dient; jede Schaltfläche erklärt sich beim Zeigen mit der Maus oder mit Tab.",
         "- Die Werkzeuge werden erst geladen, wenn sich das Fenster öffnet; der Betrachter bleibt so schnell wie in Sichel.",
         "## Was sich beim Wechsel ändert",
         "- Die Akzentfarbe: blau in Sichel, bernstein in Vollmond; die Taste „Werkzeuge“ erscheint oder verschwindet.",
@@ -490,11 +499,11 @@
         "- Gelöscht wird nur in den Papierkorb. Die Stapelverarbeitung überschreibt nie Originale: Ergebnisse kommen in einen neuen Ordner.",
         "- Bevor eine Datei sich ändert, kommen ihre alten Werte ins Protokoll der Änderungen; dort lässt sich jeder Vorgang rückgängig machen.",
         "- Eine geänderte Datei wird neben dem Original geschrieben, geprüft (das Bild bleibt genau gleich) und erst dann an ihren Platz gestellt. Bei einem Ordner in einer Cloud oder im Netzwerk kommt zuerst eine Warnung.",
-        "## 1. Fotoarchiv und Index — immer der erste Schritt",
+        "## 1. Fotoarchiv: Ordner wählen und einlesen — immer der erste Schritt",
         "- Strg+M → Vollmond, dann die Taste „Werkzeuge“ (Schraubenschlüssel).",
         "- „Ordner wählen“ — der Ordner Ihres Archivs. „Mit Unterordnern“ nimmt auch alles darin.",
-        "- „Indizieren“: Spiegelmond liest, welche Fotos es gibt, ihre Daten und Kameradaten, einen Fingerabdruck jeder Datei und die Miniaturen. Mit Fortschritt und „Anhalten“; an den Fotos ändert sich nichts.",
-        "- Beim zweiten Mal geht es schnell: nur neue und geänderte Dateien werden gelesen. Die anderen Werkzeuge erscheinen nach dem Indizieren.",
+        "- „Ordner einlesen“: Spiegelmond liest, welche Fotos es gibt, ihre Daten und Kameradaten, einen Fingerabdruck jeder Datei und die Miniaturen, in seinen eigenen Index außerhalb des Ordners. Mit Fortschritt und „Anhalten“; an den Fotos ändert sich nichts.",
+        "- Beim zweiten Mal geht es schnell: nur neue und geänderte Dateien werden gelesen. Die anderen Werkzeuge erscheinen nach dem Einlesen; bis dahin nennt das Fenster sie und sagt, was zu klicken ist.",
         "## 2. Daten: prüfen und korrigieren",
         "- Wozu: Handy-Galerien und viele Programme sortieren nach dem Aufnahmedatum in der Datei; Fotos aus WhatsApp, Telegram oder alten Handys haben es oft nicht, und Kopieren setzt das Dateidatum zurück.",
         "- „Daten anzeigen“: eine Tabelle mit dem Aufnahmedatum (EXIF), dem Datum im Dateinamen (IMG_20230512_143000, PXL_…, WhatsApp, Telegram, Screenshots) und dem Dateidatum. Filter: alle, Abweichungen, ohne Aufnahmedatum.",
@@ -523,5 +532,58 @@
         "- Unten im Fenster „Werkzeuge“: jeder Vorgang mit Zeit, Werkzeug und Zahl der Dateien. „Rückgängig“ setzt die alten Werte auf dieselbe sichere Weise zurück. Das Protokoll übersteht einen Neustart."
       ]
     }
+  },
+  "tips": {
+    "choose_folder": "Der Ordner des Fotoarchivs, mit dem die Werkzeuge arbeiten. Darin ändert sich nichts, bis Sie eine Vorschau bestätigen.",
+    "subfolders": "Auch die Fotos in allen Unterordnern einlesen und bearbeiten.",
+    "read": "Liest Daten, Größen und Fingerabdrücke der Fotos in Spiegelmonds eigenen Index (außerhalb des Ordners). Die Fotos werden nicht geändert.",
+    "stop": "Jetzt anhalten; das bisher Gelesene bleibt, beim nächsten Mal geht es dort weiter.",
+    "undo": "Stellt die Werte vor dieser Änderung wieder her (die Dateien aus dem Papierkorb), auf demselben sicheren Weg.",
+    "dates_show": "Zeigt eine Tabelle aller Fotos mit ihren Daten: Aufnahme (in der Datei), aus dem Dateinamen, das Dateidatum und wie es sein sollte. Nichts ändert sich.",
+    "transfer": "Prüft, was eine Handy-Galerie nach dem Kopieren falsch sortieren würde (Fotos ohne Aufnahmedatum, PNG ohne Daten). Nichts ändert sich.",
+    "filter": "Welche Fotos die Tabelle zeigt: alle, die mit abweichenden Daten oder die ohne Aufnahmedatum.",
+    "choose_shown": "Alle angezeigten Fotos aus- oder abwählen, um ihre Daten von Hand zu setzen.",
+    "col_taken": "Das Aufnahmedatum im Foto (EXIF), wie Kamera oder Handy es geschrieben haben.",
+    "col_from_name": "Ein Datum aus dem Dateinamen, z. B. IMG_20240512_143000.jpg.",
+    "col_modified": "Das Datum der Datei in Windows; Kopieren und Bearbeiten ändern es.",
+    "col_proposed": "Das Datum, das Spiegelmond setzen würde. Nur angezeigt, vor der Vorschau ändert sich nichts.",
+    "dates_preview": "Listet jede Änderung „vorher → nachher“ auf, bevor etwas geschrieben wird. Anwenden ist eine eigene Schaltfläche.",
+    "with_suspicious": "Daten in der Zukunft oder vor 1990 bleiben unverändert, außer Sie haken dies an.",
+    "manual_how": "Wie die Daten der gewählten Fotos gesetzt werden: ein Datum, eine Serie mit Abstand, eine Verschiebung oder ein ungefährer Zeitraum.",
+    "manual_preview": "Zeigt „vorher → nachher“ für die gewählten Fotos; noch wird nichts geschrieben.",
+    "apply": "Schreibt diesen Teil nach einer weiteren Frage. Nur die Daten ändern sich, nie die Pixel; alles kommt ins Protokoll und lässt sich rückgängig machen.",
+    "confirm": "Ja, diesen Teil jetzt schreiben. Rückgängig machen geht im Protokoll.",
+    "dup_find": "Vergleicht die Fotos des Ordners Byte für Byte und listet Gruppen gleicher Dateien. Nichts wird gelöscht.",
+    "protect": "Ein Ordner, dessen Dateien nie für den Papierkorb gewählt werden, auch nicht von Hand.",
+    "unprotect": "Hebt den Schutz dieses Ordners auf.",
+    "dup_choose": "Gewählte Dateien gehen nach der Vorschau in den Papierkorb; die letzte Datei einer Gruppe lässt sich nicht wählen.",
+    "dup_preview": "Listet, was in den Papierkorb geht und was bleibt, bevor etwas verschoben wird.",
+    "similar_threshold": "Links: nur fast gleiche Aufnahmen; rechts: auch nur ähnlich aussehende Fotos.",
+    "similar_find": "Sucht Serien ähnlicher Fotos anhand ihrer Miniaturen. Nichts wird gelöscht.",
+    "compare": "Zeigt die zwei mit „vergleichen“ markierten Fotos nebeneinander, gemeinsam gezoomt.",
+    "to_compare": "Zwei Fotos anhaken, um sie nebeneinander zu vergleichen.",
+    "preset": "Übernimmt die Einstellungen dieser Vorlage.",
+    "delete_preset": "Löscht diese Vorlage (keine Fotos).",
+    "resize": "Kopien haben auf der langen Seite höchstens so viele Pixel.",
+    "fit": "Kopien werden verkleinert, bis die Datei höchstens so groß ist.",
+    "convert": "Das Format der Kopien: wie das Original, JPEG oder PNG.",
+    "metadata": "Was in den Kopien bleibt: alles, alles außer der GPS-Position oder nichts.",
+    "rename": "Benennt die Kopien nach ihrem Aufnahmedatum nach diesem Muster.",
+    "preset_name": "Ein Name für die Einstellungen oben, um sie mit einem Klick wieder zu nutzen.",
+    "save_preset": "Speichert die Einstellungen oben als Vorlage.",
+    "out_dir": "Ein neuer Ordner für die Kopien. Es muss ein anderer Ordner als der der Fotos sein; die Originale werden nie geändert.",
+    "batch_preview": "Listet, welche Kopien wie groß erstellt werden, bevor etwas geschrieben wird.",
+    "apply_bin": "Verschiebt diesen Teil nach einer weiteren Frage in den Papierkorb. Alles kommt ins Protokoll; „Rückgängig“ holt die Dateien zurück.",
+    "confirm_bin": "Ja, diesen Teil jetzt in den Papierkorb verschieben. „Rückgängig“ im Protokoll holt ihn zurück.",
+    "apply_copies": "Erstellt diesen Teil der Kopien nach einer weiteren Frage. Alles kommt ins Protokoll; „Rückgängig“ verschiebt die Kopien in den Papierkorb.",
+    "confirm_copies": "Ja, diesen Teil der Kopien jetzt erstellen. Die Originale bleiben, wie sie sind.",
+    "cancel": "Nein: nichts wird geschrieben, die Vorschau bleibt.",
+    "more": "Zeigt die nächsten Gruppen der Liste.",
+    "dates_row": "Dieses Foto wählen, um sein Datum unten von Hand zu setzen.",
+    "manual_date": "Datum und Uhrzeit, die gesetzt werden (die ersten einer Serie).",
+    "manual_step": "Wie viele Minuten die Fotos der Serie auseinander liegen, in ihrer jetzigen Reihenfolge.",
+    "manual_shift": "Um wie viel die Aufnahmedaten verschoben werden, z. B. −1 Stunde nach falscher Kamerauhr.",
+    "approx_year": "Das Jahr der Fotos, wenn das genaue Datum unbekannt ist (ein alter Scan).",
+    "approx_part": "Der Teil des Jahres; das Datum kommt in seine Mitte."
   }
 }

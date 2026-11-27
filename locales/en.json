@@ -92,16 +92,16 @@
     "choose_folder": "Choose a folder",
     "no_folder": "No folder chosen yet",
     "subfolders": "Include subfolders",
-    "index": "Index",
+    "index": "Read the folder",
     "stop": "Stop",
     "progress_files_one": "Reading files… {{count, number}} image",
     "progress_files_other": "Reading files… {{count, number}} images",
     "progress_hashes": "Checking contents… {{done, number}} of {{total, number}}",
     "progress_thumbnails": "Making thumbnails… {{done, number}} of {{total, number}}",
-    "summary_one": "{{count, number}} image in the index: {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone.",
-    "summary_other": "{{count, number}} images in the index: {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone.",
-    "summary_stopped_one": "Stopped; {{count, number}} image indexed so far. The next run goes on from there.",
-    "summary_stopped_other": "Stopped; {{count, number}} images indexed so far. The next run goes on from there.",
+    "summary_one": "Folder read: {{count, number}} photo; {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone since the last time.",
+    "summary_other": "Folder read: {{count, number}} photos; {{added, number}} new, {{changed, number}} changed, {{removed, number}} gone since the last time.",
+    "summary_stopped_one": "Stopped; {{count, number}} photo read so far. Reading again goes on from there.",
+    "summary_stopped_other": "Stopped; {{count, number}} photos read so far. Reading again goes on from there.",
     "journal": "Journal of changes",
     "journal_empty": "No changes yet. Every change of a tool appears here and can be undone.",
     "files_one": "{{count, number}} file",
@@ -114,7 +114,12 @@
       "dates": "Dates",
       "duplicates": "Duplicates",
       "batch": "Batch"
-    }
+    },
+    "intro": "Tools for a photo archive: fix the dates, find duplicates and similar photos, make copies for a messenger. Nothing in your folder changes without a preview and your confirmation, and every change can be undone in the journal at the bottom.",
+    "why_archive": "Step 1. Spiegelmond reads the folder once and remembers the dates, sizes and fingerprints of the photos, so that the tools below work fast. The files are not changed. Next time only new and changed photos are read.",
+    "next_choose": "Choose the folder with your photos to begin.",
+    "next_read": "Now press \"Read the folder\". Then these tools appear:",
+    "why_journal": "Every change of the tools, with the values before it. \"Undo\" puts them back, also after a restart."
   },
   "units": {
     "b": "B",
@@ -294,7 +299,8 @@
     "season_2": "Summer",
     "season_3": "Autumn",
     "season_4": "Winter",
-    "overwrites": "Some of these photos already have a date taken; it will be replaced (you chose them, and it can be undone)."
+    "overwrites": "Some of these photos already have a date taken; it will be replaced (you chose them, and it can be undone).",
+    "why": "Finds photos whose date taken is missing or differs from the date in the file name or the file date, and fixes them after a preview. Galleries and phones sort by these dates."
   },
   "date_edit": {
     "title": "Date taken",
@@ -358,7 +364,8 @@
     "confirm_yes": "Yes, to the Recycle Bin",
     "all_done": "Done. Every batch is in the journal and can be undone (the files come back from the Recycle Bin).",
     "applied_one": "{{count, number}} file moved to the Recycle Bin.",
-    "applied_other": "{{count, number}} files moved to the Recycle Bin."
+    "applied_other": "{{count, number}} files moved to the Recycle Bin.",
+    "why": "Finds files that are byte for byte the same. You choose which copies go to the Recycle Bin; one file of every group always stays."
   },
   "similar": {
     "title": "Similar photos",
@@ -372,7 +379,8 @@
     "quality": "sharpness {{sharp}}, exposure {{exposure}}%",
     "to_compare": "compare",
     "compare_title": "Compare two frames",
-    "compare_keys": "+ / − zoom both, arrows move both, 0 fits, Ctrl+wheel and dragging work too; Esc closes."
+    "compare_keys": "+ / − zoom both, arrows move both, 0 fits, Ctrl+wheel and dragging work too; Esc closes.",
+    "why": "Finds series of nearly the same shots (bursts, retakes). ★ suggests the best frame; nothing is chosen for you."
   },
   "batch": {
     "title": "Batch processing",
@@ -405,7 +413,8 @@
     "confirm_yes": "Yes, make them",
     "all_done": "Done. Every batch is in the journal; undo moves its copies to the Recycle Bin.",
     "convert_jpeg": "JPEG",
-    "convert_png": "PNG"
+    "convert_png": "PNG",
+    "why": "Makes copies of the photos (smaller, another format, without GPS, named by date) in a new folder. The originals are never changed."
   },
   "fullscreen": {
     "enter": "Full screen ({{shortcut}})",
@@ -473,7 +482,7 @@
         "- Sichel never changes your files on its own. The only changes are the ones you ask for: Delete (to the Recycle Bin), Ctrl+S (rotation into the file), D (date taken).",
         "## Vollmond — tools for a photo archive",
         "- Everything Sichel can do, plus the Tools button (the wrench, amber) next to the mode switch.",
-        "- The Tools window works with a whole folder: index, dates, preparing photos for the phone, exact duplicates, similar photos, batch processing, the journal of changes.",
+        "- The Tools window works with a whole folder: reading the folder, dates, preparing photos for the phone, exact duplicates, similar photos, batch processing, the journal of changes. Every tool says under its title what it is for; every button explains itself when you point at it or reach it with Tab.",
         "- The tools are loaded only when the window opens, so the viewer stays as fast as in Sichel.",
         "## What changes when you switch",
         "- The accent colour: blue in Sichel, amber in Vollmond; the Tools button appears or disappears.",
@@ -490,11 +499,11 @@
         "- Deleting goes only to the Recycle Bin. Batch processing never overwrites originals: results go to a new folder.",
         "- Before a file is changed, its old values go to the journal of changes; every operation can be undone there.",
         "- A changed file is written next to the original, checked (the picture stays exactly the same) and only then put in place. A folder synced to a cloud or on the network gets a warning first.",
-        "## 1. Photo archive and index — always the first step",
+        "## 1. Photo archive: choose and read the folder — always the first step",
         "- Ctrl+M → Vollmond, then the Tools button (wrench).",
         "- \"Choose folder\" — the folder of your archive. \"With subfolders\" also takes everything inside it.",
-        "- \"Index\": Spiegelmond reads which photos are there, their dates and camera data, a fingerprint of each file and the thumbnails. With progress and Stop; nothing in the photos changes.",
-        "- The second time it is quick: only new and changed files are read. The other tools appear after indexing.",
+        "- \"Read the folder\": Spiegelmond reads which photos are there, their dates and camera data, a fingerprint of each file and the thumbnails, into its own index outside the folder. With progress and Stop; nothing in the photos changes.",
+        "- The second time it is quick: only new and changed files are read. The other tools appear after reading the folder; until then the window lists them and says what to press.",
         "## 2. Dates: check and fix",
         "- Why: phone galleries and many programs sort by the date taken inside the file; photos from WhatsApp, Telegram or old phones often lack it, and copying resets the file date.",
         "- \"Show the dates\": a table with the date taken (EXIF), the date in the file name (IMG_20230512_143000, PXL_…, WhatsApp, Telegram, screenshots) and the file date. Filters: all, mismatches, no date taken.",
@@ -523,5 +532,58 @@
         "- At the bottom of the Tools window: every operation with its time, tool and number of files. \"Undo\" puts the old values back the same safe way. The journal survives a restart."
       ]
     }
+  },
+  "tips": {
+    "choose_folder": "The folder of the photo archive the tools work on. Nothing in it changes until you confirm a preview.",
+    "subfolders": "Also read and work on the photos in all folders inside it.",
+    "read": "Reads the dates, sizes and fingerprints of the photos into Spiegelmond's own index (outside the folder). The photos are not changed.",
+    "stop": "Stops now; what was read so far is kept, the next time goes on from there.",
+    "undo": "Puts back the values from before this change (the files from the Recycle Bin), through the same safe preview-free path.",
+    "dates_show": "Shows a table of all photos with their dates: taken (inside the file), from the file name, the file date, and what it should be. Nothing changes.",
+    "transfer": "Checks what a phone gallery would sort wrongly after copying (photos without a date taken, PNG without dates). Nothing changes.",
+    "filter": "Which photos the table shows: all, those whose dates disagree, or those without a date taken.",
+    "choose_shown": "Choose or unchoose all photos the table shows, for setting their dates by hand.",
+    "col_taken": "The date taken stored inside the photo (EXIF), as the camera or phone wrote it.",
+    "col_from_name": "A date found in the file name, e.g. IMG_20240512_143000.jpg.",
+    "col_modified": "The date of the file in Windows; copying and editing change it.",
+    "col_proposed": "The date Spiegelmond would set. Only shown, nothing changes before the preview.",
+    "dates_preview": "Lists every change, \"was → will be\", before anything is written. Applying is a separate button.",
+    "with_suspicious": "Dates in the future or before 1990 are left alone unless you tick this.",
+    "manual_how": "How to set the dates of the chosen photos: one date, a series with a step, a shift, or an approximate period.",
+    "manual_preview": "Shows \"was → will be\" for the chosen photos; nothing is written yet.",
+    "apply": "Writes this batch after one more question. Only the dates change, never the pixels; it goes into the journal and can be undone.",
+    "confirm": "Yes: write this batch now. It can be undone in the journal.",
+    "dup_find": "Compares the photos of the folder byte for byte and lists the groups of identical files. Nothing is deleted.",
+    "protect": "A folder whose files are never chosen for the Recycle Bin, even by hand.",
+    "unprotect": "Removes the protection of this folder.",
+    "dup_choose": "Chosen files go to the Recycle Bin after the preview; the last file of a group cannot be chosen.",
+    "dup_preview": "Lists what goes to the Recycle Bin and what stays, before anything moves.",
+    "similar_threshold": "Left: only nearly identical shots; right: also photos that merely look alike.",
+    "similar_find": "Looks for series of similar photos by their thumbnails. Nothing is deleted.",
+    "compare": "Shows the two photos ticked \"compare\" side by side, zoomed together.",
+    "to_compare": "Tick two photos to compare them side by side.",
+    "preset": "Fills in the settings of this preset.",
+    "delete_preset": "Deletes this preset (not any photos).",
+    "resize": "Copies get at most this many pixels on the long side.",
+    "fit": "Copies are made smaller until the file is at most this size.",
+    "convert": "The format of the copies: as the original, JPEG or PNG.",
+    "metadata": "What stays inside the copies: everything, everything but the GPS position, or nothing.",
+    "rename": "Names the copies by their date taken, by this pattern.",
+    "preset_name": "A name for the settings above, to use them again with one click.",
+    "save_preset": "Saves the settings above as a preset.",
+    "out_dir": "A new folder for the copies. It must be another folder than the photos; the originals are never changed.",
+    "batch_preview": "Lists which copies will be made and how big, before anything is written.",
+    "apply_bin": "Moves this batch to the Recycle Bin after one more question. It goes into the journal; \"Undo\" brings the files back.",
+    "confirm_bin": "Yes: move this batch to the Recycle Bin now. \"Undo\" in the journal brings it back.",
+    "apply_copies": "Makes this batch of copies after one more question. It goes into the journal; \"Undo\" moves the copies to the Recycle Bin.",
+    "confirm_copies": "Yes: make this batch of copies now. The originals stay as they are.",
+    "cancel": "No: nothing is written, the preview stays.",
+    "more": "Shows the next groups of the list.",
+    "dates_row": "Choose this photo to set its date by hand below.",
+    "manual_date": "The date and time to set (the first one of a series).",
+    "manual_step": "How many minutes apart the photos of the series get, in their present order.",
+    "manual_shift": "How far to move the dates taken, e.g. −1 hour after a wrong camera clock.",
+    "approx_year": "The year of the photos when the exact date is unknown (an old scan).",
+    "approx_part": "The part of the year; the date is set to its middle."
   }
 }

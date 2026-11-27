@@ -1078,3 +1078,38 @@ body {
   color: var(--text);
   pointer-events: none;
 }
+
+/* IV-24: the one hint of the Vollmond tools, under the control the mouse or the focus is on. */
+.tip {
+  position: fixed;
+  z-index: 300;
+  max-width: 320px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--bg) 40%, transparent);
+}
+
+/* IV-24: "what is this for" under the heading of every tool, and the next step on empty screens. */
+.tools__why {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+}
+
+.tools__next {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.tools__locked {
+  margin: 4px 0 0 1.2em;
+  padding: 0;
+  color: var(--text-muted);
+}
