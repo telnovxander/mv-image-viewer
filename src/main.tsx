@@ -2,9 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import { Splash } from "./components/Splash";
+import { guardPageZoom } from "./lib/pagezoom";
 import { initSettings } from "./lib/settings";
 import { SPLASH_DELAY_MS } from "./lib/splash";
 import "./styles.css";
+
+// IV-22: the WebView never zooms the whole page; Ctrl+wheel and Ctrl+plus/minus zoom the photo.
+guardPageZoom(window);
 
 const element = document.getElementById("root");
 if (element) {

@@ -405,6 +405,10 @@
     "convert_jpeg": "JPEG",
     "convert_png": "PNG"
   },
+  "zoom": {
+    "in": "Vergrößern ({{shortcut}})",
+    "out": "Verkleinern ({{shortcut}})"
+  },
   "slideshow": {
     "start": "Diashow starten ({{shortcut}})",
     "stop": "Diashow beenden ({{shortcut}})"
@@ -428,7 +432,7 @@
         "- Die Pfeile am linken und rechten Fensterrand tun dasselbe mit der Maus.",
         "- T zeigt den Filmstreifen mit Miniaturen unten; ein Klick geht zu diesem Foto.",
         "## Zoom und Verschieben",
-        "- Strg+Mausrad (oder Zusammenziehen auf dem Touchpad) zoomt zum Mauszeiger, Strg+Plus und Strg+Minus zur Mitte.",
+        "- Strg+Mausrad (oder Zusammenziehen auf dem Touchpad) zoomt zum Mauszeiger, Strg+Plus und Strg+Minus sowie die Lupen-Schaltflächen oben zur Mitte. Das Mausrad ohne Strg blättert zum nächsten Foto.",
         "- Strg+Klick vergrößert einen Schritt am Klickpunkt, Strg+Alt+Klick verkleinert einen Schritt.",
         "- Doppelklick wechselt zwischen „ganzes Foto“ und 100 % am Klickpunkt. 1 — 100 %, W — fensterbreit, Strg+0 — ganzes Foto.",
         "- Ein vergrößertes Foto wird mit der Maus gezogen oder mit den Pfeiltasten verschoben.",

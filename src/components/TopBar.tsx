@@ -1,4 +1,4 @@
-import { FolderOpen, Pause, Play, Settings as SettingsIcon, Wrench } from "lucide-react";
+import { FolderOpen, Pause, Play, Settings as SettingsIcon, Wrench, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Mode } from "../lib/settings";
 import { HelpMenu, type HelpItem } from "./HelpMenu";
@@ -19,6 +19,9 @@ interface TopBarProps {
   slideshow: boolean;
   canSlideshow: boolean;
   onSlideshow: () => void;
+  /** The magnifiers (IV-22): one zoom step out (-1) or in (1), as Ctrl+minus / plus. */
+  canZoom: boolean;
+  onZoom: (direction: 1 | -1) => void;
   onLanguage: (code: string) => void;
   /** The mouse is over the bar. */
   onHover: (inside: boolean) => void;
@@ -28,7 +31,7 @@ interface TopBarProps {
 
 /** The bar over the image: it appears when the mouse moves and hides again after a moment. */
 export function TopBar(props: TopBarProps) {
-  const { mode, visible, onOpen, onToggleMode, onTools, onSettings, onHelp, onHelpMenu, slideshow, canSlideshow, onSlideshow, onLanguage, onHover, onKeyboardFocus } = props;
+  const { mode, visible, onOpen, onToggleMode, onTools, onSettings, onHelp, onHelpMenu, slideshow, canSlideshow, onSlideshow, canZoom, onZoom, onLanguage, onHover, onKeyboardFocus } = props;
   const { t } = useTranslation();
   const modeName = mode === "sichel" ? "Sichel" : "Vollmond";
   const slideLabel = t(slideshow ? "slideshow.stop" : "slideshow.start", { shortcut: t("keys.Space") });
@@ -60,6 +63,12 @@ export function TopBar(props: TopBarProps) {
       )}
       <button type="button" className="icon-button" onClick={onSlideshow} disabled={!canSlideshow} aria-pressed={slideshow} title={slideLabel} aria-label={slideLabel}>
         {slideshow ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
+      </button>
+      <button type="button" className="icon-button" onClick={() => onZoom(-1)} disabled={!canZoom} title={t("zoom.out", { shortcut: "Ctrl+−" })} aria-label={t("zoom.out", { shortcut: "Ctrl+−" })}>
+        <ZoomOut size={16} aria-hidden="true" />
+      </button>
+      <button type="button" className="icon-button" onClick={() => onZoom(1)} disabled={!canZoom} title={t("zoom.in", { shortcut: "Ctrl++" })} aria-label={t("zoom.in", { shortcut: "Ctrl++" })}>
+        <ZoomIn size={16} aria-hidden="true" />
       </button>
       <div className="topbar__spacer" />
       <LanguageSelect onChange={onLanguage} />

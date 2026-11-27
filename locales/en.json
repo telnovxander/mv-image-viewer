@@ -405,6 +405,10 @@
     "convert_jpeg": "JPEG",
     "convert_png": "PNG"
   },
+  "zoom": {
+    "in": "Zoom in ({{shortcut}})",
+    "out": "Zoom out ({{shortcut}})"
+  },
   "slideshow": {
     "start": "Start the slideshow ({{shortcut}})",
     "stop": "Stop the slideshow ({{shortcut}})"
@@ -428,7 +432,7 @@
         "- The arrows at the left and right edges of the window do the same with the mouse.",
         "- T shows the film strip of thumbnails at the bottom; a click goes to that photo.",
         "## Zoom and moving",
-        "- Ctrl+wheel (or a touchpad pinch) zooms to the mouse pointer, Ctrl+plus and Ctrl+minus to the centre.",
+        "- Ctrl+wheel (or a touchpad pinch) zooms to the mouse pointer, Ctrl+plus and Ctrl+minus — and the magnifier buttons in the top bar — to the centre. The wheel without Ctrl turns to the next photo.",
         "- Ctrl+click zooms one step in at the clicked point, Ctrl+Alt+click one step out.",
         "- Double-click switches between \"whole photo\" and 100 % at the clicked point. 1 — 100 %, W — as wide as the window, Ctrl+0 — whole photo.",
         "- An enlarged photo is moved by dragging with the mouse or with the arrow keys.",

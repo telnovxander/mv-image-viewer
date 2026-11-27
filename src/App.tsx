@@ -20,6 +20,7 @@ import { SettingsDialog } from "./components/SettingsDialog";
 import { ToolsDialog } from "./components/ToolsDialog";
 import { TopBar } from "./components/TopBar";
 import { applyBatch, undoPlan, applyRotation, copyImage, copyPath, exifOf, heifAvailable, openWith, restoreFile, revealFile, trashFile, type Trashed, imageUrl, inTauri, initialPath, isBackendError, listFolder, openImage, openMap, pathUrl, planRotation, undoRotation, type ExifInfo, type FolderEntry, type ImageFile, type JournalEntry, type OrientationPlan } from "./lib/backend";
+import { requestZoom } from "./lib/pagezoom";
 import { rotate, type Rotation, type Size } from "./lib/zoom";
 import { afterRemoval, relocate, step, type Edge } from "./lib/browse";
 import { ImageCache, neighbours } from "./lib/preload";
@@ -611,6 +612,8 @@ export function App() {
         slideshow={slideshow}
         canSlideshow={entries.length > 1}
         onSlideshow={toggleSlideshow}
+        canZoom={image !== null && !broken}
+        onZoom={requestZoom}
         onLanguage={changeLanguage}
         onHover={setMouseOnBar}
         onKeyboardFocus={setKeyOnBar}

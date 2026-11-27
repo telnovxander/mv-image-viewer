@@ -19,6 +19,7 @@ import {
   type Size,
   type View,
 } from "../lib/zoom";
+import { ZOOM_EVENT } from "../lib/pagezoom";
 
 interface ImageViewProps {
   src: string;
@@ -101,28 +102,50 @@ export function ImageView({ src, onWheelPage, alt, rotation, onError, onLoad }: 
 
   const centre = useCallback(() => ({ x: viewport.width / 2, y: viewport.height / 2 }), [viewport]);
 
-  // Ctrl+wheel and the pinch (Chromium reports it as Ctrl+wheel) zoom to the cursor. The listener
-  // is not passive, so the WebView does not zoom the whole page. A plain wheel is left to IV-03.
+  // A plain wheel browses the folder while the image is fitted (IV-03).
   useEffect(() => {
     const element = stage.current;
     if (!element) return;
     const onWheel = (event: WheelEvent) => {
-      if (!event.ctrlKey) {
-        // A plain wheel browses the folder while the image is fitted (IV-03).
-        if (view?.mode === "fit" && event.deltaY !== 0) {
-          event.preventDefault();
-          onWheelPage(event.deltaY > 0 ? 1 : -1);
-        }
-        return;
+      if (event.ctrlKey || event.metaKey) return;
+      if (view?.mode === "fit" && event.deltaY !== 0) {
+        event.preventDefault();
+        onWheelPage(event.deltaY > 0 ? 1 : -1);
       }
-      event.preventDefault();
-      const rect = element.getBoundingClientRect();
-      const at = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-      change((v, img) => zoomAt(v, v.scale * wheelFactor(event.deltaY), at, img, viewport));
     };
     element.addEventListener("wheel", onWheel, { passive: false });
     return () => element.removeEventListener("wheel", onWheel);
-  }, [change, viewport, view?.mode, onWheelPage]);
+  }, [view?.mode, onWheelPage]);
+
+  // Ctrl+wheel and the pinch (Chromium reports it as Ctrl+wheel) zoom to the cursor, wherever in the
+  // window it is (IV-22): the top bar, the side arrows and the filmstrip lie over the photo and used
+  // to keep the wheel from it. Dialogs (Compare) have their own zoom. The page itself never zooms
+  // (guardPageZoom in main.tsx).
+  useEffect(() => {
+    const element = stage.current;
+    if (!element) return;
+    const onCtrlWheel = (event: WheelEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.deltaY === 0) return;
+      if (event.target instanceof Element && event.target.closest("[role=dialog]")) return;
+      event.preventDefault();
+      const rect = element.getBoundingClientRect();
+      const inside = event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+      const at = inside ? { x: event.clientX - rect.left, y: event.clientY - rect.top } : centre();
+      change((v, img) => zoomAt(v, v.scale * wheelFactor(event.deltaY), at, img, viewport));
+    };
+    window.addEventListener("wheel", onCtrlWheel, { capture: true, passive: false });
+    return () => window.removeEventListener("wheel", onCtrlWheel, { capture: true });
+  }, [change, centre, viewport]);
+
+  // The magnifier buttons of the top bar: one step in or out, to the centre (IV-22).
+  useEffect(() => {
+    const onZoomRequest = (event: Event) => {
+      const direction = (event as CustomEvent<1 | -1>).detail;
+      change((v, img) => zoomAt(v, direction > 0 ? v.scale * KEY_STEP : v.scale / KEY_STEP, centre(), img, viewport));
+    };
+    window.addEventListener(ZOOM_EVENT, onZoomRequest);
+    return () => window.removeEventListener(ZOOM_EVENT, onZoomRequest);
+  }, [change, centre, viewport]);
 
   useEffect(() => {
     // Capture phase: this runs before the browsing keys of App, so arrows move an enlarged image
